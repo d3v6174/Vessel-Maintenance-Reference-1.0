@@ -9,8 +9,17 @@
 *{box-sizing:border-box;margin:0;padding:0}
 :root{--r:#B81C2E;--dk:#141928;--bg:#f1f5f9;--wh:#fff;--bd:#e2e8f0;--t1:#0f172a;--t2:#475569;--t3:#94a3b8;--green:#10b981;--amber:#f59e0b;--blue:#2563eb}
 body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--t1);height:100vh;overflow:hidden}
-#app{display:grid;grid-template-rows:52px 1fr;grid-template-columns:205px 1fr;grid-template-areas:"hdr hdr""sb mn";height:100vh}
+#app{display:grid;grid-template-rows:52px 1fr;grid-template-columns:1fr;grid-template-areas:"hdr""mn";height:100vh}
 #hdr{grid-area:hdr;background:var(--r);display:flex;align-items:center;padding:0 16px;gap:12px;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+#sb-toggle{display:flex;align-items:center;justify-content:center;background:#fff;border:none;cursor:pointer;padding:7px 13px;border-radius:8px;color:var(--r);font-size:18px;line-height:1;flex-shrink:0;gap:6px;transition:background .15s;box-shadow:0 2px 6px rgba(0,0,0,.18)}
+#sb-toggle:hover{background:#f1f5f9}
+#sb-toggle span{font-size:12px;font-weight:700;letter-spacing:.04em;color:var(--r)}
+#sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:199}
+#sb-overlay.open{display:block}
+#sb{position:fixed;top:52px;left:0;bottom:0;width:220px;z-index:200;background:var(--dk);overflow-y:auto;border-right:1px solid rgba(255,255,255,.04);transform:translateX(-100%);transition:transform .26s cubic-bezier(.4,0,.2,1)}
+#sb.open{transform:translateX(0)}
+#sb::-webkit-scrollbar{width:3px}
+#sb::-webkit-scrollbar-thumb{background:rgba(255,255,255,.08)}
 .hico{font-size:20px;color:rgba(255,255,255,.8)}
 .hco{font-size:9.5px;color:rgba(255,255,255,.5);letter-spacing:.07em;text-transform:uppercase}
 .hsys{font-size:13.5px;font-weight:600;color:#fff}
@@ -33,9 +42,6 @@ body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:v
 .mitem.active i{color:var(--r)}
 .chip.amb .d{background:var(--amber)}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
-#sb{grid-area:sb;background:var(--dk);overflow-y:auto;border-right:1px solid rgba(255,255,255,.04)}
-#sb::-webkit-scrollbar{width:3px}
-#sb::-webkit-scrollbar-thumb{background:rgba(255,255,255,.08)}
 .sg{font-size:9px;font-weight:600;color:rgba(255,255,255,.2);letter-spacing:.13em;text-transform:uppercase;padding:14px 13px 3px}
 .sg.emg{color:rgba(239,100,100,.5)}
 .ni.emg-item i{color:rgba(239,130,130,.4)}
@@ -226,6 +232,7 @@ body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:v
 </div>
 <div id="app">
 <header id="hdr">
+  <button id="sb-toggle" onclick="toggleSidebar()"><i class="ti ti-menu-2"></i><span>Nav</span></button>
   <i class="ti ti-ship hico"></i>
   <div><div class="hsys">Vessel Maintenance Reference</div></div>
   <div class="hsp"></div>
@@ -233,6 +240,7 @@ body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:v
     <i class="ti ti-menu-2"></i>Menu
   </button>
 </header>
+<div id="sb-overlay" onclick="closeSidebar()"></div>
 <div id="menu-drop">
   <div class="mitem" onclick="navTo('search')"><i class="ti ti-search"></i>Search</div>
   <div class="mitem" onclick="navTo('quickref')"><i class="ti ti-list-check"></i>Quick Reference</div>
@@ -249,6 +257,22 @@ function acknowledge(){
   o.style.transition='opacity .3s';
   o.style.opacity='0';
   setTimeout(()=>o.remove(),320);
+}
+function toggleSidebar(){
+  const sb=document.getElementById('sb');
+  const ov=document.getElementById('sb-overlay');
+  const btn=document.getElementById('sb-toggle');
+  const isOpen=sb.classList.toggle('open');
+  ov.classList.toggle('open',isOpen);
+  btn.querySelector('i').className=isOpen?'ti ti-x':'ti ti-menu-2';
+  btn.querySelector('span').textContent=isOpen?'Close':'Nav';
+}
+function closeSidebar(){
+  document.getElementById('sb').classList.remove('open');
+  document.getElementById('sb-overlay').classList.remove('open');
+  const btn=document.getElementById('sb-toggle');
+  btn.querySelector('i').className='ti ti-menu-2';
+  btn.querySelector('span').textContent='Nav';
 }
 function toggleMenu(){
   document.getElementById('menu-drop').classList.toggle('open');
@@ -320,6 +344,7 @@ const SEC={
     ['pur','wind','Turbochargers & Air','Roots blower, turbo, air box, after-cooler',['Roots Blower','Turbo'],'ok','eng-turbo'],
     ['ora','bolt','Starting System','Air start motor, tanks, manifold, valves',['Air Start','Solenoid'],'ok','eng-start'],
     ['gra','settings','Governor & Controls','Woodward governor, overspeed trip',['Woodward','Overspeed'],'ok','eng-gov'],
+    ['tel','rotate-clockwise','B&A Pump','Before & After pump · Turbo pre-lube & post-lube',['Pre-Lube','Post-Lube'],'ok','eng-bapump'],
    ]},
   ]},
  drivetrain:{title:'Drive Train & Propulsion',sub:'Reduction gear, shafts, propellers, stern tubes',
@@ -339,7 +364,7 @@ const SEC={
   groups:[
    {l:'Control Stations',cards:[
     ['red','adjustments','Control Head — MFZP','Rexroth MFZP · Single-lever throttle/clutch',['Rexroth MFZP','Single Lever'],'ok','rx-head'],
-    ['ora','layout-sidebar','Wing Station (Remote)','Remote throttle/clutch — bridge wings',['Wing Ctrl','Remote'],'ok','rx-wing'],
+    ['ora','layout-sidebar','Auxiliary Controls','Secondary throttle/clutch station — wheelhouse',['Aux Ctrl','Secondary'],'ok','rx-wing'],
     ['gra','arrow-back-up','Feedback Units','Throttle & clutch position transducers',['Transducer','Feedback'],'ok','rx-feedback'],
    ]},
    {l:'Hydraulic System',cards:[
@@ -413,7 +438,6 @@ const SEC={
  deck:{title:'Deck Equipment',sub:'Mooring, towing, anchoring, capstans, navigation lights & signals',
   groups:[
    {l:'Mooring & Towing',cards:[
-    ['blue','anchor','Anchor & Windlass','Bow anchor, wildcat windlass, chain stopper',['Windlass','Chain Stopper'],'ok','deck-anchor'],
     ['ora','rotate','Bow Capstan','Electric capstan · Forward mooring lines',['Bow Capstan','Electric'],'ok','deck-capstan'],
     ['ora','rotate','Stern Capstan','Electric capstan · Stern mooring lines',['Stern Capstan','Electric'],'ok','deck-capstan'],
     ['red','arrow-right','Towing Knees & Bitts','Forward towing knees, bitts, timberheads',['Tow Knees','Bitts'],'ok','deck-towing'],
@@ -577,12 +601,47 @@ const QREF=[
 const MANUALS=[
  {t:'EMD 645 Engine Service Manual',m:'16-Cyl · 645-E, 645-E3 · Rev 2019',i:'book',c:'red',k:'emd645svc'},
  {t:'EMD 645 Parts Catalog',m:'Part numbers, assemblies, exploded views · Rev 2020',i:'list-details',c:'blue',k:'emd645parts'},
- {t:'Twin Disc MG-5202 Gear Manual',m:'Marine gear service & parts · Rev 2018',i:'settings-2',c:'ora',k:'twindisc'},
  {t:'Rexroth MFZP Controls Manual',m:'Hydraulic throttle/clutch · Wiring · Rev 2021',i:'adjustments',c:'pur',k:'rexroth'},
  {t:'Caterpillar Generator Manual',m:'C4.4 / C7 ACERT · SR4 Alternator · Service & electrical',i:'bolt',c:'yel',k:'catgen'},
  {t:'Cummins / Onan Generator Manual',m:'QSB6.7 / MDKBM Series · Service & electrical',i:'bolt',c:'grn',k:'cumminsgen'},
 ];
 const DET={
+ 'eng-bapump':{t:'B&A Pump — Before & After Turbo Lube',sys:'Main Engines',st:'ok',
+  desc:'The Before & After (B&A) pump is a dedicated electric-motor-driven oil pump that pre-lubes the turbocharger bearing before engine start and continues circulating oil through the turbo for a set period after engine shutdown. The turbocharger spins at extremely high RPM and its bearings depend entirely on pressurized oil film — starting the engine without pre-lube allows the turbo to spin up on dry bearings, causing immediate wear. After shutdown, the turbo continues spinning on inertia while residual heat from the exhaust soaks into the bearing housing; without continued oil flow, this heat bakes oil in the bearing clearances and causes coking that damages or destroys the bearing. The B&A pump prevents both failure modes.',
+  loc:'Engine room — typically mounted on or near the engine, connected into the main lube oil gallery or a dedicated turbo oil supply line. The timer/control unit is on the engine room panel or integrated into the engine control panel. Power from the 24VDC ship service circuit.',
+  specs:[['Type','Electric motor-driven gear or centrifugal pump'],['Power supply','24VDC ship service — must remain powered after engine shutdown for post-lube cycle'],['Pre-lube duration','Run until oil pressure is confirmed in turbo supply line — typically 2–3 minutes minimum before cranking'],['Post-lube duration','Continues running after shutdown per timer setting — verify correct duration on timer (typically 15–30 minutes)'],['Oil circuit','Connected to main lube oil gallery or dedicated turbo oil supply; same oil as engine (SAE 40 HD)'],['Pressure output','Should show measurable pressure at turbo oil inlet — typically 10–30 PSI at pre-lube flow rates'],['Timer control','Automatic timer initiates post-lube cycle on engine shutdown signal; manual override should also be available'],['CRITICAL','Never start engine if B&A pump fails to build pressure during pre-lube — turbo bearing damage begins immediately on dry start']],
+  parts:[
+   ['B&A Pump Motor/Pump Assembly','(by model — verify on pump nameplate)','Complete motor and pump unit — replace if motor fails or pump output drops below usable pressure','1/engine'],
+   ['Pump Gear Set / Impeller','(by pump model)','Internal wear element — replace if output pressure drops with motor running normally','1/pump'],
+   ['Pump Shaft Seal','(by pump model)','Oil seal at motor shaft — replace if oil appears at motor coupling','1/pump'],
+   ['Timer Control Module','(by installation — 24VDC)','Electronic timer controlling post-lube cycle duration — replace if post-lube does not initiate on shutdown','1/engine'],
+   ['Oil Supply Line (to turbo)','(by hose size and length)','Flexible hose from B&A pump outlet to turbo oil inlet — inspect for cracking or hardening','1/pump'],
+   ['Oil Return Line (from turbo)','(by hose size and length)','Gravity drain line from turbo back to sump — must flow freely; restriction causes oil backup at turbo seal','1/pump'],
+   ['Inline Check Valve','(by line size)','Prevents engine oil pressure from back-flowing through pump when engine is running','1/system'],
+   ['Pressure Gauge or Sender','(0–60 PSI)','Confirms B&A pump is building pressure during pre-lube cycle — install at turbo oil inlet if not already fitted','1/system'],
+  ],
+  maint:[
+   {t:'Run B&A pump before every engine start — confirm pressure',n:'Engage B&A pump and verify oil pressure builds at turbo supply line before cranking; if pump runs but no pressure is indicated, do not start engine — investigate before proceeding',i:'Before every start',b:'d'},
+   {t:'Verify post-lube timer initiates on every shutdown',n:'After securing engine: confirm B&A pump continues running; time how long it runs and compare to timer setting; a pump that stops immediately after shutdown is not protecting the turbo',i:'After every shutdown',b:'d'},
+   {t:'Check timer setting — verify correct post-lube duration',n:'Confirm timer is set to the correct post-lube duration per manufacturer recommendation — a timer set too short leaves the turbo unprotected during the heat soak period',i:'Monthly',b:'ann'},
+   {t:'Inspect pump output pressure with gauge',n:'Connect calibrated gauge at turbo oil inlet — compare to baseline; falling pressure indicates internal wear or suction restriction',i:'500 hrs',b:'h500'},
+   {t:'Inspect oil supply and return lines',n:'Check flexible hose condition at both ends — supply line carries pressurized oil; return line must drain freely by gravity; a kinked return line causes oil to back up past the turbo shaft seal',i:'Monthly',b:'ann'},
+   {t:'Check pump motor for noise or overheating',n:'Run B&A pump and listen for unusual noise; feel motor body for abnormal heat — a failing motor draws high current and may not survive a full post-lube cycle',i:'Monthly',b:'ann'},
+   {t:'Test manual override function',n:'Activate manual override at engine panel — pump must start immediately; manual override is the backup if the automatic timer fails on shutdown',i:'Monthly',b:'ann'},
+   {t:'Check inline check valve function',n:'With engine running and B&A pump off: verify no backflow through pump — a failed check valve allows engine oil pressure to push backward through the B&A pump causing damage',i:'1,000 hrs',b:'h1k'},
+  ],
+  probs:[
+   {p:'B&A pump runs but builds no pressure — pre-lube fails',
+    c:['Suction line is not submerged in oil — sump oil level low','Air leak on suction side — pump cannot prime','Internal gear or impeller worn — pump has lost output capacity','Check valve stuck closed — blocking pump outlet'],
+    s:['Check engine oil level first — if sump is low, B&A pump suction may be uncovered','Bleed air from suction: crack suction fitting slightly while pump runs — if air/bubbles come out, suction has an air leak','Test pump in isolation: disconnect outlet and pump into a container — if flow is good in open air, restriction or check valve is the issue','If pump output is weak in open air: internal wear; replace pump','DO NOT start engine without confirmed pre-lube pressure at turbo inlet']},
+   {p:'Post-lube cycle does not run — pump stops immediately on shutdown',
+    c:['Timer control module has failed','Power to B&A pump circuit lost when engine shuts down — wiring issue','Timer setting has been changed or reset to zero'],
+    s:['Immediately run B&A pump manually using the manual override — keep it running for the full required post-lube period; do not skip this step','Check 24VDC power to timer module after engine shutdown — if power is lost on shutdown, the circuit is incorrectly wired; timer needs its own always-on power feed','Test timer module: manually trigger the shutdown signal and observe timer response','If timer is failed: replace module; in the interim use manual override every shutdown without exception'],},
+   {p:'Post-lube cycle runs too short — timer cutting off early',
+    c:['Timer has drifted or been re-set to incorrect duration','Timer is correct but the engine cooldown signal is being sent too early'],
+    s:['Time the actual post-lube cycle with a stopwatch — compare to the specification on the timer label or installation record','If too short: adjust timer duration per manufacturer procedure; document the correct setting','If duration is intermittently short: timer is failing; replace module','Ensure post-lube duration is documented and known to all engineers — this is not a setting that should be changed without understanding the consequence']},
+  ]},
+
  'eng-cyl':{t:'Cylinder Packs — EMD 645E',sys:'Main Engines',st:'ok',
   desc:'The power assembly is the core of the EMD 645 engine. Each of the 16 cylinders contains a replaceable cast iron liner, trunk-type piston with three-ring pack, and forged steel connecting rod. The 645 designation refers to the 645 cubic inch displacement per cylinder. All 16 cylinders must deliver equal power — imbalance causes rough running and accelerated wear.',
   loc:'Engine block — V16 configuration, 8 cylinders per bank. A-bank (port side), B-bank (starboard side). Accessible from top deck by removing rocker covers.',
@@ -983,7 +1042,7 @@ const DET={
   ]},
  'rx-head':{t:'Rexroth MFZP Single-Lever Control Head',sys:'Rexroth Controls',st:'ok',
   desc:'The Rexroth MFZP single-lever control provides combined throttle and clutch operation from one lever. Pushing forward engages ahead gear and increases throttle simultaneously; pulling back engages reverse. The center detent is neutral. The system uses follow-up hydraulic valves — lever position directly controls a pressure signal to the engine governor and gear control valves.',
-  loc:'Pilothouse helm station (primary) — one lever per engine (port and starboard). Wing stations on port and starboard bridge wings.',
+  loc:'Wheelhouse — primary control station. Auxiliary control station also located in the wheelhouse for secondary operator access.',
   specs:[['Manufacturer','Bosch Rexroth AG'],['Model','MFZP (Mechanical Follow-up Zero Point)'],['Function','Combined single-lever throttle + clutch control'],['Signal type','Hydraulic pressure signal to governor and gear valve'],['Operating pressure','150–400 PSI follow-up signal pressure'],['Lever detents','Reverse — Neutral — Forward'],['Neutral detent','Spring-loaded positive click — must be firm']],
   parts:[
    ['MFZP Control Head Assembly','R902600XXX','Complete single-lever control head — order by model number on nameplate','1/station'],
@@ -1047,39 +1106,39 @@ const DET={
     c:['Filter element is completely clogged with contamination','Cold thick oil during startup forcing bypass (normal if only at cold start)'],
     s:['If red at normal operating temperature: CHANGE ELEMENT NOW — system is running on unfiltered oil','Cut open the old element and examine the contamination — metal particles mean a component is failing','After replacing element: if it clogs again quickly, flush entire system and find contamination source']},
   ]},
- 'rx-wing':{t:'Wing Station Controls — Rexroth Remote',sys:'Rexroth Controls',st:'ok',
-  desc:'The port and starboard wing stations are remote single-lever throttle and clutch control heads mounted on the bridge wings, giving the operator the same full control authority as the pilothouse head. Only one station can be active at a time — an interlock/transfer system prevents simultaneous control from two stations. The wing stations share the same Rexroth hydraulic circuit; a failure in the shared circuit affects all stations together.',
-  loc:'Port bridge wing and starboard bridge wing — exterior of pilothouse. Each station is weatherproofed and typically mounted on a fold-down or fixed console. Hydraulic lines and electrical interlocks run from each wing station into the pilothouse and down to the engine room.',
-  specs:[['Station type','Remote single-lever MFZP (same internal valve as pilothouse head)'],['Active station','Only one station active at a time — interlock prevents dual control'],['Transfer method','Transfer valve or electrical interlock — activating wing station takes control from pilothouse'],['Weatherproofing','IP56 or better — all connectors must be sealed against rain and spray'],['Hydraulic signal','Same 150–400 PSI follow-up pressure as pilothouse head'],['Return to pilothouse','Transfer back must be confirmed at the new active station'],['NOTE','Never leave wing station active and unattended — move control back to pilothouse']],
+ 'rx-wing':{t:'Auxiliary Controls — Rexroth Secondary Station',sys:'Rexroth Controls',st:'ok',
+  desc:'The auxiliary control station is a secondary single-lever throttle and clutch control head located in the wheelhouse, giving a second operator the same full control authority as the primary head. Only one station can be active at a time — an interlock/transfer system prevents simultaneous control from both stations. The auxiliary station shares the same Rexroth hydraulic circuit; a failure in the shared circuit affects all stations together.',
+  loc:'Wheelhouse — auxiliary control station positioned for secondary operator access. Hydraulic lines and electrical interlocks run between the primary and auxiliary stations and down to the engine room.',
+  specs:[['Station type','Secondary single-lever MFZP (same internal valve as primary head)'],['Active station','Only one station active at a time — interlock prevents dual control'],['Transfer method','Transfer valve or electrical interlock — activating auxiliary station takes control from primary'],['Hydraulic signal','Same 150–400 PSI follow-up pressure as primary head'],['Return to primary','Transfer back must be confirmed at the new active station'],['NOTE','Never leave auxiliary station active and unattended — return control to primary when done']],
   parts:[
-   ['Wing Station Control Head (MFZP)','R902600XXX','Complete single-lever wing station head — same valve internals as pilothouse; order by model number on nameplate','1/station'],
-   ['Wing Station Internal O-ring Kit','R902601XXX','Full internal seal kit — rebuild kit for wing station head','1 kit/head'],
-   ['Wing Station Neutral Detent Spring','R902602XXX','Detent spring and ball assembly — replace if neutral is vague or missing','1/head'],
+   ['Auxiliary Control Head (MFZP)','R902600XXX','Complete single-lever secondary head — same valve internals as primary; order by model number on nameplate','1/station'],
+   ['Auxiliary Head Internal O-ring Kit','R902601XXX','Full internal seal kit — rebuild kit for auxiliary control head','1 kit/head'],
+   ['Neutral Detent Spring Assembly','R902602XXX','Detent spring and ball assembly — replace if neutral is vague or missing','1/head'],
    ['Station Transfer / Selector Valve','R902630XXX','Hydraulic selector valve routing control to active station','1/system'],
-   ['Wing Station Mounting Gasket','R902603XXX','Weatherproof face gasket — seals hydraulic ports at mounting surface','1/station'],
-   ['Weatherproof Connector (hydraulic)','R902635XXX','Sealed quick-disconnect hydraulic connector — wing station to hull penetration','2/station'],
-   ['Wing Station Cover / Guard','R902640XXX','Protective cover for when wing station is not in use — protects lever and controls','1/station'],
+   ['Mounting Gasket','R902603XXX','Face gasket — seals hydraulic ports at mounting surface','1/station'],
+   ['Weatherproof Connector (hydraulic)','R902635XXX','Sealed quick-disconnect hydraulic connector — auxiliary station connection','2/station'],
+   ['Lever Guard / Cover','R902640XXX','Protective cover for auxiliary station when not in use — protects lever and controls','1/station'],
   ],
   maint:[
-   {t:'Test wing station transfer — take control from pilothouse',n:'Activate each wing station in calm conditions at the dock — confirm transfer occurs cleanly and only the activated station has control',i:'Monthly',b:'ann'},
-   {t:'Check lever movement — full range, smooth, both directions',n:'Wing stations are exposed to weather; corrosion can cause stiffer levers than the pilothouse head; work lever through full range',i:'Monthly',b:'ann'},
-   {t:'Verify neutral detent is firm at each wing station',n:'Neutral must click positively and hold — a weak detent on a wing station that drifts out of neutral while unattended is a serious hazard',i:'Monthly',b:'ann'},
+   {t:'Test auxiliary station transfer — take control from primary',n:'Activate the auxiliary station at the dock — confirm transfer occurs cleanly and only the activated station has control',i:'Monthly',b:'ann'},
+   {t:'Check lever movement — full range, smooth, both directions',n:'Work lever through full range in both directions — should move smoothly with no sticking, binding, or rough spots',i:'Monthly',b:'ann'},
+   {t:'Verify neutral detent is firm at auxiliary station',n:'Neutral must click positively and hold — a weak detent that drifts out of neutral while unattended is a serious hazard',i:'Monthly',b:'ann'},
    {t:'Inspect weatherproof seals and connector covers',n:'Check that all port covers and dust caps are installed when station is not in use; salt spray and rain destroy unprotected hydraulic fittings quickly',i:'Monthly',b:'ann'},
-   {t:'Test return-to-pilothouse function',n:'After activating each wing station: confirm pilothouse can take back control correctly; verify interlock prevents dual-station simultaneous operation',i:'Monthly',b:'ann'},
-   {t:'Check hydraulic line connections at wing stations',n:'Inspect weatherproof hydraulic connectors at each station for weeping — even small leaks indicate seal wear in a high-vibration location',i:'Annually',b:'ann'},
-   {t:'Flush and replace hydraulic fluid (full system)',n:'Wing stations share the same hydraulic circuit — fluid change covers all stations; perform with pilothouse head service',i:'Every 2 years',b:'h2k'},
-   {t:'Rebuild wing station heads (internal O-ring kit)',n:'Replace all internal seals and O-rings; inspect valve spool for scoring or corrosion — wing stations see more moisture exposure than pilothouse heads',i:'5 years or on condition',b:'dd'},
+   {t:'Test return-to-primary function',n:'After activating auxiliary station: confirm primary can take back control correctly; verify interlock prevents simultaneous operation from both stations',i:'Monthly',b:'ann'},
+   {t:'Check hydraulic line connections at auxiliary station',n:'Inspect hydraulic connectors at auxiliary station for weeping — even small leaks indicate seal wear',i:'Annually',b:'ann'},
+   {t:'Flush and replace hydraulic fluid (full system)',n:'Auxiliary station shares the same hydraulic circuit — fluid change covers all stations; perform with primary head service',i:'Every 2 years',b:'h2k'},
+   {t:'Rebuild auxiliary control head (internal O-ring kit)',n:'Replace all internal seals and O-rings; inspect valve spool for scoring or corrosion',i:'5 years or on condition',b:'dd'},
   ],
   probs:[
-   {p:'Wing station will not take control — transfer does not work',
-    c:['Station transfer/selector valve not shifting — corrosion or contamination','Electrical interlock signal not reaching wing station','Hydraulic line to wing station kinked, blocked, or disconnected'],
-    s:['Verify selector valve is receiving correct signal to shift — check for hydraulic or electrical input to valve','Trace hydraulic supply line from selector valve to wing station — look for kinked hose or disconnected fitting','Check electrical interlock continuity at wing station connection — corrosion at weatherproof connectors is the most common failure','If selector valve shifts but wing station still does not respond: the wing station head itself may have a stuck spool','Clean and inspect selector valve spool for corrosion deposits — flush with clean hydraulic fluid']},
-   {p:'Wing station controls feel stiff or lever does not return to neutral',
+   {p:'Auxiliary station will not take control — transfer does not work',
+    c:['Station transfer/selector valve not shifting — corrosion or contamination','Electrical interlock signal not reaching auxiliary station','Hydraulic line to auxiliary station kinked, blocked, or disconnected'],
+    s:['Verify selector valve is receiving correct signal to shift — check for hydraulic or electrical input to valve','Trace hydraulic supply line from selector valve to auxiliary station — look for kinked hose or disconnected fitting','Check electrical interlock continuity at auxiliary station connection','If selector valve shifts but auxiliary station still does not respond: the control head itself may have a stuck spool','Clean and inspect selector valve spool for corrosion deposits — flush with clean hydraulic fluid']},
+   {p:'Auxiliary station controls feel stiff or lever does not return to neutral',
     c:['Corrosion or salt deposits inside control head valve body','Cold thick hydraulic fluid at startup','Neutral detent spring broken or weakened'],
-    s:['Allow 10–15 minute warm-up before operating wing stations in cold weather — cold fluid resists movement','If stiffness persists when warm: flush hydraulic system with clean fluid and note if stiffness improves','Remove wing station cover and manually work lever — if stiff at the mechanism itself, internal corrosion is present','Test neutral detent spring — press lever to neutral and release; if it does not stay, replace detent spring assembly','If internal corrosion is found: rebuild with O-ring kit; salt spray causes accelerated corrosion vs pilothouse heads']},
-   {p:'Hydraulic leak at wing station connection fittings',
+    s:['Allow 10–15 minute warm-up before operating the auxiliary station in cold weather — cold fluid resists movement','If stiffness persists when warm: flush hydraulic system with clean fluid and note if stiffness improves','Remove auxiliary station cover and manually work lever — if stiff at the mechanism itself, internal corrosion is present','Test neutral detent spring — press lever to neutral and release; if it does not stay, replace detent spring assembly','If internal corrosion is found: rebuild with O-ring kit; salt spray causes accelerated corrosion vs pilothouse heads']},
+   {p:'Hydraulic leak at auxiliary station connection fittings',
     c:['Weatherproof connector O-ring deteriorated from UV and salt exposure','Fitting vibrated loose from hull movement and wave action','Cover cap was missing — fitting exposed to salt water'],
-    s:['Identify leak source — is it at the quick-disconnect connector, a fixed fitting, or the head mounting gasket?','For quick-disconnect: disconnect and inspect O-ring seals; replace O-ring kit if flattened or cracked','Tighten all fixed fittings to spec — wing station locations experience more vibration than engine room','Replace any missing dust caps or port covers immediately after repair','Apply Tef-Gel or similar anti-seize/anti-corrosion compound to all stainless and brass fittings on reassembly']},
+    s:['Identify leak source — is it at the quick-disconnect connector, a fixed fitting, or the head mounting gasket?','For quick-disconnect: disconnect and inspect O-ring seals; replace O-ring kit if flattened or cracked','Tighten all fixed fittings to spec — auxiliary station location may experience vibration — inspect fittings annually','Replace any missing dust caps or port covers immediately after repair','Apply Tef-Gel or similar anti-seize/anti-corrosion compound to all stainless and brass fittings on reassembly']},
   ]},
 
  'rx-feedback':{t:'Throttle & Clutch Feedback Units',sys:'Rexroth Controls',st:'ok',
@@ -1136,7 +1195,7 @@ const DET={
   probs:[
    {p:'Hydraulic fluid level dropping consistently — apparent fluid loss',
     c:['External leak from pump shaft seal, hose fitting, or control head','Fluid pushed overboard via cylinder bypass if a ram seal has failed','Breather sucking fluid out if system is overfilled'],
-    s:['Identify the loss rate: check level daily and note amount lost per operating hour','Visually inspect all external components — pump, filter housing, hoses, control heads, wing stations — for wetness or oil film','Check all cylinder/ram rod seals for weeping — even slow rod seal weeping adds up over time','Verify reservoir is not overfilled — above maximum mark causes fluid to be pushed out through the breather','If no external leak is found: check cylinder bypass internally — unusual heat from a cylinder indicates internal bypass']},
+    s:['Identify the loss rate: check level daily and note amount lost per operating hour','Visually inspect all external components — pump, filter housing, hoses, control heads, auxiliary station — for wetness or oil film','Check all cylinder/ram rod seals for weeping — even slow rod seal weeping adds up over time','Verify reservoir is not overfilled — above maximum mark causes fluid to be pushed out through the breather','If no external leak is found: check cylinder bypass internally — unusual heat from a cylinder indicates internal bypass']},
    {p:'Hydraulic fluid milky or cloudy — water contamination',
     c:['Failed breather element allowing moisture ingress during thermal cycling','Water entered through fill port — contaminated fluid was added','Condensation from repeated hot/cold cycles in humid environment'],
     s:['CHANGE FLUID IMMEDIATELY — water in hydraulic fluid causes corrosion inside precision valve spools and will destroy the system','Replace breather/filter element — this is almost always the contamination source','Inspect fill cap seal — if it does not seal properly, moisture enters when port is open','After fluid change: check fluid again after 2 weeks — if water returns, breather is still the source','In very humid environments: consider fitting a desiccant-type breather that actively removes moisture']},
@@ -1176,7 +1235,7 @@ const DET={
 
  'rx-lines':{t:'Hydraulic Lines & Fittings',sys:'Rexroth Controls',st:'ok',
   desc:'The hydraulic lines carry pressurized fluid between all components of the Rexroth control system — from pump to manifold, manifold to control heads, manifold to gear actuators, and return to reservoir. High-pressure lines operate at 1,500+ PSI; signal lines at 150–400 PSI. All lines use JIC (37° flare) or SAE O-ring face seal (ORFS) fittings. A failed hydraulic hose or fitting at working pressure can inject oil into skin at dangerous velocity — never check for leaks with bare hands.',
-  loc:'Engine room, along bulkheads to pilothouse, and out to wing stations. High-pressure hose assemblies connect pump to manifold. Rigid tubing runs through engine room on secured brackets. Flexible hose at control heads allows vibration isolation.',
+  loc:'Engine room, along bulkheads to pilothouse, and to auxiliary control station. High-pressure hose assemblies connect pump to manifold. Rigid tubing runs through engine room on secured brackets. Flexible hose at control heads allows vibration isolation.',
   specs:[['Working pressure','1,500 PSI continuous; 2,000 PSI peak'],['Hose rating','SAE 100R2 minimum for HP lines; SAE 100R1 acceptable for signal lines'],['Fitting type','JIC 37° flare (AN fittings) or ORFS O-ring face seal — do NOT mix standards'],['Tube material','Seamless hydraulic steel tubing (schedule 80) for rigid runs'],['Flexible hose','Wire-braid hydraulic hose with swaged ends — no field assembly'],['Minimum bend radius','Per hose manufacturer — typically 4× hose OD minimum'],['CRITICAL','NEVER probe for leaks with bare skin — hydraulic injection injuries are medical emergencies']],
   parts:[
    ['HP Hose Assembly (pump-to-manifold)','(by length and diameter — R902690XXX)','SAE 100R2 high-pressure hose, swaged ends — measure carefully; order by exact length','Per run'],
@@ -1980,30 +2039,6 @@ const DET={
     c:['New filter side was not pre-filled with oil before transfer','Air pocket in new filter housing'],
     s:['Pre-fill procedure: with new element installed, slowly crack the vent on the new housing to let oil fill it before transferring','Transfer valve must be moved smoothly and deliberately — not jerked','If pressure drop occurs: hold at current position until pressure stabilizes']},
   ]},
- 'deck-anchor':{t:'Anchor & Windlass',sys:'Deck Equipment',st:'ok',
-  desc:'The bow anchor and wildcat windlass provide emergency holding ground when the vessel must stop quickly or wait out traffic. On the inland river system, anchoring is less common than on coastal waters but remains a critical emergency capability — a propulsion failure near a dam or lock requires immediate anchoring. The windlass hauls the anchor and chain using an electric or hydraulic motor turning a wildcat sprocket that engages the chain links. The chain stopper locks the chain when at rest, taking load off the windlass.',
-  loc:'Bow — anchor stows in a hawsepipe or on a bow roller. Windlass mounted on foredeck. Chain runs from anchor through hawsepipe to chain locker below deck. Chain stopper between windlass and hawsepipe.',
-  specs:[['Anchor type','Danforth, plow, or stockless — verify type and weight on vessel inventory'],['Chain size','Verify on vessel drawings — typical 3/8" or 1/2" BBB chain'],['Chain length','Verify on vessel capacity plan — rule of thumb 5:1 scope minimum in calm water'],['Windlass power','Electric or hydraulic — verify on nameplate'],['Chain stopper','Guillotine or pawl type — must hold full anchor load without windlass'],['Annual USCG','Anchor and chain must be in serviceable condition for COI renewal']],
-  parts:[
-   ['Anchor (complete)','(by type and weight — vessel spec)','Replacement anchor — match type and weight to vessel design','1/vessel'],
-   ['Chain (BBB or proof coil)','(by size — per fathom)','Replacement chain — inspect entire length for stretched or cracked links at dry dock','Per fathom'],
-   ['Windlass Motor','(by windlass model)','Electric or hydraulic motor — replace if motor overheats or trips breaker under light load','1/windlass'],
-   ['Wildcat Sprocket','(by chain size)','Chain wildcat — inspect teeth for wear; a worn wildcat slips on chain under load','1/windlass'],
-   ['Chain Stopper','(by chain size)','Guillotine chain stopper — replace latch if worn; stopper must hold full anchor load','1/vessel'],
-   ['Windlass Brake Lining','(by windlass model)','Band brake lining — replace if windlass freefalls chain under load','Per windlass'],
-  ],
-  maint:[
-   {t:'Inspect entire chain length for damage',n:'Stretch, cracks, corrosion, or elongated links indicate chain is unsafe — reject any link that is visibly deformed or corroded through',i:'Annually / dry dock',b:'ann'},
-   {t:'Test windlass under load',n:'Deploy anchor in controlled conditions — windlass must haul anchor and chain back aboard without overheating motor or tripping breaker; a struggling windlass means worn motor or slipping wildcat',i:'Annually',b:'ann'},
-   {t:'Lubricate wildcat bearings and windlass gearbox',n:'Apply grease to wildcat shaft bearings; check gearbox oil level; a dry windlass gearbox fails quickly under anchor hauling load',i:'Annually',b:'ann'},
-   {t:'Test chain stopper holds under load',n:'Deploy anchor to holding depth, pay out scope, then engage chain stopper and release windlass — stopper must hold chain without slipping',i:'Annually',b:'ann'},
-   {t:'Rinse chain and anchor after use',n:'Freshwater rinse after any deployment — river mud and silt accelerate corrosion on chain links',i:'After each use',b:'ann'},
-  ],
-  probs:[
-   {p:'Windlass will not haul anchor — motor runs but chain does not move',
-    c:['Wildcat sprocket teeth worn — slipping on chain links','Windlass brake not fully releasing — dragging','Chain jammed in hawsepipe or locker'],
-    s:['Check that windlass brake is fully released before engaging hauling motor','Inspect wildcat teeth — if worn smooth, wildcat will slip; replace wildcat sprocket','Check for chain jam at hawsepipe — a kink or pile-up in the chain locker stops hauling','If motor is overheating: reduce haul intervals; allow motor to cool between attempts']},
-  ]},
 
  'deck-capstan':{t:'Mooring Capstans — Bow & Stern Electric',sys:'Deck Equipment',st:'ok',
   desc:'The bow and stern electric capstans provide powered line-handling for mooring operations. Each capstan has a rotating drum head that grips a mooring line when it is wrapped around it — the crew maintains tension by holding the bitter end while the capstan does the hauling work. Capstans must never be left unattended with a line under tension — a capstan cannot release a line automatically if someone is pulled in.',
@@ -2759,9 +2794,9 @@ const DET={
   ]},
 
  'steer-helm':{t:'Helm Pump — Hydraulic Hand-Wheel',sys:'Steering',st:'ok',
-  desc:'The helm pump is a hydraulic hand-wheel pump mounted at the steering station. Turning the wheel displaces hydraulic fluid, which pressurizes the steering circuit and moves the rudder rams. Most EMI systems use a load-sensing or open-center design — the helm pump provides both manual steering and the command signal for the power assist unit. Wing station helm pumps operate on the same circuit through a selector or isolation valve.',
-  loc:'Pilothouse helm console — mounted on or below the steering pedestal. Wing station helm pumps on port and starboard bridge wings. Hydraulic lines run below decks to the HPU and rams.',
-  specs:[['Type','Hydraulic rotary hand pump — open center or load sensing'],['Displacement per turn','Varies by model — typically 0.4–1.2 cu in per revolution'],['Operating pressure','500–1,500 PSI (verify on EMI system nameplate)'],['Fluid spec','ISO 46 mineral hydraulic oil or per EMI spec sheet'],['Lock-to-lock turns','Verify on installation — typically 3–5 turns'],['Wing stations','Operate on shared circuit — selector valve isolates stations'],['Self-centering','Rudders do not self-center — helm must be returned to neutral']],
+  desc:'The helm pump is a hydraulic hand-wheel pump mounted at the steering station. Turning the wheel displaces hydraulic fluid, which pressurizes the steering circuit and moves the rudder rams. Most EMI systems use a load-sensing or open-center design — the helm pump provides both manual steering and the command signal for the power assist unit. The auxiliary station helm pump operates on the same circuit through a selector or isolation valve.',
+  loc:'Pilothouse helm console — mounted on or below the steering pedestal. Auxiliary station helm pump also in the wheelhouse. Hydraulic lines run below decks to the HPU and rams.',
+  specs:[['Type','Hydraulic rotary hand pump — open center or load sensing'],['Displacement per turn','Varies by model — typically 0.4–1.2 cu in per revolution'],['Operating pressure','500–1,500 PSI (verify on EMI system nameplate)'],['Fluid spec','ISO 46 mineral hydraulic oil or per EMI spec sheet'],['Lock-to-lock turns','Verify on installation — typically 3–5 turns'],['Auxiliary station','Operates on shared circuit — selector valve isolates stations'],['Self-centering','Rudders do not self-center — helm must be returned to neutral']],
   parts:[
    ['Helm Pump Assembly','(EMI — by model number on pump body)','Complete helm pump; replace if wheel has no resistance or leaks at shaft','1/station'],
    ['Helm Pump Seal Kit','(by EMI pump model)','Internal seals and O-rings; replace if fluid weeps around steering column','1/pump'],
@@ -2773,7 +2808,7 @@ const DET={
    {t:'Check helm pump resistance — feel for smooth, even effort',n:'Turn wheel slowly lock-to-lock — resistance should be even with no hard spots, binding, or free-spinning zones; any irregularity indicates internal wear or air in circuit',i:'Monthly',b:'ann'},
    {t:'Inspect helm pump for fluid seepage at shaft seal',n:'Check around the base of the steering column where it enters the helm pump body — any fluid seepage means shaft seal is beginning to fail',i:'Monthly',b:'ann'},
    {t:'Check hydraulic line connections at helm pump ports',n:'Inspect both pressure and return line fittings at pump — even a slow seep here will drain the reservoir over time',i:'Monthly',b:'ann'},
-   {t:'Test wing station helm pumps',n:'From each wing station: turn wheel lock-to-lock and verify rudder follows — confirm isolation valve is working and station can take full control',i:'Monthly',b:'ann'},
+   {t:'Test auxiliary station helm pump',n:'From the auxiliary station: turn wheel lock-to-lock and verify rudder follows — confirm isolation valve is working and station can take full control',i:'Monthly',b:'ann'},
    {t:'Rebuild helm pump (seal kit)',n:'Replace all internal seals and O-rings when any seepage is confirmed or at major service interval — a failed seal can strand the vessel without steering',i:'5 years or on condition',b:'dd'},
   ],
   probs:[
@@ -3362,9 +3397,9 @@ const MANUAL_CONTENT={
      'Pushing the lever forward of neutral simultaneously pressurizes the clutch engagement circuit (engaging forward drive) and begins ramping the throttle signal toward full throttle as the lever approaches full ahead.',
      'Pulling the lever aft of neutral engages reverse (astern drive) and ramps throttle the same way.',
      'The "follow-up" refers to the internal spool valve that tracks the lever position and maintains exactly that signal — it is a proportional system, not on/off. Partial lever travel = partial throttle.',
-     'On vessels with a separate clutch between engine and gear: the Rexroth clutch output controls the clutch engagement valve directly. The reduction gear (if non-reversing) may be controlled by a separate directional valve also driven from the Rexroth manifold.',
+     'On vessels with a separate clutch between engine and gear: the Rexroth clutch output controls the clutch engagement valve directly. The reduction gear may be controlled by a separate directional valve also driven from the Rexroth manifold.',
      'On vessels with a clutch-reverse-reduction gear (like a Twin Disc or Reintjes): the Rexroth clutch output feeds into the gear control valve which selects forward, neutral, or reverse internally.',
-     'All pilothouse stations, wing stations, and any remote stations share the same hydraulic circuit. Only one station is active at a time — the station selector valve routes command pressure from the selected station to the actuating circuit.',
+     'The primary and auxiliary wheelhouse stations share the same hydraulic circuit. Only one station is active at a time — the station selector valve routes command pressure from the active station to the actuating circuit.',
     ]},
    {t:'Hydraulic System Pressure Specifications',type:'table',
     heads:['Circuit / Setting','Pressure','Notes'],
@@ -3399,7 +3434,7 @@ const MANUAL_CONTENT={
       warn:'Turn the neutral adjustment screw only 1/8 turn at a time. Each small adjustment has a significant effect on the zero-point pressure. Overshoot causes clutch drag in neutral.'},
      {s:'After each small adjustment, cycle the lever from neutral to full ahead, back to neutral, full astern, and back to neutral. Verify the engine returns to idle and clutch disengages cleanly each time the lever returns to the detent.'},
      {s:'When neutral is correctly set: engine is at idle, no clutch drag in neutral, and lever requires firm, equal effort to move forward and aft of the detent. Lock the adjustment screw with the lock nut and re-verify.'},
-     {s:'Perform the same verification at each wing station — neutral detent feel and hydraulic zero-point should match across all stations on the same circuit.'},
+     {s:'Perform the same verification at the auxiliary station — neutral detent feel and hydraulic zero-point should match across both stations on the same circuit.'},
     ]},
    {t:'Throttle Calibration — Idle & Full Throttle',type:'proc',
     steps:[
@@ -3410,15 +3445,15 @@ const MANUAL_CONTENT={
      {s:'To increase the full-throttle signal: locate the cam adjustment on the control head throttle cam. Loosen the cam lock screw and rotate the cam slightly to increase travel. Re-test full throttle RPM. Adjust in small increments.',
       warn:'Do not adjust the cam so far that the engine overshoots rated RPM at full lever travel. Verify with a calibrated tachometer — do not rely on the pilothouse RPM indicator alone for this check.'},
      {s:'After throttle calibration, verify that the throttle signal is proportional across the full lever range — intermediate lever positions should produce intermediate RPM, not jump directly from idle to full.'},
-     {s:'Repeat calibration verification at each active control station. Wing stations share the same cam/spool setting but verify that full lever travel at each station reaches the same full throttle RPM.'},
+     {s:'Repeat calibration verification at the auxiliary station. Both stations share the same cam/spool setting — verify that full lever travel at each station reaches the same full throttle RPM.'},
     ]},
-   {t:'Station Transfer Procedure',type:'proc',
+   {t:'Station Transfer — Primary to Auxiliary',type:'proc',
     steps:[
      {s:'Only one control station should be active at any time. Transferring control with the lever out of neutral at the receiving station can cause a sudden clutch engagement or throttle change.'},
      {s:'Before transferring control: the receiving station lever must be in the neutral detent position. Confirm this visually before initiating transfer.',
-      warn:'Never transfer control to a wing station and walk away. An unattended active control station with no one at the helm is a serious navigation hazard.'},
-     {s:'To transfer from pilothouse to a wing station: at the wing station, push the TAKE CONTROL button or selector switch (location varies by installation — refer to vessel-specific wiring diagram). The station selector valve should shift, routing command pressure from the wing station to the actuating circuit.'},
-     {s:'Verify transfer was successful: move the wing station lever slightly off neutral and confirm the engine responds. The pilothouse lever should now have no effect on the engine.'},
+      warn:'Never transfer control to the auxiliary station and walk away. An unattended active control station with no one at the helm is a serious navigation hazard.'},
+     {s:'To transfer from primary to auxiliary station: at the auxiliary station, push the TAKE CONTROL button or selector switch (location varies by installation — refer to vessel-specific wiring diagram). The station selector valve should shift, routing command pressure from the auxiliary station to the actuating circuit.'},
+     {s:'Verify transfer was successful: move the auxiliary station lever slightly off neutral and confirm the engine responds. The primary station lever should now have no effect on the engine.'},
      {s:'To transfer back to pilothouse: pilothouse lever must be in neutral. Activate the pilothouse TAKE CONTROL function (typically pressing the pilothouse selector button or physically moving the pilothouse lever if the system uses mechanical interlock).'},
      {s:'After any station transfer: confirm engine is at idle before increasing throttle. Confirm clutch is disengaged before engaging into gear.',
       warn:'If the selector valve is sticking and control is not transferring cleanly, do not force it. A stuck selector valve in mid-transfer position can send partial command pressure to both stations simultaneously, causing erratic engine and clutch response.'},
@@ -3442,7 +3477,7 @@ const MANUAL_CONTENT={
      ['Clutch drags in neutral — vessel creeps','Neutral adjustment is off — follow-up spool not returning to zero','Perform neutral adjustment procedure'],
      ['Engine does not reach full throttle at full lever','Throttle cam under-adjusted; low system pressure','Check system pressure at pump; adjust throttle cam'],
      ['Engine runs above idle in neutral','Throttle zero-point is off; governor idle too high','Check neutral adjustment; verify governor idle screw setting'],
-     ['Wing station will not take control','Selector valve stuck; interlock wiring fault; lever not in neutral','Check wing station lever is in neutral before transfer; check selector valve'],
+     ['Auxiliary station will not take control','Selector valve stuck; interlock wiring fault; lever not in neutral','Check auxiliary lever is in neutral before transfer; check selector valve'],
      ['Low system pressure — below 1,400 PSI','Pump worn; relief valve stuck open; severe internal leak','Connect gauge at pump outlet; isolate to pump vs downstream'],
      ['Hydraulic fluid dark brown or burnt smell','Fluid is overheating and oxidizing','Check for internal bypass generating heat; change fluid immediately'],
      ['Bypass indicator red on filter','Filter element fully loaded — system running on unfiltered oil','Change element NOW; cut open old element and inspect debris'],
@@ -3461,7 +3496,7 @@ const MANUAL_CONTENT={
      '',
      'USEFUL SPARES WHEN PRACTICAL:',
      '  • 1× system pressure relief valve cartridge (R902609XXX) — a drifted relief valve is difficult to diagnose without a spare to swap',
-     '  • 1× solenoid coil 24VDC for station selector valve (R902683XXX) — electrical failure of selector solenoid locks out wing station transfer',
+     '  • 1× solenoid coil 24VDC for station selector valve (R902683XXX) — electrical failure of selector solenoid locks out auxiliary station transfer',
      '  • Assorted ORFS O-ring kit (Buna-N, by fitting size) — fitting leaks are the most common hydraulic maintenance item',
      '',
      'NOTE ON PART NUMBERS: Rexroth part numbers shown as XXX suffix must be verified against your specific system model number, which is on the nameplate of the control head or manifold block. Model numbers vary by clutch type, number of stations, and engine configuration.',
@@ -3774,7 +3809,7 @@ const EMG={
     'Take a quick bearing of your position and any hazards — dams, locks, bridges, shoaling — that may be in your path.',
    ]},
    {t:'TRY ALTERNATE CONTROL STATIONS',color:'#f59e0b',steps:[
-    'If pilothouse controls are not responding: try the port wing station or starboard wing station. If a wing station takes control and steering responds, the pilothouse control head has failed — continue from the wing station.',
+    'If primary controls are not responding: try the auxiliary station. If the auxiliary station takes control and steering responds, the primary control head has failed — continue from the auxiliary station.',
     'Check the Rexroth station selector — verify control is actually assigned to the station you are using. A stuck selector valve can prevent transfer.',
     'Try the opposite engine throttle and gear to confirm whether the engines are responding — if engines respond but rudders do not, the issue is in the hydraulic steering circuit, not the Rexroth throttle/clutch system.',
    ]},
@@ -4151,7 +4186,7 @@ function render(){
 }
 document.getElementById('sb').addEventListener('click',e=>{
   const ni=e.target.closest('.ni');
-  if(ni&&ni.dataset.sec) go(ni.dataset.sec);
+  if(ni&&ni.dataset.sec){go(ni.dataset.sec);closeSidebar();}
 });
 document.getElementById('mn').addEventListener('click',e=>{
   const card=e.target.closest('.card:not(.locked)');
