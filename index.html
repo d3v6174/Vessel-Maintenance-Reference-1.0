@@ -42,8 +42,12 @@ body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:v
 .mitem.active i{color:var(--r)}
 .chip.amb .d{background:var(--amber)}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
-.sg{font-size:9px;font-weight:600;color:rgba(255,255,255,.2);letter-spacing:.13em;text-transform:uppercase;padding:14px 13px 3px}
+.sg{font-size:9px;font-weight:700;color:rgba(255,255,255,.28);letter-spacing:.13em;text-transform:uppercase;padding:18px 13px 5px;display:flex;align-items:center;gap:7px}
+.sg::before{content:'';flex:1;height:.5px;background:rgba(255,255,255,.07)}
+.sg-first{padding-top:10px}
+.sg-first::before{display:none}
 .sg.emg{color:rgba(239,100,100,.5)}
+.sg.emg::before{background:rgba(239,68,68,.15)}
 .ni.emg-item i{color:rgba(239,130,130,.4)}
 .ni.emg-item.on{background:rgba(239,68,68,.25)}
 .ni.emg-item.on i{color:#fca5a5}
@@ -327,10 +331,18 @@ const NAV=[
     {k:'hull',i:'ship',l:'Hull & Bilge'},
     {k:'pilothouse',i:'steering-wheel',l:'Pilothouse'},
     {k:'safety',i:'flame',l:'Safety Systems'}]},
+  {g:'Procedures',items:[
+    {k:'proc-fueltransfer',i:'droplet-filled',l:'Fuel Transfer'},
+  ]},
   {g:'Emergency Scenarios',items:[
     {k:'emg-air',i:'air-balloon-off',l:'Loss of Air'},
     {k:'emg-power',i:'bolt-off',l:'Loss of Power'},
     {k:'emg-steering',i:'steering-wheel',l:'Loss of Steering'},
+    {k:'emg-fire',i:'flame',l:'Engine Room Fire'},
+    {k:'emg-flooding',i:'droplets',l:'Flooding / Taking on Water'},
+    {k:'emg-mob',i:'man',l:'Man Overboard'},
+    {k:'emg-prop',i:'propeller',l:'Loss of Propulsion'},
+    {k:'emg-grounding',i:'anchor',l:'Running Aground'},
   ]},
 ];
 const SEC={
@@ -344,6 +356,18 @@ const SEC={
     ['pur','wind','Turbochargers & Air','Roots blower, turbo, air box, after-cooler',['Roots Blower','Turbo'],'ok','eng-turbo'],
     ['ora','bolt','Starting System','Air start motor, tanks, manifold, valves',['Air Start','Solenoid'],'ok','eng-start'],
     ['gra','settings','Governor & Controls','Woodward governor, overspeed trip',['Woodward','Overspeed'],'ok','eng-gov'],
+    ['tel','rotate-clockwise','B&A Pump','Before & After pump · Turbo pre-lube & post-lube',['Pre-Lube','Post-Lube'],'ok','eng-bapump'],
+   ]},
+  ],
+  gegroups:[
+   {l:'Engine Systems',cards:[
+    ['red','engine','Power Assembly','Cylinder, piston, liner, rings, connecting rod',['4-Stroke','Power Assy'],'ok','ge-cyl'],
+    ['blue','droplet','Fuel Injection','Unit injectors, fuel pump, jumper lines, filters',['Unit Injectors','Fuel Pump'],'ok','ge-fuel'],
+    ['cyan','temperature','Cooling System','JW pump, thermostats, heat exchangers',['JW Pump','Thermostat'],'ok','ge-cool'],
+    ['yel','droplet-half','Lube Oil System','LO pump, full-flow filter, cooler, sump',['LO Pump','Full-Flow Filter'],'ok','ge-lube'],
+    ['pur','wind','Turbocharger & Intercooler','Exhaust turbo, charge air cooler, air filter',['Turbo','Intercooler'],'ok','ge-turbo'],
+    ['ora','bolt','Starting System','Air start or electric start, cranking circuit',['Air Start','Cranking'],'ok','ge-start'],
+    ['gra','settings','Governor & Controls','Electronic throttle control, overspeed protection',['Electronic Gov','Overspeed'],'ok','ge-gov'],
     ['tel','rotate-clockwise','B&A Pump','Before & After pump · Turbo pre-lube & post-lube',['Pre-Lube','Post-Lube'],'ok','eng-bapump'],
    ]},
   ]},
@@ -389,7 +413,7 @@ const SEC={
  generators:{title:'Generators & Electrical',sub:'Ship service generators, emergency gen, switchboard, distribution',
   groups:[
    {l:'Generators',cards:[
-    ['blue','bolt','Ship Service Generator','Diesel genset · 60 kW, 240VAC',['Diesel Gen','60 kW'],'ok','gen-ss'],
+    ['blue','bolt','Ship Service Generator','Diesel genset · 60 kW, 480VAC 3-phase',['Diesel Gen','60 kW'],'ok','gen-ss'],
     ['ora','alert-triangle','Emergency Generator','Auto-start backup · 10 kW',['Auto-Start','10 kW'],'ok','gen-emerg'],
     ['tel','plug','Shore Power Inlet','30A/50A shore connection, transfer switch',['Shore Power','Transfer SW'],'ok','gen-shore'],
    ]},
@@ -606,6 +630,210 @@ const MANUALS=[
  {t:'Cummins / Onan Generator Manual',m:'QSB6.7 / MDKBM Series · Service & electrical',i:'bolt',c:'grn',k:'cumminsgen'},
 ];
 const DET={
+ 'ge-cyl':{t:'Power Assembly — GE 7FDL Series',sys:'Main Engines',st:'ok',
+  desc:'The GE 7FDL is a 4-stroke turbocharged V-type diesel engine, a fundamental difference from the EMD 645\'s 2-stroke design. Each power assembly consists of a cylinder liner, piston, connecting rod, and cylinder head as individually removable components. The 4-stroke cycle means each cylinder fires once every two crankshaft revolutions — intake, compression, power, exhaust — providing a smoother power delivery and lower intake air requirement than a 2-stroke. Cylinder arrangements include 8, 12, and 16-cylinder V configurations.',
+  loc:'Engine block — V-bank arrangement. Each cylinder is accessible from the valve covers on top of each bank. Power assembly removal requires removing the cylinder head first, then withdrawing the piston and connecting rod assembly upward through the block.',
+  specs:[['Engine family','GE Transportation 7FDL series — 4-stroke turbocharged diesel'],['Cylinder arrangement','V-type — 8, 12, or 16 cylinders (verify on engine nameplate)'],['Bore','9.0 in. (228.6 mm)'],['Stroke','10.5 in. (266.7 mm)'],['Displacement per cylinder','668 cu in. (10.95 L)'],['Cycle','4-stroke — intake, compression, power, exhaust'],['Rated speed','varies by installation — typically 900–1,050 RPM'],['Con rod bolt torque','Verify on GE service manual — single-use bolts, replace at every disassembly'],['Head bolt torque sequence','Cross pattern in two steps — verify torque values on engine nameplate or GE manual'],['Compression ratio','~14:1 (verify by model)']],
+  parts:[
+   ['Cylinder liner — standard bore','(GE 7FDL — by model)','Cast iron liner; measure bore before ordering; confirm standard vs oversize','1/cyl'],
+   ['Piston assembly','(GE 7FDL — by displacement)','Trunk-type piston; order with ring set','1/cyl'],
+   ['Piston ring set','(GE 7FDL — by cylinder model)','Compression and oil control rings; measure groove clearance before ordering','1/cyl'],
+   ['Connecting rod — assembly','(GE 7FDL)','Forged H-beam; order with new rod bolts','1/cyl'],
+   ['Con rod bolts (set)','(GE 7FDL)','Single-use — replace at every disassembly without exception','Per rod'],
+   ['Cylinder head assembly','(GE 7FDL — 4-valve design)','Cast iron; includes valve seats, guides, and injector bore','1/cyl'],
+   ['Head gasket set','(GE 7FDL — per cylinder)','Full set including fire ring and water seals; never reuse','1/cyl'],
+   ['Main bearing set — standard','(GE 7FDL — by journal size)','Verify clearance with plastigage before ordering oversize','Per journal'],
+   ['Con rod bearing set — standard','(GE 7FDL)','Verify clearance; replace as set','Per rod'],
+  ],
+  maint:[
+   {t:'Check valve clearances — intake and exhaust',n:'Cold engine only; GE 7FDL uses rocker arms driven by an overhead camshaft; adjust with feeler gauge; verify clearance specs from GE service manual for this specific model and valve type',i:'1,000 hrs',b:'h1k'},
+   {t:'Inspect air box / crankcase breather',n:'GE 7FDL is 4-stroke and does not have an air box like the EMD 2-stroke, but does have a crankcase breather system — inspect for restriction or excessive blow-by',i:'500 hrs',b:'h500'},
+   {t:'Check for coolant or oil weeping at head gaskets',n:'Inspect around head perimeter at operating temperature for oil or coolant seepage; head gasket leaks often appear first as staining on the block exterior',i:'Monthly',b:'ann'},
+   {t:'Inspect valve cover gaskets',n:'Check all valve cover perimeters for oil seepage; valve cover gaskets are the most common leak point on the 4-stroke GE 7FDL',i:'Monthly',b:'ann'},
+   {t:'Measure liner bore and piston wear at overhaul',n:'At major overhaul, measure liner bore at three heights in two directions; compare to GE wear limits; a liner worn beyond limit must be replaced, not rebored',i:'Major overhaul — 6,000–12,000 hrs',b:'dd'},
+  ],
+  probs:[
+   {p:'Blue smoke — oil burning — continuous at all loads',
+    c:['Worn piston oil control rings allowing oil past rings into combustion chamber','Worn valve stem seals allowing oil to be drawn down valve guides on intake stroke','Scored liner causing ring seal failure'],
+    s:['Perform cylinder cutout test — a cylinder with worn rings will show little RPM drop when cut out','Check valve cover area for oil being drawn in on intake — remove air intake and look for oil wetting','Compression test all cylinders — a cylinder with scored liner or bad rings will show low compression','If consistent low compression plus blue smoke: plan power assembly rebuild on that cylinder']},
+   {p:'Rough running, knock, or misfire on one cylinder',
+    c:['Failed unit injector on that cylinder','Burned or stuck exhaust valve','Low compression from worn rings or bad head gasket on that cylinder'],
+    s:['Cutout test to isolate the cylinder — a knock that goes away when that cylinder is cut out is combustion-related','Remove injector and send to shop for pop testing','Perform compression test on suspect cylinder — low compression with knock suggests mechanical issue, not just injector','If knock persists after injector swap: valve or ring issue — plan head removal']},
+  ]},
+
+ 'ge-fuel':{t:'Fuel Injection System — GE 7FDL',sys:'Main Engines',st:'ok',
+  desc:'The GE 7FDL uses a cam-actuated unit injector system similar in principle to the EMD 645, but GE-specific in design and parts. Each cylinder has one unit injector driven by the overhead camshaft through a push rod and rocker arm. The injector combines the injection pump and spray nozzle in a single unit. Fuel is supplied at low pressure from the engine-mounted fuel pump and the injection pump plunger inside each unit creates the high injection pressure. The fuel pump maintains supply gallery pressure; injector internal plunger creates the final injection pressure at the nozzle.',
+  loc:'One unit injector per cylinder, accessible after removing the valve cover. Fuel supply and return manifolds run along both banks. Engine-driven fuel pump on the front of the engine block. Fuel filter housing typically on the engine or nearby fuel system.',
+  specs:[['Injection type','Cam-actuated unit injector — combines pump and nozzle in one body'],['Fuel supply pressure','25–40 PSI at gallery (verify on GE spec sheet)'],['Injector actuation','Camshaft via push rod and rocker arm — one injector lobe per cylinder'],['Injector hold-down torque','Verify in GE service manual — typically 30–40 ft-lb on clamp bolt'],['Fuel specification','ASTM D-975 No. 2 diesel (ULSD)'],['Filter rating','10 micron absolute — verify on filter housing label'],['Fuel pump type','Engine-driven gear pump'],['Rack balance tolerance','All injectors must deliver within ±5% flow of each other after rack set']],
+  parts:[
+   ['Unit injector — GE 7FDL','(GE part number — by engine model)','Flow-matched set preferred; always replace O-rings on installation','1/cyl'],
+   ['Injector hold-down clamp','(by GE model)','Torque to spec; replace if clamp face is damaged','1/injector'],
+   ['Fuel jumper line — inlet','(by GE model — braided)','HP fuel line to injector; replace if braid is damaged','1/injector'],
+   ['Fuel jumper line O-ring set','(by GE model)','Replace at every jumper line removal','2/line'],
+   ['Fuel filter element — primary','(GE 7FDL — 10 micron)','Replace every 500 hrs; cut open and inspect debris','1/engine'],
+   ['Fuel pump assembly — engine driven','(GE 7FDL)','Gear pump; replace if output pressure falls below 25 PSI','1/engine'],
+   ['Fuel manifold gaskets','(GE 7FDL — per bank)','Replace at any manifold removal','2 sets/engine'],
+  ],
+  maint:[
+   {t:'Check fuel supply gallery pressure',n:'Measure at the filter outlet or gallery test port — should read 25–40 PSI at rated RPM; low pressure causes injector starvation and poor combustion',i:'500 hrs',b:'h500'},
+   {t:'Replace fuel filter element',n:'Change every 500 hrs regardless of appearance; cut old element open and spread pleats — inspect debris type; metal = pump wear, black soot = incomplete combustion, rust = tank corrosion',i:'500 hrs',b:'h500'},
+   {t:'Inspect injector rack movement — all cylinders',n:'With valve covers off: manually move the injection control rack on each injector; each injector must slide freely through full travel; a sticky rack causes over-fueling on that cylinder',i:'1,000 hrs',b:'h1k'},
+   {t:'Check fuel system for air leaks',n:'Air in the fuel system causes rough running and hard starts; inspect all suction-side fittings from fuel tank to pump for seepage that could admit air',i:'Monthly',b:'ann'},
+   {t:'Drain water separator bowl',n:'Drain the water separator sediment bowl at every fuel filter change and inspect for water accumulation; water in fuel corrodes injector internals quickly',i:'500 hrs or as needed',b:'h500'},
+  ],
+  probs:[
+   {p:'Hard starting — extended cranking before firing',
+    c:['Air in fuel system — pump cannot build injection pressure','Low fuel supply pressure — injectors starved','Injector rack stuck in low-fuel position on multiple cylinders'],
+    s:['Bleed fuel system at filter housing bleed screw — if air bubbles emerge, suction side has a leak','Check fuel supply pressure at gallery test port during cranking','Verify day tank is not empty — a tank that ran dry requires full system purge to remove air','If engine fires briefly then dies: air is being drawn in continuously — find and eliminate the suction leak']},
+   {p:'Excessive black smoke at full load',
+    c:['Restricted air supply — air filter loaded or turbo underperforming','Injectors over-fueling — racks set too rich','Turbo boost pressure low — injectors delivering more fuel than air available to burn it'],
+    s:['Check air filter restriction indicator — replace filter if loaded','Measure turbo boost pressure and compare to spec — low boost means turbo is underperforming','Check all injector racks for smooth movement — a stuck rack at high-fuel position will over-fuel that cylinder','If boost is adequate and racks are free: have injectors flow-tested at a shop']},
+  ]},
+
+ 'ge-cool':{t:'Cooling System — GE 7FDL',sys:'Main Engines',st:'ok',
+  desc:'The GE 7FDL jacket water cooling system circulates coolant through the engine block, cylinder heads, and exhaust manifolds, then through a heat exchanger to reject heat to the keel cooler or raw water circuit. A centrifugal circulating pump driven by the engine maintains flow. The GE 7FDL uses a two-stage thermostat system — a low-temperature thermostat controls the range during warm-up and a high-temperature thermostat limits maximum operating temperature. Maintain DCA4 or OAT inhibitor concentration to prevent liner pitting from cavitation erosion.',
+  loc:'JW circulating pump on the front of the engine block. Thermostat housing on the coolant outlet side of the engine. Heat exchanger (plate or shell-and-tube) in the engine room. Expansion tank mounted above the highest point of the coolant circuit.',
+  specs:[['Coolant specification','Ethylene glycol 50/50 with DCA4 inhibitor or approved OAT coolant'],['DCA4 concentration','0.3–0.8 units/L — test monthly with Fleetguard strips'],['Normal JW temperature','170–195°F (verify on GE spec sheet for this model)'],['High temp alarm','~200°F (verify on engine control panel)'],['Thermostat opening temp','Low stage: ~160°F / High stage: ~185°F (verify by model)'],['System pressure cap','10–15 PSI (verify on cap label)'],['Coolant capacity','Verify on GE spec sheet — typically 35–60 gallons per engine'],['Freeze protection','-34°F minimum — verify with refractometer at each coolant addition']],
+  parts:[
+   ['Thermostat set (low and high stage)','(GE 7FDL — by temp rating)','Replace as a matched set; never replace one without the other','1 set/engine'],
+   ['Thermostat housing gaskets','(GE 7FDL)','Always replace at thermostat removal','1 set/removal'],
+   ['JW circulating pump — complete','(GE 7FDL)','Replace if bearing fails, impeller cavitates, or mechanical seal weeps','1/engine'],
+   ['JW pump mechanical seal kit','(GE 7FDL pump model)','Replace at first weep from seal weep hole — do not wait for heavy leak','1/pump'],
+   ['JW pump impeller','(GE 7FDL pump model)','Inspect for cavitation pitting at pump service','1/pump'],
+   ['Expansion tank pressure cap','(by pressure rating — 10–15 PSI)','Test annually; replace if spring is soft','1/engine'],
+   ['Coolant hose set','(by hose ID and length — GE 7FDL)','Silicone preferred; replace if soft, swollen, or cracked','Per engine'],
+   ['DCA4 inhibitor','(Fleetguard DCA4)','Maintain concentration with test strips; top off as needed','Per top-off'],
+  ],
+  maint:[
+   {t:'Check coolant level and condition at expansion tank',n:'Check sight glass or dipstick at operating temperature; good coolant is clear amber or green; milky = water contamination or combustion gases; dark brown = oxidized coolant needing change',i:'Weekly',b:'w'},
+   {t:'Test DCA4 inhibitor concentration',n:'Use Fleetguard test strips; maintain 0.3–0.8 units/L; depleted inhibitor causes liner pitting from cavitation — this is a significant source of liner failure on GE 7FDL engines in marine service',i:'Monthly',b:'ann'},
+   {t:'Pressure test cooling system',n:'With engine cold, pressurize system to cap rating; system must hold pressure for 5 minutes without drop; any drop indicates an external leak or internal combustion gas ingress',i:'Annually',b:'ann'},
+   {t:'Test thermostats in boiling water',n:'If overheating is suspected, remove thermostats and test in a pot of water with a thermometer; thermostat should begin opening at rated temp; replace if it opens late or fails to open fully',i:'On suspicion of overheating',b:'ann'},
+   {t:'Change coolant and inhibitor',n:'Drain and flush completely; refill with 50/50 premix and full DCA4 charge per Fleetguard recommendation; record date and hours',i:'2,000 hrs or 2 years',b:'h2k'},
+  ],
+  probs:[
+   {p:'Engine overheating — JW temp above normal',
+    c:['Keel cooler fouled — heat cannot be rejected','Thermostat stuck closed or opening late','Coolant level low — reduced heat capacity','JW pump impeller cavitating — insufficient flow'],
+    s:['Check coolant level first — if low, find leak before adding coolant','Test thermostat by touch — if thermostat housing is cool while engine is overheating, thermostat is stuck closed','Check keel cooler — arrange underwater inspection for biofouling or damage','Measure JW pump outlet temperature vs inlet — a pump that is not circulating will show almost no temperature difference across the pump']},
+   {p:'Coolant is milky or brown — contamination',
+    c:['Head gasket failure allowing combustion gases or oil into coolant','Oil cooler tube leak — lube oil mixing with coolant','Coolant is overdue for change — oxidized and depleted inhibitor'],
+    s:['If milky: check engine oil for coolant contamination (dipstick shows grey foam) — indicates head gasket or oil cooler leak','If brown and murky but no oil contamination: coolant is oxidized and inhibitor is depleted — change immediately','Pressure test system to identify leak location','A combustion gas test kit (Combustion Leak Test fluid) can detect exhaust gases in the coolant if head gasket is suspect']},
+  ]},
+
+ 'ge-lube':{t:'Lube Oil System — GE 7FDL',sys:'Main Engines',st:'ok',
+  desc:'The GE 7FDL lube oil system uses an engine-driven gear pump to pressurize oil from the sump through a full-flow filter, then through an oil cooler before distribution to main bearings, rod bearings, camshaft, valve train, turbocharger, and cylinder walls. Unlike the EMD 645\'s duplex filter arrangement, the GE 7FDL typically uses a single full-flow filter housing with spin-on or cartridge elements. Oil pressure is maintained by a pressure relief valve on the pump outlet. Maintain oil analysis to monitor bearing wear and coolant contamination.',
+  loc:'Oil pump on the front lower end of the engine, driven by the crankshaft gear train. Filter housing on the engine block or a remote-mounted bracket with supply and return lines. Oil cooler integral to the engine or remotely mounted. Sump beneath the engine crankcase.',
+  specs:[['Oil specification','SAE 40 HD diesel engine oil — API CF minimum; verify with GE service manual'],['Sump capacity','Verify on GE nameplate — typically 80–120 gallons depending on configuration'],['Normal oil pressure (rated RPM)','40–60 PSI (verify on GE spec sheet)'],['Minimum oil pressure (idle)','20 PSI minimum — shutdown if below'],['Low oil pressure alarm','25–30 PSI setpoint (verify on engine alarm panel)'],['Normal oil temperature','180–210°F'],['High oil temperature alarm','220°F (verify)'],['Oil change interval','1,000 hrs or 6 months — whichever comes first'],['Filter change interval','500 hrs or at oil change']],
+  parts:[
+   ['Full-flow oil filter element','(GE 7FDL — by filter housing model)','Cut open at each change; inspect debris; replace both sides simultaneously if dual housing','1/filter'],
+   ['Filter housing O-ring','(by housing model)','Replace at every element change','1/filter'],
+   ['Oil pressure relief valve','(GE 7FDL)','Factory set; replace entire cartridge if pressure cannot hold — do not adjust in field','1/engine'],
+   ['Oil pressure sender / transducer','(by sender type on engine)','Replace if reading is erratic or false alarms occur at correct pressure','1/engine'],
+   ['Oil pump assembly','(GE 7FDL)','Gear type; replace if output pressure drops below 40 PSI at rated RPM','1/engine'],
+   ['Sump drain plug — magnetic','(by thread size)','Magnetic tip captures metallic debris; inspect and clean at every oil change','1/engine'],
+   ['Drain plug washer / gasket','(by thread size)','Replace at every drain — never reuse a crush washer','1/drain'],
+  ],
+  maint:[
+   {t:'Check oil level on dipstick — daily',n:'Check with engine shut down and oil settled (5 minutes after shutdown); maintain between MIN and MAX marks; never overfill — aeration from overfill damages bearings',i:'Daily',b:'d'},
+   {t:'Check oil pressure at operating temperature',n:'At rated RPM: verify gauge reads within specified range; at idle: confirm pressure stays above 20 PSI minimum; gradual pressure decline over time indicates bearing wear',i:'Daily (underway)',b:'d'},
+   {t:'Change engine oil and filter',n:'Drain while hot for complete removal; replace filter element; cut old element open and inspect debris for metallic particles; refill with correct grade; run and check for leaks',i:'1,000 hrs or 6 months',b:'h1k'},
+   {t:'Submit oil sample for analysis',n:'Take sample from gallery test port while oil is hot — do not take from drain plug area; GE 7FDL wear metals to watch: iron (bearings/rings), copper (rod bearings), lead (overlay bearings)',i:'500 hrs',b:'h500'},
+   {t:'Inspect for external oil leaks — gaskets, seals, fittings',n:'Walk around engine at operating temperature with a flashlight; look for wet spots at valve covers, oil cooler connections, filter housing, and sump gasket — address any seepage early',i:'Monthly',b:'ann'},
+  ],
+  probs:[
+   {p:'Low oil pressure — alarm or gauge reading below normal',
+    c:['Oil level low — most common cause','Oil diluted with fuel or coolant — viscosity too low to maintain pressure','Worn main or rod bearings — increased clearance reduces pressure','Oil pressure relief valve stuck open or set too low'],
+    s:['CHECK OIL LEVEL FIRST — add oil if low and monitor for drop rate to find source','If level is correct: pull a sample and examine for contamination — fuel-diluted oil is thin and smells of diesel; coolant-contaminated oil is milky','If oil is clean and level is correct: connect external gauge at gallery — if pressure is confirmed low, investigate relief valve and bearing clearances','Low pressure that is gradual and progressive over months: bearing wear — plan engine service'],},
+   {p:'Oil consumption high — level drops faster than normal',
+    c:['External leaks — gaskets, seals, fittings losing oil','Blue smoke — oil burning through worn rings or valve seals','Crankcase breather passing oil into intake'],
+    s:['Check for external leaks first — visible oil on engine exterior or puddles under engine','Check exhaust for blue smoke — consistent blue smoke = oil burning inside engine','Inspect crankcase breather outlet — an oil-wet breather outlet indicates excessive crankcase pressure from worn rings']},
+  ]},
+
+ 'ge-turbo':{t:'Turbocharger & Intercooler — GE 7FDL',sys:'Main Engines',st:'ok',
+  desc:'The GE 7FDL uses an exhaust-driven turbocharger to force pressurized air into the cylinders, enabling much higher power output than naturally aspirated design. Unlike the EMD 645 which uses a Roots blower as the primary air supply (with the turbo providing a boost supplement), the GE 7FDL is fully dependent on its turbocharger for combustion air — a turbo failure means the engine loses power significantly and may not be operable at full load. After the turbocharger, charge air passes through an intercooler (charge air cooler) that reduces air temperature before it enters the cylinders, increasing air density and further boosting power.',
+  loc:'Turbocharger mounted on the exhaust manifold — typically at the rear or center of the engine between the banks. Intercooler mounted in the air intake path between turbo outlet and engine air intake manifold. Oil supply line from engine gallery to turbo bearing housing; oil return line back to sump.',
+  specs:[['Turbo type','Single-stage exhaust driven — no Roots blower as on EMD 645'],['Boost pressure (typical)','20–35 PSI (verify on GE spec sheet for this model)'],['Turbo shaft play (axial)','0.002–0.006 in. — reject if above 0.010 in.'],['Turbo shaft play (radial)','0.003–0.005 in. — reject if above 0.008 in.'],['Oil supply pressure to turbo','Engine gallery pressure — 40+ PSI required at rated RPM'],['Intercooler type','Air-to-coolant (JW-cooled) or air-to-raw water — verify by installation'],['NOTE','Always run B&A pump before start and after shutdown — turbo bears are oil film dependent']],
+  parts:[
+   ['Turbocharger assembly','(GE 7FDL — by model number on turbo housing)','Replace if shaft play exceeds limits or oil consumption from turbo is excessive','1/engine'],
+   ['Turbo cartridge / center section','(by turbo model)','Bearing cartridge replacement — rebuild option vs full turbo replacement','1/turbo'],
+   ['Turbo oil supply line','(by line size and fitting type)','HP oil feed from gallery to turbo bearing; replace if kinked or internally blocked','1/turbo'],
+   ['Turbo oil return line','(by line size)','Gravity drain to sump; must flow freely; restriction causes oil to leak past turbo shaft seals','1/turbo'],
+   ['Air intake hose — turbo to intercooler','(by hose ID)','Inspect for collapse or cracking; a collapsed hose restricts boost and causes black smoke','1/engine'],
+   ['Intercooler assembly','(GE 7FDL — by cooling type)','Pressure test tubes every 6,000 hrs; a leaking intercooler tube passes coolant into intake air','1/engine'],
+  ],
+  maint:[
+   {t:'Check turbo shaft radial and axial play',n:'With engine COLD and stopped: push/pull shaft radially and axially while spinning it by hand; compare measured play to spec; any play above limit means turbo rebuild or replacement before further operation',i:'500 hrs',b:'h500'},
+   {t:'Inspect turbo for oil leakage at compressor or turbine end',n:'Oil at the compressor inlet (cold side): shaft seal failing; oil at the exhaust outlet (hot side): turbine shaft seal failing; either condition means turbo rebuild is needed',i:'Monthly',b:'ann'},
+   {t:'Listen for turbo noise at startup and shutdown',n:'A whine or whistle that changes with RPM is normal; a grinding or rumbling from the turbo indicates bearing damage; a screech or howl on acceleration indicates surge or damaged blades',i:'Daily (underway)',b:'d'},
+   {t:'Inspect intercooler for coolant or air leaks',n:'At operating temperature: check intercooler connections for seepage; check inlet air for coolant mist (visible condensation in air intake duct that is not just normal condensation)',i:'500 hrs',b:'h500'},
+   {t:'Verify B&A pump pre-lube and post-lube cycles are operating',n:'Turbo bearing longevity is directly tied to pre-lube before start and post-lube after shutdown; confirm B&A pump is running its full cycle at every start and shutdown',i:'Daily',b:'d'},
+  ],
+  probs:[
+   {p:'Black smoke under load — turbo underperforming',
+    c:['Turbo bearing worn — shaft drag reducing impeller speed','Air inlet restriction — filter loaded or inlet hose collapsed','Intercooler fouled — reducing charge air density','Turbo damaged blades from ingested debris'],
+    s:['Check boost pressure with a gauge at the intake manifold — compare to spec; low boost confirms turbo is underperforming','Check air filter and inlet hose for restriction or collapse','Listen to turbo sound at full throttle — a turbo with worn bearings often has a rough or uneven sound','Inspect compressor inlet for debris damage — even a small piece of gravel can chip blades and reduce efficiency']},
+   {p:'Oil from turbo compressor outlet — oil in intake air',
+    c:['Turbo compressor shaft seal failing — oil being drawn into air stream','Engine crankcase pressure high — pushing oil out through turbo return line into bearing housing'],
+    s:['Inspect compressor outlet and inlet air duct for oil wetting — oil in the compressor side means shaft seal has failed','Check crankcase breather — if breather is also passing excessive oil, the issue is high crankcase pressure from ring wear rather than turbo seal alone','A temporary test: disconnect crankcase breather and see if oil in intake air reduces — if yes, ring wear is contributing','Either way, turbo rebuild is needed; also investigate if ring wear is the root cause']},
+  ]},
+
+ 'ge-start':{t:'Starting System — GE 7FDL',sys:'Main Engines',st:'ok',
+  desc:'GE 7FDL marine engines may use either compressed air starting (air start) or electric starting depending on installation. Air start systems use the same compressed air receivers, distribution manifold, and cylinder air valves as described for the EMD 645 — the starting motor is a pneumatic turbine motor that cranks the engine using air pressure. Electric start installations use a high-torque DC starter motor typically powered from a 24VDC or 32VDC battery bank. Verify which system is installed on your vessel and reference the appropriate components below.',
+  loc:'Air start motor (if installed): on the engine flywheel housing, similar to EMD location. Air start valve manifold: on the engine block, one air valve per cylinder. Air receivers: engine room. Electric starter (if installed): on the flywheel housing. Starter battery bank: engine room battery compartment.',
+  specs:[['Starting type','Verify on vessel: pneumatic (air start) or electric (DC motor)'],['Air start system pressure','200+ PSI in receivers before attempting start — same as EMD'],['Minimum crank pressure','150 PSI — below this, do not attempt to crank'],['Electric starter voltage','24VDC or 32VDC (verify on starter nameplate)'],['Electric starter engagement','Solenoid-shifted Bendix drive — engages ring gear on flywheel'],['Crank time limit','Do not crank continuously for more than 30 seconds — let starter cool 2 minutes between attempts'],['NOTE','GE 7FDL does not require the same air start pre-lube concern as EMD 645 since it is 4-stroke with pressure-lubricated cam followers — but B&A pump pre-lube is still required for turbo protection']],
+  parts:[
+   ['Air start motor','(GE 7FDL — pneumatic turbine type)','Replace if slow cranking with full air pressure or motor overheats','1/engine'],
+   ['Air start solenoid valve — 24VDC','(GE 7FDL)','Replace if solenoid click is weak or delayed; check coil resistance: 10–30 ohms','1/engine'],
+   ['Cylinder air start valves','(GE 7FDL — per cylinder)','Check valve per cylinder on air start manifold; replace if cylinder does not fire during air crank','1/cyl'],
+   ['Electric starter motor — 24VDC','(GE 7FDL — if electric start)','Replace if starter spins but does not engage ring gear, or draws excessive current','1/engine'],
+   ['Starter solenoid','(GE 7FDL — electric start)','Replace if click is present but starter does not engage','1/starter'],
+   ['Safety relief valve — air receivers','(300 PSI)','Never tamper; replace if opens below spec or fails to reseat','Per receiver'],
+   ['Air receiver drain valve','(by fitting size)','Drain condensate daily; replace if valve weeps when closed','Per receiver'],
+  ],
+  maint:[
+   {t:'Check air receiver pressure — before every start',n:'Both receivers must show 200+ PSI before attempting to crank; drain condensate from receiver drain valves first; condensate in a receiver reduces effective air volume and can damage the air start motor',i:'Before every start',b:'d'},
+   {t:'Drain condensate from air receivers',n:'Open drain valves briefly at the bottom of each receiver — drain until only dry air discharges; water accumulation in receivers causes corrosion and reduces available starting air',i:'Daily',b:'d'},
+   {t:'Test air start motor operation',n:'At low load conditions: initiate a start attempt and listen for smooth, even cranking — the GE 7FDL should crank at consistent speed; slow or hesitant cranking with full air pressure indicates worn motor',i:'Monthly',b:'ann'},
+   {t:'Inspect air start valve manifold for leakage',n:'With engine stopped and receivers pressurized: listen for air leaking past cylinder air start valves — any continuous hissing from the intake side indicates a leaking cylinder valve',i:'Monthly',b:'ann'},
+   {t:'Check electric starter connections and battery voltage (if electric start)',n:'Clean and torque all starter cable connections; check battery voltage under starter load (should stay above 20V for 24VDC system); a battery that collapses under starter load needs replacement',i:'Monthly',b:'ann'},
+  ],
+  probs:[
+   {p:'Engine cranks slowly or incompletely — fails to reach firing speed',
+    c:['Insufficient air pressure — receivers below minimum for good crank','Air start motor worn — not producing full torque','Air leaking past cylinder air valves — pressure lost before reaching motor'],
+    s:['Check receiver pressure gauge — if below 150 PSI, build pressure before cranking; note rate of pressure build to identify compressor issues','Listen during crank — if cranking starts fast then slows, air is running out; if cranking is slow from the start, motor or supply is the issue','Inspect air supply line to start motor for restriction or partial closure'],},
+   {p:'Engine does not crank when start is initiated — no rotation',
+    c:['Air start solenoid not activating — electrical or mechanical fault','Air supply valve not open — manual shutoff inadvertently closed','Electric starter solenoid not engaging (if electric start)'],
+    s:['Check for solenoid click when start is initiated; no click = electrical fault at solenoid coil or control circuit','Verify manual air supply valve is fully open','For electric start: check battery voltage and starter terminal connections before assuming starter failure']},
+  ]},
+
+ 'ge-gov':{t:'Governor & Controls — GE 7FDL',sys:'Main Engines',st:'ok',
+  desc:'GE 7FDL marine engines use a combination of mechanical and electronic engine control. A hydraulic governor (typically a Woodward UG or PG type, or a GE-proprietary governor) manages engine speed by adjusting the fuel injection rack. On later-model installations, a GE Engine Control Module (ECM) provides electronic oversight including fuel delivery management, overspeed protection, fault detection, and load control. The governor responds to throttle signals from the Rexroth control system and maintains selected RPM against varying load. The overspeed trip is a centrifugal or electronic device that cuts fuel at 115% of rated RPM.',
+  loc:'Governor mounted on the engine accessory drive — typically at the rear or front of the engine. Control linkage runs from governor output to the fuel injection rack. ECM (if equipped) mounted in a weatherproof enclosure near the engine or in the engine room control panel.',
+  specs:[['Governor type','Woodward UG-8, PG, or GE-proprietary hydraulic governor — verify on governor nameplate'],['Rated RPM','Verify on engine nameplate — typically 900–1,050 RPM depending on installation'],['Idle RPM','400–500 RPM (verify and document for this vessel)'],['Overspeed trip setpoint','115% of rated RPM — must trip within 2–3 seconds of overspeed condition'],['Governor oil','Woodward-specified oil or SAE 10W — verify on governor nameplate; wrong oil causes erratic response'],['ECM power supply','24VDC (if ECM equipped)'],['Fault codes','ECM-equipped engines store fault codes — requires GE diagnostic software or panel display to read']],
+  parts:[
+   ['Governor assembly','(Woodward UG-8 or PG — verify model on nameplate)','Send to Woodward-authorized shop for internal work; field work = oil change and linkage check only','1/engine'],
+   ['Governor oil','(Woodward spec — SAE 10W or nameplate spec)','Change on condition — inspect every 500 hrs; change if dark or contaminated','Per governor'],
+   ['Governor drive coupling','(by drive configuration)','Inspect for cracking or hardening at 1,000 hr service','1/engine'],
+   ['Overspeed trip assembly','(GE 7FDL — centrifugal or electronic)','Test annually; replace if trip RPM has drifted outside spec','1/engine'],
+   ['Governor output linkage rod and rod ends','(by linkage geometry)','Inspect for play at every 500 hrs; replace worn rod ends immediately — slop causes speed hunting','Per joint'],
+   ['ECM control module','(GE 7FDL — by ECM model if equipped)','Replace if ECM has active fault codes that cannot be cleared and self-test fails; requires dealer programming','1/engine'],
+  ],
+  maint:[
+   {t:'Check governor oil level and condition',n:'Locate the governor oil level plug or dipstick; level should be at the mark; oil should be clear and light-colored; dark or metallic oil means internal wear — change oil',i:'500 hrs',b:'h500'},
+   {t:'Test overspeed trip — annually at no load',n:'With vessel in neutral: run engine to rated RPM then slowly increase; overspeed trip must activate within 2–3 seconds at 115% of rated RPM; test should be witnessed and documented',i:'Annually',b:'ann'},
+   {t:'Inspect governor linkage rod ends for play',n:'Grab each linkage rod end and try to move the ball in the housing — any detectable play means replace it; rod end slop causes engine hunting and delayed throttle response',i:'500 hrs',b:'h500'},
+   {t:'Verify governor idle and full throttle speeds',n:'At idle: measure with calibrated tachometer; at full throttle (in neutral, no load): verify engine reaches rated RPM; discrepancies indicate governor adjustment needed',i:'Annually',b:'ann'},
+   {t:'Read and record ECM fault codes (if ECM equipped)',n:'Connect to GE diagnostic port and pull active and historical fault codes; clear after recording; any recurring code that cannot be cleared indicates an active underlying issue requiring investigation',i:'500 hrs',b:'h500'},
+  ],
+  probs:[
+   {p:'Engine hunts — speed oscillates at steady throttle',
+    c:['Governor oil low or wrong type — spool valve response erratic','Injection rack linkage has play — governor overdrives correction','Governor droop setting incorrect for load'],
+    s:['Check governor oil level and condition first — low or wrong oil is the most common hunting cause on Woodward governors','Inspect all linkage rod ends for play — tighten any loose rod end jam nuts; replace any rod ends with detectable play','If oil and linkage are good: have governor adjusted by Woodward shop for droop setting appropriate to the application'],},
+   {p:'Engine will not reach rated RPM at full throttle',
+    c:['Governor maximum speed screw is limiting RPM below rated','Injection racks not traveling to full-fuel position — mechanical interference','ECM limiting engine output due to active fault code'],
+    s:['If ECM equipped: pull fault codes before adjusting anything mechanical — an active fault may be commanding reduced output deliberately','Verify that full throttle signal is reaching the governor — confirm Rexroth output to governor is commanding maximum','With engine stopped: manually move fuel rack to full-fuel position — if it binds before full travel, find and eliminate the mechanical interference']},
+  ]},
+
  'eng-bapump':{t:'B&A Pump — Before & After Turbo Lube',sys:'Main Engines',st:'ok',
   desc:'The Before & After (B&A) pump is a dedicated electric-motor-driven oil pump that pre-lubes the turbocharger bearing before engine start and continues circulating oil through the turbo for a set period after engine shutdown. The turbocharger spins at extremely high RPM and its bearings depend entirely on pressurized oil film — starting the engine without pre-lube allows the turbo to spin up on dry bearings, causing immediate wear. After shutdown, the turbo continues spinning on inertia while residual heat from the exhaust soaks into the bearing housing; without continued oil flow, this heat bakes oil in the bearing clearances and causes coking that damages or destroys the bearing. The B&A pump prevents both failure modes.',
   loc:'Engine room — typically mounted on or near the engine, connected into the main lube oil gallery or a dedicated turbo oil supply line. The timer/control unit is on the engine room panel or integrated into the engine control panel. Power from the 24VDC ship service circuit.',
@@ -1471,7 +1699,7 @@ const DET={
   probs:[
    {p:'Shore cord feels warm or inlet is hot to the touch',
     c:['Corroded or pitted inlet contacts creating resistance','Cord is undersized for the actual load','Loose lug at transfer switch or panel creating a high-resistance connection'],
-    s:['DISCONNECT SHORE POWER IMMEDIATELY — heat at a 120/240VAC connection is a fire precondition','Inspect inlet contacts — any discoloration, pitting, or burning means the inlet must be replaced','Check all connections at transfer switch and shore power panel — torque all lugs to spec','Measure actual load current with clamp meter — if exceeding cord or inlet rating, shed loads','Do not reconnect until cause of heat is identified and corrected']},
+    s:['DISCONNECT SHORE POWER IMMEDIATELY — heat at a 480VAC connection is a fire precondition','Inspect inlet contacts — any discoloration, pitting, or burning means the inlet must be replaced','Check all connections at transfer switch and shore power panel — torque all lugs to spec','Measure actual load current with clamp meter — if exceeding cord or inlet rating, shed loads','Do not reconnect until cause of heat is identified and corrected']},
    {p:'Breaker trips immediately when shore power is connected',
     c:['Shore power and onboard generator connected simultaneously — back-feed conflict','Shore power polarity is reversed — GFI or protection tripping','Onboard load exceeds shore power pedestal breaker rating'],
     s:['Confirm transfer switch is fully in SHORE position before connecting shore cord','Check polarity with tester before connecting — reversed polarity trips GFCI protection','Check what load is connected — if it exceeds the shore pedestal breaker rating (usually 30A or 50A), shed loads','If polarity is correct and loads are within rating: suspect a fault in the vessel wiring; have a marine electrician inspect']},
@@ -1480,10 +1708,10 @@ const DET={
  'gen-dist':{t:'Distribution Panels — Branch Circuit Load Centers',sys:'Generators & Electrical',st:'ok',
   desc:'The distribution panels are the branch circuit load centers that feed individual vessel systems from the main switchboard bus. Each panel serves a zone: cabin/accommodation, deck/navigation, and engine room. Each circuit has its own breaker sized to the wire — the breaker protects the wire, not the device. Proper labeling is a safety requirement; an unlabeled panel makes troubleshooting dangerous and slow.',
   loc:'Cabin panel: accommodation space, near companionway. Deck/navigation panel: pilothouse or nav station. Engine room panel: bulkhead near major loads. All panels connect back to the main switchboard via feeder breakers.',
-  specs:[['System voltage','120/240VAC (and 24VDC where applicable)'],['Breaker type','Thermal-magnetic molded case — sized to wire ampacity'],['Wire sizing','Per ABYC E-11 — wire ampacity must exceed breaker rating'],['Labeling','Every breaker must be clearly labeled — USCG and ABYC requirement'],['Panel access','Must be accessible for servicing — do not block with stored equipment'],['DC panel','Separate 24VDC panel for DC loads — engine start, bilge pumps, navigation instruments']],
+  specs:[['System voltage','480VAC 3-phase (and 24VDC where applicable)'],['Breaker type','Thermal-magnetic molded case — sized to wire ampacity'],['Wire sizing','Per ABYC E-11 — wire ampacity must exceed breaker rating'],['Labeling','Every breaker must be clearly labeled — USCG and ABYC requirement'],['Panel access','Must be accessible for servicing — do not block with stored equipment'],['DC panel','Separate 24VDC panel for DC loads — engine start, bilge pumps, navigation instruments']],
   parts:[
-   ['Circuit Breaker (1-pole 120V)','(by amperage — Carlingswitch or Blue Sea)','Single-pole 120VAC branch breaker — replace if tripping below rated current','Per circuit'],
-   ['Circuit Breaker (2-pole 240V)','(by amperage)','Double-pole 240VAC breaker for large loads','Per circuit'],
+   ['Circuit Breaker (3-pole 480V)','(by amperage — Square D, Eaton, or equivalent)','Three-pole 480VAC branch breaker — replace if tripping below rated current','Per circuit'],
+   ['Circuit Breaker (2-pole 480V)','(by amperage)','Two-pole 480VAC breaker for select loads','Per circuit'],
    ['DC Circuit Breaker (24V)','(by amperage — Blue Sea or equivalent)','24VDC branch breaker — marine-rated for DC duty','Per circuit'],
    ['Bus Bar Assembly','(by amperage — tin-plated copper)','Distribution bus bar with lug connections — inspect for corrosion and loose lugs','Per panel'],
    ['Panel Label Set','(blank or custom)','Adhesive circuit labels — every breaker must be identified','Per panel'],
@@ -1561,9 +1789,9 @@ const DET={
   ]},
 
  'gen-ss':{t:'Ship Service Generator — Diesel Genset',sys:'Generators & Electrical',st:'ok',
-  desc:'The ship service generators supply 120/240VAC 60 Hz power for all vessel electrical loads including lighting, electronics, galley, and engine room machinery. Two identical units run in standby rotation — one online while the other rests. Common makes on inland river vessels include Caterpillar (C4.4 / C7 with SR4 alternator) and Cummins/Onan (QSB6.7 / MDKBM series). Refer to the generator-specific manual for engine service intervals — alternator service is the same regardless of engine brand.',
+  desc:'The ship service generators supply 480VAC 3-phase 60 Hz power for all vessel electrical loads including lighting, electronics, galley, and engine room machinery. Two identical units run in standby rotation — one online while the other rests. Common makes on inland river vessels include Caterpillar (C4.4 / C7 with SR4 alternator) and Cummins/Onan (QSB6.7 / MDKBM series). Refer to the generator-specific manual for engine service intervals — alternator service is the same regardless of engine brand.',
   loc:'Engine room — generator flat or dedicated generator room. One unit port side, one starboard. Output cables run to main switchboard.',
-  specs:[['Output (typical)','60 kW / 75 kVA — verify on nameplate'],['Voltage','120/240VAC single-phase or 208VAC 3-phase — verify nameplate'],['Frequency','60 Hz'],['Speed','1,800 RPM'],['Engine (CAT option)','Caterpillar C4.4 ACERT or C7 ACERT diesel'],['Engine (Cummins option)','Cummins QSB6.7 or equivalent'],['Fuel consumption','~4–5 GPH at full load (60 kW)'],['Starting','Electric — 12VDC or 24VDC starter']],
+  specs:[['Output (typical)','60 kW / 75 kVA — verify on nameplate'],['Voltage','480VAC 3-phase — verify on nameplate'],['Frequency','60 Hz'],['Speed','1,800 RPM'],['Engine (CAT option)','Caterpillar C4.4 ACERT or C7 ACERT diesel'],['Engine (Cummins option)','Cummins QSB6.7 or equivalent'],['Fuel consumption','~4–5 GPH at full load (60 kW)'],['Starting','Electric — 12VDC or 24VDC starter']],
   parts:[
    ['Engine Oil Filter','(per engine nameplate)','Spin-on oil filter — verify part number against engine serial number tag','1/gen'],
    ['Fuel Filter / Water Separator','(per engine nameplate)','Primary fuel filter and water separator element — replace at every oil change','1/gen'],
@@ -1576,7 +1804,7 @@ const DET={
    {t:'Drain fuel filter water separator',n:'Open petcock at bottom of separator bowl briefly — drain any water accumulation',i:'Weekly',b:'ann'},
    {t:'Change engine oil and filter',n:'Drain oil hot; replace filter; refill to correct level',i:'250 hrs or 6 months',b:'h500'},
    {t:'Replace fuel filter element',n:'Bleed air from fuel system after filter change per JD procedure',i:'500 hrs or Annually',b:'h500'},
-   {t:'Test output voltage and frequency at no-load',n:'Should read 240V ±5% and 60 Hz ±0.5 Hz; low voltage = AVR fault; wrong frequency = engine speed issue',i:'Monthly',b:'ann'},
+   {t:'Test output voltage and frequency at no-load',n:'Should read 480V ±5% and 60 Hz ±0.5 Hz; low voltage = AVR fault; wrong frequency = engine speed issue',i:'Monthly',b:'ann'},
    {t:'Load bank test',n:'Run generator at 80% rated load for 2+ hours minimum; a generator never run under load will fail when it matters most',i:'Annually',b:'ann'},
   ],
   probs:[
@@ -1587,7 +1815,7 @@ const DET={
  'gen-swbd':{t:'Main Switchboard',sys:'Generators & Electrical',st:'ok',
   desc:'The main switchboard is the central distribution point for all vessel electrical power. It contains generator main breakers, the bus bar assembly, transfer switches, and feeder breakers for all branch circuits. All work requires proper Lockout/Tagout (LOTO) procedure.',
   loc:'Engine room or dedicated electrical room — typically mounted on a bulkhead near the generator sets.',
-  specs:[['System voltage','120/240VAC (verify — some vessels have 3-phase 208V)'],['Main breaker rating','Per generator output — typically 300–400A molded case'],['Transfer switch','Manual or automatic — selects between Gen #1, Gen #2, Shore Power']],
+  specs:[['System voltage','480VAC 3-phase'],['Main breaker rating','Per generator output — typically 300–400A molded case'],['Transfer switch','Manual or automatic — selects between Gen #1, Gen #2, Shore Power']],
   parts:[
    ['Main Circuit Breakers (pair)','(by amperage — verify nameplate)','Molded case circuit breakers — size per generator output','1 per source'],
    ['Transfer Switch Assembly','(by rating)','Manual or automatic transfer switch','1/system'],
@@ -2043,7 +2271,7 @@ const DET={
  'deck-capstan':{t:'Mooring Capstans — Bow & Stern Electric',sys:'Deck Equipment',st:'ok',
   desc:'The bow and stern electric capstans provide powered line-handling for mooring operations. Each capstan has a rotating drum head that grips a mooring line when it is wrapped around it — the crew maintains tension by holding the bitter end while the capstan does the hauling work. Capstans must never be left unattended with a line under tension — a capstan cannot release a line automatically if someone is pulled in.',
   loc:'Bow capstan: foredeck near the bow. Stern capstan: stern deck near mooring cleats. Power cables run below deck to the DC or AC distribution panel. Each capstan has a foot switch or remote control.',
-  specs:[['Type','Electric drum capstan — drum head rotates, crew holds bitter end'],['Power','120VAC or 24VDC — verify on nameplate'],['Line size','Rated for specific line diameter — do not exceed rated line size'],['Control','Foot pedal, deck switch, or remote pendant'],['Duty cycle','Intermittent duty — allow cooling between extended operations'],['CRITICAL','Never cleat a line to a running capstan — capstans cannot release under load automatically']],
+  specs:[['Type','Electric drum capstan — drum head rotates, crew holds bitter end'],['Power','480VAC 3-phase or 24VDC — verify on nameplate'],['Line size','Rated for specific line diameter — do not exceed rated line size'],['Control','Foot pedal, deck switch, or remote pendant'],['Duty cycle','Intermittent duty — allow cooling between extended operations'],['CRITICAL','Never cleat a line to a running capstan — capstans cannot release under load automatically']],
   parts:[
    ['Capstan Motor','(by capstan model and voltage)','Replacement motor — replace if capstan trips breaker under normal load or runs hot','1/capstan'],
    ['Capstan Head (drum)','(by capstan model)','Rotating drum head — inspect for line grooves or cracks','1/capstan'],
@@ -3543,7 +3771,7 @@ const MANUAL_CONTENT={
      ['Belts \u2014 replace','3,000 hrs or as needed','Replace on schedule even if appearance is acceptable'],
      ['Injector test','2,000 hrs or on condition','CAT dealer only \u2014 do not field-disassemble ACERT injectors'],
      ['Full load bank test','Annually','80% rated load for 2+ hours minimum'],
-     ['AVR voltage calibration','If voltage drifts','Adjust AVR trimmer pot; target 240V \u00b12% under load'],
+     ['AVR voltage calibration','If voltage drifts','Adjust AVR trimmer pot; target 480V \u00b12% under load'],
     ]},
    {t:'SR4 Alternator Reference',type:'table',
     heads:['Parameter','Value','Notes'],
@@ -3552,7 +3780,7 @@ const MANUAL_CONTENT={
      ['Voltage regulation','\u00b10.5% steady state','AVR board on housing; replace if voltage is unsteady'],
      ['Insulation class','Class H (356\u00b0F rated)','Check for discoloration at annual inspection'],
      ['Bearing (drive end)','Grease-lubricated ball bearing','Regrease per CAT schedule \u2014 typically every 2,000 hrs'],
-     ['Space heater','120VAC (if installed)','Energize when generator is off in humid conditions \u2014 prevents moisture'],
+     ['Space heater','240VAC or 120VAC (if installed)','Energize when generator is off in humid conditions \u2014 prevents moisture'],
     ]},
    {t:'Troubleshooting \u2014 CAT Generator',type:'table',
     heads:['Symptom','Most Likely Cause','First Check'],
@@ -3634,7 +3862,7 @@ const MANUAL_CONTENT={
      '  \u2022 6 blinks: High AC voltage \u2014 AVR fault or engine overspeed',
      '  \u2022 7 blinks: Low AC voltage \u2014 AVR fault or engine underperforming under load',
      'HSOP digital board: displays plain-text fault descriptions on screen. Press HISTORY to review past faults. Codes beginning with SA = engine ECM faults; GEN = genset/alternator faults.',
-     'Voltage adjustment: AmpSentry \u2014 adjust VOLTAGE trimmer pot (R1) on AVR board; clockwise increases voltage; target 240V \u00b12% under load. HSOP systems \u2014 voltage trim is done through the display menu.',
+     'Voltage adjustment: AmpSentry \u2014 adjust VOLTAGE trimmer pot (R1) on AVR board; clockwise increases voltage; target 480V \u00b12% under load. HSOP systems \u2014 voltage trim is done through the display menu.',
     ]},
    {t:'Troubleshooting \u2014 Cummins/Onan Genset',type:'table',
     heads:['Symptom','Most Likely Cause','First Check'],
@@ -3840,6 +4068,195 @@ const EMG={
     'Do NOT assume the problem is solved after a momentary restoration of steering — reduced-intensity hydraulic leaks can fail again suddenly.',
    ]},
   ]},
+ 'emg-fire':{
+  title:'Engine Room Fire',
+  sub:'Fire detected in engine room — act immediately, fire grows fast in a confined space',
+  sections:[
+   {t:'IMMEDIATE — FIRST 60 SECONDS',color:'#ef4444',steps:[
+    'Sound the general alarm. Shout "FIRE ENGINE ROOM" to alert all crew simultaneously — do not handle the fire alone while the rest of the crew is unaware.',
+    'If CO2 or fixed suppression system is installed: CLEAR ALL PERSONNEL FROM THE ENGINE ROOM BEFORE ACTIVATING. Count heads. Do not discharge CO2 with anyone inside — CO2 is lethal in enclosed spaces.',
+    'Close the engine room — shut all vents, hatches, doors, and blower intakes to the engine room. Cutting off air starves the fire.',
+    'Shut down fuel supply to the engine room if accessible and safe from outside — close the fuel day tank isolation valve or remote fuel shutoff if your vessel has one.',
+    'If fire is small, accessible, and you have a clear escape route: attempt to suppress with CO2 or dry chemical extinguisher from the doorway. Do not enter a smoke-filled space without breathing apparatus.',
+    'Sound five short blasts. Broadcast PAN PAN or MAYDAY on VHF Channel 16 depending on severity: "MAYDAY MAYDAY MAYDAY — [vessel name], engine room fire, [position], [number of crew], [assistance needed]."',
+   ]},
+   {t:'ACTIVATE FIXED SUPPRESSION (IF EQUIPPED)',color:'#dc2626',steps:[
+    'Locate the CO2 or Halon system control panel — typically at the engine room entrance or pilothouse.',
+    'Verify ALL personnel are out of the engine room and the space is sealed. Announce "CO2 RELEASING — STAY CLEAR" loudly.',
+    'Pull the CO2 release handle. The system will discharge into the engine room within seconds.',
+    'DO NOT reopen the engine room for a minimum of 30 minutes after CO2 discharge — CO2 clouds settle, and a rush of fresh air can re-ignite a smoldering fire.',
+    'After 30 minutes: approach the space cautiously, test atmosphere with a gas detector if available, and verify fire is fully extinguished before entry.',
+   ]},
+   {t:'DIAGNOSE — FIRE TYPE AFFECTS RESPONSE',color:'#f59e0b',steps:[
+    'Fuel or lube oil fire (most common): fed by the fuel or oil leak that caused it — shutting fuel and isolating the ignition source is critical. CO2 or dry chemical are effective.',
+    'Electrical fire: identify the source circuit and de-energize it at the panel. CO2 or dry chemical — never water on electrical fire.',
+    'Hydraulic fluid fire: hydraulic fluid under high pressure can spray as a mist — extremely flammable. Shut hydraulic pump. CO2 effective.',
+    'Battery fire: thermal runaway in a lead-acid battery creates hydrogen gas — explosive. Do not seal the space with battery fire; ventilate cautiously. Flood battery bank with water if fully accessible and power can be safely removed.',
+   ]},
+   {t:'NOTIFY',color:'#0d9488',steps:[
+    'VHF Channel 16 — MAYDAY if vessel is in danger, PAN PAN if fire is controlled but situation is serious. Update your call as the situation changes.',
+    'USCG will coordinate response — provide position, number of crew, nature of fire, and whether suppression is active.',
+    'Company dispatch — notify immediately; they can coordinate towing or assistance.',
+    'Nearby vessels — hail on Ch 16 to keep them clear in case the situation deteriorates.',
+   ]},
+   {t:'DO NOT',color:'#7c3aed',steps:[
+    'Do NOT open the engine room to fight the fire after CO2 has discharged — you will feed fresh oxygen to a smoldering fire and it will reignite violently.',
+    'Do NOT use water on oil, fuel, hydraulic fluid, or electrical fires — water spreads burning oil and causes electrical flashover.',
+    'Do NOT enter a smoke-filled space without SCBA (self-contained breathing apparatus) — smoke incapacitation happens within 1–2 breaths in a dense smoke environment.',
+    'Do NOT delay abandoning ship if the fire cannot be controlled and the vessel is at risk of sinking or structural failure — no cargo or vessel is worth a life.',
+   ]},
+  ]},
+ 'emg-flooding':{
+  title:'Flooding / Taking on Water',
+  sub:'Uncontrolled water ingress — every minute of delay increases the risk',
+  sections:[
+   {t:'IMMEDIATE',color:'#ef4444',steps:[
+    'Sound the alarm and notify all crew immediately. Flooding can sink a vessel faster than most other emergencies — early crew involvement is critical.',
+    'Start ALL bilge pumps — electric submersibles, engine-driven, and portable. Maximum pumping capacity from the first moment.',
+    'Locate the source of flooding — listen and look. Common sources: sea chest failure, penetration fitting failure, hull damage from collision or grounding, stuffing box failure, or open drain valve.',
+    'Sound all compartments with a sounding rod or tape — compare readings to determine which compartment is flooding fastest. Identify the primary flooding source.',
+    'If flooding is sudden and severe: broadcast PAN PAN or MAYDAY on VHF Channel 16 immediately. Do not wait to assess the situation before alerting other traffic and USCG.',
+   ]},
+   {t:'CONTROL THE SOURCE',color:'#f59e0b',steps:[
+    'Sea chest flooding: if a sea chest valve or strainer housing has failed, close the sea chest seacock immediately. If the seacock is seized or inaccessible, a wooden plug driven into the opening may temporarily stop flow.',
+    'Shaft seal (stuffing box) flooding: a failed stuffing box can flood rapidly. Tighten the gland nut incrementally — do not overtighten (you need some water weep for cooling). A complete stuffing box failure may require a temporary external patch or packing material.',
+    'Hull penetration fitting failure: close the valve for that fitting if one is fitted. If the fitting itself has failed, wooden plugs or bronze pipe caps can be temporary measures.',
+    'Impact or grounding damage: if hull is breached from outside impact, wooden wedges, cushions, mattresses, or collision mats pressed against the breach from inside can reduce flooding rate. Damage from outside requires a diver or dry dock.',
+    'Pump capacity vs flooding rate: if pumps cannot keep up with the flooding rate, flooding will continue. If the rate is increasing, prepare for potential abandonment.',
+   ]},
+   {t:'DAMAGE CONTROL ACTIONS',color:'#2563eb',steps:[
+    'Transfer fuel and ballast to raise the flooding compartment higher — reducing the hydrostatic head (water depth outside vs inside) reduces flooding rate.',
+    'If flooding is in one compartment with watertight bulkheads: seal that compartment and monitor neighboring spaces. Verify bulkheads are holding.',
+    'Maintain navigation capability as long as possible — a vessel underway can be directed toward shallow water, a bank, or a landing where it can be beached rather than sunk in a channel.',
+    'Account for all crew — know exactly where everyone is at all times during a flooding emergency.',
+    'Prepare the life raft and survival equipment for deployment while flooding control measures are underway — do not wait until abandonment is already underway.',
+   ]},
+   {t:'NOTIFY',color:'#0d9488',steps:[
+    'VHF Channel 16 — MAYDAY if the vessel is in danger of sinking. Provide: vessel name, position, nature of emergency, number of persons aboard, type of vessel.',
+    'VTS (if in VTS area) — notify for coordination of traffic and possible assistance.',
+    'Company dispatch — report status and location; they can coordinate pumping equipment and assistance.',
+    'Nearby vessels — they can stand by for rescue if abandonment becomes necessary.',
+   ]},
+   {t:'DO NOT',color:'#7c3aed',steps:[
+    'Do NOT ignore a slow leak assuming the bilge pumps will handle it — a slow leak can become a fast one suddenly if the source is under pressure or failing progressively.',
+    'Do NOT close sea chest seacocks unnecessarily — if you close them without knowing which one is flooding, you may lose cooling water to running engines at the same time.',
+    'Do NOT abandon ship prematurely if flooding is controlled and the vessel is afloat — a vessel is almost always safer than the water.',
+    'Do NOT stop pumping during any rescue operation until the vessel is secured — bilge pumps must keep running even during evacuation.',
+   ]},
+  ]},
+ 'emg-mob':{
+  title:'Man Overboard',
+  sub:'A person is in the water — survival time is limited by temperature and current',
+  sections:[
+   {t:'IMMEDIATE — WHEN PERSON GOES OVERBOARD',color:'#ef4444',steps:[
+    'Shout "MAN OVERBOARD" loudly and continuously until all crew is alerted.',
+    'Throw a life ring toward the person in the water IMMEDIATELY — throw it near them, not at them. If a life ring with light and drogue is available, deploy it.',
+    'Point at the person in the water and do not take your eyes off them. Assign one crew member to do NOTHING but keep eyes on the person — they must not look away under any circumstances.',
+    'Activate DSC distress button or note the GPS coordinates immediately. River current will move the person rapidly — mark the position.',
+    'Broadcast MAYDAY on VHF Channel 16: "MAYDAY MAYDAY MAYDAY — [vessel name], man overboard, our position is [coordinates or river mile], one person in the water, [description of person if known]."',
+   ]},
+   {t:'MANEUVER TO RECOVER',color:'#f59e0b',steps:[
+    'River current: the person is moving with the current at the same rate as the water — maneuver upstream of the person and approach drifting down toward them, using engines to control your approach speed.',
+    'Approach: come alongside the person with the person on the DOWNWIND/DOWNCURRENT side of the vessel — this keeps the vessel from drifting over them.',
+    'Stop engines before the person reaches the hull or propeller — never maneuver with engines running when within range of a person in the water.',
+    'Throw a line or a life ring on a rope to the person — do not ask them to swim to the vessel if avoidable. River current and exhaustion make swimming extremely difficult.',
+    'If the person is unconscious or incapacitated: rescue swimmer or small boat deployment may be required.',
+   ]},
+   {t:'RECOVERY',color:'#2563eb',steps:[
+    'Boarding: a person in cold water may be too exhausted to climb a ladder. Prepare a rescue sling, cargo net, or lift device. A person in the water for more than a few minutes in cold water may have no arm or leg strength.',
+    'Hypothermia: anyone recovered from cold water should be treated for hypothermia — remove wet clothing, cover with blankets, monitor for shock. Cold water incapacitates quickly; river water is rarely warm enough to be truly safe.',
+    'Medical: call for emergency medical assistance as soon as the person is aboard. Even if conscious, a submersion victim needs medical evaluation.',
+    'Recovery log: document the time the person went overboard, time of recovery, water temperature, and time submerged for medical responders.',
+   ]},
+   {t:'NOTIFY',color:'#0d9488',steps:[
+    'USCG on VHF Channel 16 — MAYDAY for person in water. Maintain the call until situation is resolved.',
+    'If person is not immediately recovered: USCG will coordinate search and rescue assets. Provide last known position and current/drift information.',
+    'Company dispatch — notify as soon as person is safe or if search is ongoing.',
+    'Emergency medical services — request assistance at your recovery point; a hypothermic or submersion victim needs hospital evaluation.',
+   ]},
+   {t:'DO NOT',color:'#7c3aed',steps:[
+    'Do NOT take your eyes off the person in the water — river current can move them out of sight within seconds if the spotter looks away.',
+    'Do NOT maneuver with engines running near the person — propeller contact is immediately fatal.',
+    'Do NOT assume the person can swim to safety — river current, cold water, and the weight of clothing and boots make swimming extremely difficult even for strong swimmers.',
+    'Do NOT stop looking if initial recovery is unsuccessful — a person can survive in the water for meaningful time in warmer conditions; continue active search until USCG takes over.',
+   ]},
+  ]},
+ 'emg-prop':{
+  title:'Loss of Propulsion',
+  sub:'Engine failure, shaft failure, or wrapped propeller — vessel cannot maneuver normally',
+  sections:[
+   {t:'IMMEDIATE',color:'#ef4444',steps:[
+    'Notify the pilothouse immediately — the pilot must know propulsion is lost before the vessel drifts into a hazard. Communication between engine room and pilothouse must happen in the first seconds.',
+    'Sound five short blasts on the horn — vessel not under command signal. Alert nearby traffic that maneuvering is impaired.',
+    'Assess available propulsion: is one engine still running? Can the vessel maneuver on one screw? Partial propulsion is far better than none.',
+    'If completely dead in the water in a channel or near a hazard: anchor immediately if depth and current allow. Do not wait until a collision is imminent to deploy.',
+    'Broadcast on VHF Channel 16: "PAN PAN, PAN PAN, PAN PAN — [vessel name], loss of propulsion, our position is [position], we are [describe situation and hazards]."',
+   ]},
+   {t:'DIAGNOSE — IDENTIFY THE CAUSE',color:'#f59e0b',steps:[
+    'Engine running but no thrust: suspect wrapped propeller, shaft coupling failure, or failed clutch/gear. If the engine is running and in gear but producing no thrust, you likely have a wrapped line or shaft issue.',
+    'Engine stopped: investigate cause — overspeed trip, low oil pressure shutdown, high temp shutdown, loss of fuel. Check engine alarms and fault codes on control panel.',
+    'Shaft coupling failure: the connection between engine and gear or gear and shaft has broken. Engine runs but shaft does not turn. Usually accompanied by a loud bang and sudden loss of thrust.',
+    'Wrapped propeller (most common on river): rope, cable, or debris wrapped around the shaft or propeller. Engine may still run; shaft may turn with difficulty or not at all. Check by watching propeller shaft rotation from astern.',
+    'Reduction gear failure: a loud grinding noise on engagement, followed by no thrust. If gear is seized, do not attempt to re-engage — this will damage the engine.',
+   ]},
+   {t:'WRAPPED PROPELLER — CLEARING PROCEDURES',color:'#2563eb',steps:[
+    'With a wrapped propeller: do NOT simply apply full reverse power repeatedly — this can jam the line tighter or damage the shaft seal.',
+    'Attempt to clear with slow, alternating forward and reverse bursts — sometimes wraps can be walked off the shaft with careful maneuvering. If the shaft is seized, do not force it.',
+    'If alternating does not clear: the propeller must be cleared by a diver. Secure the engine on that shaft and notify company for diver dispatch.',
+    'A vessel with one wrapped propeller may be able to operate on the other engine — use differential throttle carefully with the good propeller only.',
+    'Do not deploy a diver near operating machinery — the shaft on the cleared side must be completely stopped, in gear with engines off, before a diver approaches either propeller.',
+   ]},
+   {t:'IF ENGINE WILL NOT RESTART',color:'#dc2626',steps:[
+    'Investigate the shutdown cause at the engine control panel before attempting restart — a safety shutdown exists for a reason. Restarting into an active fault (low oil pressure, high temp) can destroy the engine.',
+    'If the cause is identified and corrected: attempt restart per normal procedure. Allow a full B&A pump pre-lube cycle before cranking.',
+    'If cause cannot be identified or corrected at sea: do not force a restart. Secure the vessel at anchor or on a bank and contact company for mechanical assistance.',
+    'Notify VTS of your status — a disabled vessel in a commercial waterway requires active coordination to keep traffic clear.',
+   ]},
+   {t:'DO NOT',color:'#7c3aed',steps:[
+    'Do NOT restart an engine that shutdown on a safety trip without first identifying and resolving the cause — safety shutdowns are protecting the engine from destruction.',
+    'Do NOT send a diver near the vessel while any engine is in gear or could be accidentally engaged.',
+    'Do NOT continue at speed through a known debris field after a suspected wrap — clear the wrap first or reduce speed significantly.',
+    'Do NOT attempt to navigate through a lock or bridge with full loss of propulsion — wait for towing assistance.',
+   ]},
+  ]},
+ 'emg-grounding':{
+  title:'Running Aground',
+  sub:'Vessel has contacted bottom — assess damage before any action',
+  sections:[
+   {t:'IMMEDIATE — STOP AND ASSESS',color:'#ef4444',steps:[
+    'ALL STOP — secure throttles to idle or neutral immediately. Do not continue driving the vessel forward or deeper aground.',
+    'Sound the alarm and notify all crew. Account for all personnel — a sudden grounding can throw people and cause injury.',
+    'Do NOT immediately attempt to back off. The first priority is to assess whether the vessel is taking on water. A hull breach from grounding may be plugged by the bottom contact — backing off immediately could open the breach to full flooding.',
+    'Sound all bilge compartments — check for water in every accessible space. If flooding is detected, treat this as a flooding emergency simultaneously.',
+    'Broadcast on VHF Channel 16: "PAN PAN, PAN PAN, PAN PAN — [vessel name], aground at [position/river mile], we are assessing the vessel for damage."',
+   ]},
+   {t:'ASSESS THE GROUNDING',color:'#f59e0b',steps:[
+    'Soft grounding (mud, sand): vessel may be able to free itself with careful engine use. No structural damage likely. Flooding is unlikely unless the grounding involved a sudden impact.',
+    'Hard grounding (rock, concrete, debris): inspect carefully for hull damage before doing anything. Look at the hull from deck where accessible and sound all compartments. Hard grounding can puncture the hull.',
+    'Check propeller and rudder accessibility: note how deeply the vessel is aground. If the stern is lifting, the propeller may be clear of the bottom and available for maneuvering. If propeller is contacting bottom, do not run engines.',
+    'Assess tidal or current effects: is the current pushing the vessel harder aground or helping to free it? River current will typically push the bow harder into the bottom on a bar.',
+    'Check for list (tilt): a listing vessel that is aground may have water in a compartment on the low side. Investigate any list immediately.',
+   ]},
+   {t:'GETTING OFF — IF SAFE TO TRY',color:'#2563eb',steps:[
+    'If no flooding is confirmed and propellers are clear: attempt to back off slowly in reverse. Use minimum throttle at first — the vessel should break free with gentle power if the grounding is shallow.',
+    'If backing does not free the vessel: do not increase to full power repeatedly — this will damage the propeller if it contacts bottom and can worsen the grounding.',
+    'Shift weight aft: moving any heavy portable weight (fuel, water, cargo if applicable) toward the stern can raise the bow and help break free on a bow grounding.',
+    'Request assistance: a tow from another vessel perpendicular to the grounding can provide force in a direction the vessel\'s own engines cannot. Company can coordinate a towing vessel.',
+    'Wait for rising water (if applicable): on a river where water level fluctuates, waiting for a higher stage of river may float the vessel free without any engine effort.',
+   ]},
+   {t:'NOTIFY',color:'#0d9488',steps:[
+    'USCG — required by law to report a grounding to USCG. Report via VHF Ch 16, then follow up with a formal written report. Failure to report a grounding is a violation of federal law.',
+    'VTS (if in VTS area) — notify immediately; a grounded vessel may be blocking traffic in a commercial channel.',
+    'Company dispatch — report immediately; they will coordinate salvage, inspection, and regulatory reporting requirements.',
+    'Other vessel traffic — vessels approaching your position should be warned via Ch 16 if you are blocking a channel.',
+   ]},
+   {t:'DO NOT',color:'#7c3aed',steps:[
+    'Do NOT back off immediately after a hard grounding without checking for flooding first — backing off may remove the only plug in a hull breach.',
+    'Do NOT run propellers at full power if there is any chance the propeller is in contact with or near the bottom — propeller or shaft damage on top of grounding is a compounding emergency.',
+    'Do NOT fail to report the grounding to USCG — federal law requires grounding notification; unreported groundings that involve hull damage are a serious regulatory violation.',
+    'Do NOT leave the vessel unattended while it is aground — water level and current conditions can change; a vessel that is safely aground now may be in danger of rolling or sinking as conditions change.',
+   ]},
+  ]},
 };
 
 function renderEmergency(key){
@@ -3870,16 +4287,94 @@ function renderEmergency(key){
   return h;
 }
 
+// ─── PROCEDURES ──────────────────────────────────────────────
+const PROC={
+ 'proc-fueltransfer':{
+  title:'Fuel Transfer Procedures',
+  sub:'General reference only — consult your vessel\'s transfer procedures book for vessel-specific instructions',
+  sections:[
+   {t:'IMPORTANT — READ FIRST',color:'#ef4444',steps:[
+    'These are general guidelines only. Every towboat is different. Your vessel\'s specific fuel transfer procedures are documented in the Transfer Procedures Book, which is located in the control booth in the engine room on every vessel. That book governs. When in doubt, stop and consult it.',
+    'A valid PIC (Person in Charge) card is required by federal regulation (46 CFR Part 155) to oversee any fuel transfer operation on a commercial vessel. The PIC must be physically present and actively in charge for the entire duration of the transfer. Do not begin a transfer without a credentialed PIC on deck.',
+    'The PIC is personally responsible for the transfer operation — including ensuring all pre-transfer checks are complete, that the crew knows their roles, and that the transfer is stopped immediately if any unsafe condition develops.',
+   ]},
+   {t:'BEFORE TRANSFER — PRE-TRANSFER CHECKLIST',color:'#f59e0b',steps:[
+    'Verify PIC is present, credentialed, and has reviewed the vessel-specific transfer procedures for this vessel.',
+    'Post a "NO SMOKING — FUELING IN PROGRESS" sign at all access points. Enforce a no-smoking and no-open-flame policy for the entire vessel during transfer.',
+    'Plug all deck scuppers to prevent any fuel spill from reaching the water. This is a regulatory requirement — an unplugged scupper during a spill is a reportable discharge violation.',
+    'Position a fire extinguisher at the fueling station. Confirm it is charged and the operator knows how to use it.',
+    'Establish communication between the PIC, the deckhand at the fuel connection, and the engine room before opening any valves. All parties must be in contact and ready before transfer begins.',
+    'Verify the receiving tank capacity. Calculate how much fuel can be received without overfilling. Know your stop point before the first valve is opened.',
+    'Inspect all fuel hose connections for security and condition before pressurizing. A loose connection under pressure will spray fuel.',
+   ]},
+   {t:'DURING TRANSFER',color:'#2563eb',steps:[
+    'Open valves slowly and in the correct sequence per your vessel\'s transfer procedures book. The correct valve sequence varies by vessel — do not assume it is the same from boat to boat.',
+    'Monitor tank levels continuously during transfer. Do not leave the fueling station unattended for any reason while fuel is flowing.',
+    'Watch for any signs of leakage at all connection points — hose fittings, valves, tank vents. If a leak develops, stop the transfer immediately and address it before resuming.',
+    'Monitor the fuel vent. Fuel coming from a tank vent indicates the tank is nearly full — be prepared to slow the transfer rate or close the receiving valve.',
+    'Maintain communication with all crew throughout the transfer. Any crew member who observes an issue has the authority and responsibility to call for an immediate stop.',
+    'Keep the area clear of non-essential personnel during fueling.',
+   ]},
+   {t:'COMPLETING THE TRANSFER',color:'#0d9488',steps:[
+    'Close valves in the correct sequence per your vessel\'s transfer procedures book before disconnecting any hose or fitting.',
+    'Allow pressure to bleed from the hose before disconnecting. A pressurized hose will spray fuel when opened.',
+    'Disconnect fuel connections carefully and cap all fittings immediately to prevent drips.',
+    'Remove scupper plugs only after all connections are closed, capped, and the deck has been inspected for any fuel residue. Clean any spilled fuel from the deck before unplugging scuppers.',
+    'Record the transfer: date, time, quantity received, tank levels before and after, and name of PIC. This documentation is a regulatory requirement and should be in the vessel\'s official record.',
+    'Inspect the receiving tanks and all associated lines for any seepage before returning the vessel to normal operations.',
+   ]},
+   {t:'IF A SPILL OCCURS',color:'#dc2626',steps:[
+    'STOP THE TRANSFER IMMEDIATELY — close all valves. Speed of response is the most important factor in limiting the size of a spill.',
+    'If fuel has reached the water: federal law requires immediate notification to the National Response Center at 1-800-424-8802. A reportable discharge to navigable waters must be reported regardless of volume.',
+    'Notify the company immediately. Do not attempt to manage a reportable spill without notifying the company — they have regulatory obligations as well.',
+    'Deploy containment if available — oil absorbent boom or pads can limit spread. Do not use detergent to disperse a fuel spill in the water.',
+    'Do not leave the vessel during a spill until relieved by someone authorized to take charge of spill response.',
+   ]},
+   {t:'REMINDERS',color:'#7c3aed',steps:[
+    'Every boat is different. Valve locations, tank configurations, vent locations, and transfer sequences vary from vessel to vessel. Always use your vessel\'s Transfer Procedures Book — located in the engine room control booth.',
+    'The PIC card is not optional. A transfer conducted without a credentialed PIC present is a federal violation regardless of how routine the transfer seems.',
+    'When in doubt, stop. A delayed transfer is an inconvenience. A fuel spill is a regulatory violation, an environmental hazard, and potentially a fire or explosion risk.',
+   ]},
+  ]},
+};
+
+function renderProcedure(key){
+  const p=PROC[key];
+  if(!p) return renderPH4(key);
+  let h='<div class="pt" style="color:#2563eb"><i class="ti ti-clipboard-list" style="margin-right:6px;font-size:14px"></i>'+p.title+'</div>';
+  h+='<div class="ps" style="margin-bottom:16px">'+p.sub+'</div>';
+  p.sections.forEach(function(sec){
+    h+='<div style="margin-bottom:10px">';
+    h+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">';
+    h+='<div style="height:3px;flex:1;background:'+sec.color+';border-radius:2px"></div>';
+    h+='<span style="font-size:9px;font-weight:700;color:'+sec.color+';letter-spacing:.1em">'+sec.t+'</span>';
+    h+='<div style="height:3px;flex:1;background:'+sec.color+';border-radius:2px"></div>';
+    h+='</div><div style="display:flex;flex-direction:column;gap:5px">';
+    sec.steps.forEach(function(step,i){
+      var isNote=sec.t==='REMINDERS';
+      h+='<div style="display:flex;align-items:flex-start;gap:10px;background:#fff;border:.5px solid #e2e8f0;border-left:3px solid '+sec.color+';border-radius:0 7px 7px 0;padding:9px 12px">';
+      if(isNote) h+='<i class="ti ti-info-circle" style="font-size:13px;color:'+sec.color+';flex-shrink:0;margin-top:1px"></i>';
+      else h+='<span style="font-size:10px;font-weight:700;color:#fff;background:'+sec.color+';border-radius:4px;min-width:20px;height:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">'+(i+1)+'</span>';
+      h+='<span style="font-size:11.5px;color:#334155;line-height:1.6">'+step+'</span></div>';
+    });
+    h+='</div></div>';
+  });
+  return h;
+}
+
 function renderSidebar(){
   let h='';
-  NAV.forEach(g=>{
+  NAV.forEach((g,gi)=>{
     const isEmg=g.g==='Emergency Scenarios';
-    h+=`<div class="sg${isEmg?' emg':''}">${g.g}</div>`;
+    const isProc=g.g==='Procedures';
+    const emgCls=isEmg?'emg':'';
+    const firstCls=gi===0?'sg-first':'';
+    h+=`<div class="sg ${emgCls} ${firstCls}">${g.g}</div>`;
     g.items.forEach(item=>{
       const on=S.sec===item.k?'on':'';
-      const emgCls=isEmg?'emg-item':'';
+      const niEmg=isEmg?'emg-item':'';
       const bdg=item.b?`<span class="nbdg ${item.b.c}">${item.b.t}</span>`:'';
-      h+=`<div class="ni ${emgCls} ${on}" data-sec="${item.k}"><i class="ti ti-${item.i}"></i><span class="nl">${item.l}</span>${bdg}</div>`;
+      h+=`<div class="ni ${niEmg} ${on}" data-sec="${item.k}"><i class="ti ti-${item.i}"></i><span class="nl">${item.l}</span>${bdg}</div>`;
     });
   });
   document.getElementById('sb').innerHTML=h;
@@ -3893,6 +4388,7 @@ function renderMain(){
   if(S.sec==='manuals'){el.innerHTML=renderManuals();return;}
   if(S.sec==='feedback'){el.innerHTML=renderFeedback();return;}
   if(S.sec.startsWith('emg-')){el.innerHTML=renderEmergency(S.sec);return;}
+  if(S.sec.startsWith('proc-')){el.innerHTML=renderProcedure(S.sec);return;}
   const d=SEC[S.sec];
   if(!d){el.innerHTML=renderPH4(S.sec);return;}
   let h=`<div class="pt">${d.title}</div><div class="ps">${d.sub}</div>`;
@@ -3901,8 +4397,7 @@ function renderMain(){
   if(S.sec==='engines'){
     const etypes=[
       {k:'emd645',label:'EMD 645',icon:'engine'},
-      {k:'emd710',label:'EMD 710',icon:'engine'},
-      {k:'ge',label:'GE',icon:'bolt'},
+      {k:'ge',label:'GE',icon:'engine'},
     ];
     h+='<div class="engsel">';
     etypes.forEach(e=>{
@@ -3910,12 +4405,7 @@ function renderMain(){
       h+=`<div class="esbtn ${on}" onclick="setEngType('${e.k}')"><i class="ti ti-${e.icon}"></i>${e.label}</div>`;
     });
     h+='</div>';
-    if(S.engType!=='emd645'){
-      const labels={emd710:'EMD 710',ge:'GE'};
-      h+=`<div class="engph"><i class="ti ti-tool"></i><h3>${labels[S.engType]} — Content Coming Soon</h3><p>Component cards, part numbers, maintenance schedules, and troubleshooting for ${labels[S.engType]} engines will be added here.</p></div>`;
-      el.innerHTML=h;
-      return;
-    }
+    if(S.engType==='ge') d._active=d.gegroups;
   }
   // Steering type selector
   if(S.sec==='steering'){
@@ -3929,9 +4419,11 @@ function renderMain(){
       h+=`<div class="esbtn ${on}" onclick="setSteerType('${s.k}')"><i class="ti ti-${s.icon}"></i>${s.label}</div>`;
     });
     h+='</div>';
-    if(S.steerType==='linkage') d.groups=d.lgroups;
+    if(S.steerType==='linkage') d._active=d.lgroups;
   }
-  d.groups.forEach(g=>{
+  const activeGroups=d._active||d.groups;
+  d._active=null;
+  activeGroups.forEach(g=>{
     h+=`<div class="gl">${g.l}</div><div class="grid">`;
     g.cards.forEach(c=>{
       const [col,ico,title,sub,tags,st,dk]=c;
