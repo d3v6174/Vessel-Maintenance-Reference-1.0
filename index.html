@@ -34,6 +34,17 @@ body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:v
 #menu-btn i{font-size:14px}
 #menu-drop{display:none;position:absolute;top:52px;right:10px;background:#fff;border:.5px solid var(--bd);border-radius:11px;box-shadow:0 8px 28px rgba(0,0,0,.14);min-width:200px;padding:6px;z-index:500}
 #menu-drop.open{display:block}
+#vessel-btn{display:flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;background:rgba(255,255,255,.13);border:none;cursor:pointer;color:rgba(255,255,255,.85);font-size:10px;font-weight:500;transition:background .15s;max-width:160px}
+#vessel-btn:hover{background:rgba(255,255,255,.22)}
+#vessel-btn i{font-size:13px;flex-shrink:0}
+#vessel-btn .vname{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#vessel-drop{display:none;position:absolute;top:52px;left:50%;transform:translateX(-50%);background:#fff;border:.5px solid var(--bd);border-radius:11px;box-shadow:0 8px 28px rgba(0,0,0,.14);min-width:230px;padding:6px;z-index:500}
+#vessel-drop.open{display:block}
+.vdlbl{font-size:9px;font-weight:700;color:var(--t3);letter-spacing:.08em;text-transform:uppercase;padding:6px 11px 4px}
+.vitem{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:7px;cursor:pointer;font-size:12px;color:var(--t1);font-weight:500}
+.vitem:hover{background:var(--bg)}
+.vitem.active{color:var(--r);background:#fff5f5}
+.vitem i{font-size:14px;color:var(--t2);width:18px;text-align:center}
 .mdiv{height:.5px;background:var(--bd);margin:4px 6px}
 .mitem{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:7px;cursor:pointer;font-size:12px;color:var(--t1);font-weight:500}
 .mitem:hover{background:var(--bg)}
@@ -42,12 +53,13 @@ body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:v
 .mitem.active i{color:var(--r)}
 .chip.amb .d{background:var(--amber)}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
-.sg{font-size:9px;font-weight:700;color:rgba(255,255,255,.28);letter-spacing:.13em;text-transform:uppercase;padding:18px 13px 5px;display:flex;align-items:center;gap:7px}
-.sg::before{content:'';flex:1;height:.5px;background:rgba(255,255,255,.07)}
+.sg{font-size:9px;font-weight:700;color:rgba(255,255,255,.28);letter-spacing:.13em;text-transform:uppercase;padding:18px 13px 5px;display:flex;align-items:center;gap:7px;user-select:none}
+.sg::before{content:'';flex:0 0 12px;height:.5px;background:rgba(255,255,255,.07)}
 .sg-first{padding-top:10px}
 .sg-first::before{display:none}
 .sg.emg{color:rgba(239,100,100,.5)}
 .sg.emg::before{background:rgba(239,68,68,.15)}
+.sg.emg:hover{color:rgba(239,100,100,.85);background:rgba(239,68,68,.08);border-radius:6px;transition:all .15s}
 .ni.emg-item i{color:rgba(239,130,130,.4)}
 .ni.emg-item.on{background:rgba(239,68,68,.25)}
 .ni.emg-item.on i{color:#fca5a5}
@@ -240,10 +252,18 @@ body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:v
   <i class="ti ti-ship hico"></i>
   <div><div class="hsys">Vessel Maintenance Reference</div></div>
   <div class="hsp"></div>
+  <button id="vessel-btn" onclick="toggleVesselDrop()">
+    <i class="ti ti-ship"></i><span class="vname" id="vessel-btn-name">Select Vessel</span><i class="ti ti-chevron-down" style="font-size:10px;margin-left:2px"></i>
+  </button>
   <button id="menu-btn" onclick="toggleMenu()">
     <i class="ti ti-menu-2"></i>Menu
   </button>
 </header>
+<div id="vessel-drop">
+  <div class="vdlbl">Fleet Vessels</div>
+  <div class="vitem" onclick="selectVessel('mvAubreyHarwell')"><i class="ti ti-ship"></i>M/V Aubrey B. Harwell Jr.</div>
+  <div class="vitem" onclick="selectVessel('mvSusanJohnson')"><i class="ti ti-ship"></i>M/V Susan Johnson</div>
+</div>
 <div id="sb-overlay" onclick="closeSidebar()"></div>
 <div id="menu-drop">
   <div class="mitem" onclick="navTo('search')"><i class="ti ti-search"></i>Search</div>
@@ -281,6 +301,23 @@ function closeSidebar(){
 function toggleMenu(){
   document.getElementById('menu-drop').classList.toggle('open');
 }
+function toggleVesselDrop(){
+  const d=document.getElementById('vessel-drop');
+  d.classList.toggle('open');
+  // highlight active vessel
+  d.querySelectorAll('.vitem').forEach(el=>{
+    const k=el.getAttribute('onclick')?.match(/selectVessel\('(\w+)'\)/)?.[1];
+    el.classList.toggle('active',k===S.vessel);
+  });
+}
+function selectVessel(k){
+  S.vessel=k;
+  document.getElementById('vessel-drop').classList.remove('open');
+  const v=VESSELS[k];
+  const btn=document.getElementById('vessel-btn-name');
+  if(btn&&v) btn.textContent=v.short;
+  go('vessel');
+}
 function navTo(sec){
   document.getElementById('menu-drop').classList.remove('open');
   go(sec);
@@ -304,8 +341,110 @@ function getIntervalBadge(dk){
   const clr=INTV_COLOR[best];
   return `<span style="font-size:9px;font-weight:600;padding:2px 7px;border-radius:9px;background:${clr}18;color:${clr};border:.5px solid ${clr}44;white-space:nowrap">${lbl}</span>`;
 }
-let S={sec:'engines',comp:null,tab:'overview',openProb:null,manual:null,openMsec:null,engType:'emd645',steerType:'emi'};
-function go(sec){S={sec,comp:null,tab:'overview',openProb:null,manual:null,openMsec:null,engType:S.engType,steerType:S.steerType};render()}
+// ─── VESSEL DATA ──────────────────────────────────────────────
+const VESSELS={
+ 'mvAubreyHarwell':{
+  name:'M/V Aubrey B. Harwell Jr.',
+  short:'Harwell Jr.',
+  type:'Inland River Towboat — Twin Screw — Ingram Barge Company',
+  specs:[
+   {cat:'Identification',rows:[
+    ['Vessel Name','M/V Aubrey B. Harwell Jr.'],
+    ['Former Name','Peter Fanchi (Federal Barge Lines Inc.)'],
+    ['USCG Doc. No.','579561'],
+    ['Call Sign','WDK9932'],
+    ['MMSI','366963520'],
+    ['Vessel Service','Towing Vessel — Coastwise Unrestricted'],
+    ['Hailing Port','Cincinnati, OH'],
+    ['Operator','Ingram Barge Company — Nashville, TN'],
+    ['Hull Material','Steel'],
+    ['Hull Number','3595'],
+    ['Flag','United States'],
+   ]},
+   {cat:'Dimensions & Tonnage',rows:[
+    ['Length','157.5 ft'],
+    ['Beam (Breadth)','45 ft'],
+    ['Hull Depth','8.1 ft'],
+    ['Height','48.6 ft'],
+    ['Gross Tonnage','787'],
+    ['Net Tonnage','553'],
+   ]},
+   {cat:'Propulsion',rows:[
+    ['Main Engines','Two GM 16-645E7B diesel engines (16-cylinder, 2-stroke) — Port & Starboard'],
+    ['Total Horsepower','6,120 HP'],
+    ['Per Engine','3,060 HP'],
+    ['Configuration','Twin screw'],
+    ['Throttle / Clutch Control','Rexroth MFZP single-lever hydraulic system'],
+   ]},
+   {cat:'Construction',rows:[
+    ['Year Built','1977'],
+    ['Shipyard','St. Louis Ship — St. Louis, Missouri'],
+    ['Acquired by Ingram','2009 (renamed from Peter Fanchi)'],
+   ]},
+   {cat:'Area of Operation',rows:[
+    ['Waterways','Gulf Intracoastal Waterway; Cumberland, Illinois, Arkansas, Mississippi, Ohio, Tennessee, and Monongahela Rivers; Tenn-Tom, Black Warrior, and Tombigbee Waterways'],
+    ['Commodities','Towing, petroleum products, bulk freight, coal, coke, grain, and aggregates'],
+   ]},
+   {cat:'Electrical System',rows:[
+    ['Ship Service Power','480VAC, 3-phase, 60 Hz'],
+    ['Control & Alarm Power','24VDC battery-backed'],
+   ]},
+   {cat:'Reference Notes',rows:[
+    ['COI & Drawings','Verify all specifications against the vessel\'s Certificate of Inspection and engineering drawings on file'],
+    ['Transfer Procedures','The fuel transfer procedures book for this vessel is in the engine room control booth'],
+   ]},
+  ]},
+ 'mvSusanJohnson':{
+  name:'M/V Susan Johnson',
+  short:'Susan Johnson',
+  type:'Inland River Towboat — Triple Screw — Ingram Barge Company',
+  specs:[
+   {cat:'Identification',rows:[
+    ['Vessel Name','M/V Susan Johnson'],
+    ['USCG Doc. No.','569359'],
+    ['Call Sign','WDK9605'],
+    ['MMSI','367533150'],
+    ['Vessel Service','Towing Vessel'],
+    ['Operator','Ingram Barge Company — Nashville, TN'],
+    ['Hull Material','Steel'],
+    ['Flag','United States'],
+   ]},
+   {cat:'Dimensions & Tonnage',rows:[
+    ['Length','180 ft'],
+    ['Beam (Breadth)','52 ft'],
+    ['Load Draft','9.2 ft'],
+    ['Height','42.9 ft'],
+    ['Net Tonnage','785'],
+   ]},
+   {cat:'Propulsion',rows:[
+    ['Total Horsepower','8,400 HP'],
+    ['Configuration','Triple screw'],
+    ['Engine Type','Verify on vessel COI and engine room nameplate'],
+    ['Throttle / Clutch Control','Rexroth MFZP single-lever hydraulic system'],
+   ]},
+   {cat:'Area of Operation',rows:[
+    ['Waterways','Cumberland, Illinois, Arkansas, Mississippi, Ohio, Tennessee, and Monongahela Rivers; Gulf Intracoastal Waterway; Tenn-Tom, Black Warrior, and Tombigbee Waterways'],
+    ['Commodities','Towing, petroleum products, bulk freight, coal, coke, grain, and aggregates'],
+   ]},
+   {cat:'Electrical System',rows:[
+    ['Ship Service Power','480VAC, 3-phase, 60 Hz'],
+    ['Control & Alarm Power','24VDC battery-backed'],
+   ]},
+   {cat:'Reference Notes',rows:[
+    ['COI & Drawings','Verify all specifications against the vessel\'s Certificate of Inspection and engineering drawings on file'],
+    ['Transfer Procedures','The fuel transfer procedures book for this vessel is in the engine room control booth'],
+   ]},
+  ]},
+};
+let S={sec:'engines',comp:null,tab:'overview',openProb:null,manual:null,openMsec:null,engType:'emd645',steerType:'emi',vessel:null,collapsed:{'Emergency Scenarios':true}};
+function toggleGroup(g){S.collapsed=S.collapsed||{};S.collapsed[g]=!S.collapsed[g];renderSidebar();}
+function go(sec){
+  if(sec.startsWith('emg-')&&S.collapsed&&S.collapsed['Emergency Scenarios']){
+    S.collapsed['Emergency Scenarios']=false;
+  }
+  S={sec,comp:null,tab:'overview',openProb:null,manual:null,openMsec:null,engType:S.engType,steerType:S.steerType,vessel:S.vessel,collapsed:S.collapsed};
+  render();
+}
 function openComp(k){if(!k)return;S.comp=k;S.tab='overview';S.openProb=null;S.manual=null;render()}
 function back(){S.comp=null;S.openProb=null;render()}
 function setTab(t){S.tab=t;S.openProb=null;renderMain()}
@@ -343,6 +482,8 @@ const NAV=[
     {k:'emg-mob',i:'man',l:'Man Overboard'},
     {k:'emg-prop',i:'propeller',l:'Loss of Propulsion'},
     {k:'emg-grounding',i:'anchor',l:'Running Aground'},
+    {k:'emg-marsec2',i:'shield-lock',l:'MARSEC Level 2'},
+    {k:'emg-marsec3',i:'shield-exclamation',l:'MARSEC Level 3'},
   ]},
 ];
 const SEC={
@@ -4257,6 +4398,88 @@ const EMG={
     'Do NOT leave the vessel unattended while it is aground — water level and current conditions can change; a vessel that is safely aground now may be in danger of rolling or sinking as conditions change.',
    ]},
   ]},
+ 'emg-marsec2':{
+  title:'MARSEC Level 2',
+  sub:'Heightened security — additional protective measures required above normal operations',
+  sections:[
+   {t:'WHAT MARSEC LEVEL 2 MEANS',color:'#f59e0b',steps:[
+    'MARSEC Level 2 is declared by the U.S. Coast Guard when there is heightened risk of a security incident. It does not mean an incident has occurred — it means the threat environment has elevated and additional precautions are required.',
+    'The vessel\'s Company Security Officer (CSO) and Vessel Security Officer (VSO) must be notified immediately when MARSEC Level 2 is declared. They are responsible for implementing the vessel\'s Security Plan at Level 2.',
+    'Your vessel\'s security plan (required under 33 CFR Part 104) specifies the exact measures required for this vessel at MARSEC Level 2. Refer to that plan. What follows are general guidelines — the plan governs.',
+   ]},
+   {t:'IMMEDIATE ACTIONS',color:'#ef4444',steps:[
+    'Notify the Master and VSO immediately. The VSO is responsible for coordinating all Level 2 security measures.',
+    'Increase watch frequency — additional crew should be posted at access points. Waterside approaches must be monitored more closely.',
+    'Restrict access to the vessel — all persons boarding must be verified and logged. Non-essential visitors and contractors should be denied boarding until further notice from the VSO.',
+    'Check the identity of all crew and personnel aboard — account for all persons on the vessel and verify they are authorized to be there.',
+    'Increase lighting in all exterior and access areas if operating at night or in low visibility.',
+   ]},
+   {t:'OPERATIONAL MEASURES',color:'#2563eb',steps:[
+    'Log all persons boarding and departing the vessel — name, affiliation, time on, time off, and purpose.',
+    'Search all stores, supplies, and equipment coming aboard. Suspicious packages or containers should not be accepted.',
+    'Secure non-essential access hatches, doors, and engine room entrances — limit access to essential crew only in sensitive areas.',
+    'Increase frequency of bilge and space checks — an unattended vessel could have had unauthorized access to concealed areas.',
+    'Monitor vessel systems and alarms more frequently — check that all safety and security systems are fully operational.',
+    'Maintain communication with the CSO and be prepared to report any suspicious activity immediately.',
+   ]},
+   {t:'NOTIFY',color:'#0d9488',steps:[
+    'Company Security Officer (CSO) — must be notified and must acknowledge Level 2 status.',
+    'Vessel Security Officer (VSO) — is your primary point of contact for all Level 2 measures on this vessel.',
+    'USCG Sector Command — if you observe any suspicious activity or security concern that prompted or is related to the Level 2 declaration, report it directly to USCG on VHF Ch 16 or through the National Response Center: 1-800-424-8802.',
+    'Document everything — log all notifications, actions taken, and times in the vessel security log.',
+   ]},
+   {t:'DO NOT',color:'#7c3aed',steps:[
+    'Do NOT allow any unverified person to board — even someone claiming to be from a government agency must present proper credentials before being allowed on the vessel.',
+    'Do NOT discuss the specific security measures being taken with non-essential personnel or outside parties.',
+    'Do NOT allow unescorted access to the engine room, pilothouse, or cargo/fuel areas by anyone who is not regular crew.',
+    'Do NOT relax Level 2 measures until official notification from the USCG or CSO that the level has been reduced.',
+   ]},
+  ]},
+ 'emg-marsec3':{
+  title:'MARSEC Level 3',
+  sub:'Exceptional security — imminent or probable security threat, most restrictive measures in effect',
+  sections:[
+   {t:'WHAT MARSEC LEVEL 3 MEANS',color:'#ef4444',steps:[
+    'MARSEC Level 3 is the highest maritime security condition. It is declared when a security incident is imminent, probable, or has occurred at a specific location. This is a rare designation and indicates a very high degree of threat.',
+    'At Level 3, you are operating under the direction of the USCG and the CSO. Follow all directions from USCG immediately. The USCG has authority to direct vessel movements, restrict operations, and board the vessel at Level 3.',
+    'The vessel\'s Security Plan at Level 3 calls for the most stringent measures — refer to your vessel\'s security plan for vessel-specific requirements. This is a general guide only.',
+   ]},
+   {t:'IMMEDIATE ACTIONS',color:'#ef4444',steps:[
+    'Notify the Master, VSO, and CSO immediately — all three must be aware and involved.',
+    'Contact USCG Sector Command on VHF Channel 16 and identify yourself, your position, and that you are implementing MARSEC Level 3 measures. Follow their directions precisely.',
+    'STOP all cargo, fueling, and transfer operations unless specifically authorized by the USCG.',
+    'All non-essential personnel must be mustered and their identity verified immediately. Any unauthorized person found aboard must be reported to the USCG immediately.',
+    'Lock down the vessel — all external access points must be secured. Only USCG and specifically authorized personnel may board.',
+   ]},
+   {t:'SECURITY LOCKDOWN MEASURES',color:'#dc2626',steps:[
+    'Post crew at all access points — physical presence at every boarding location is required.',
+    'Conduct an immediate full sweep of the vessel — all accessible spaces must be checked for unauthorized persons, suspicious items, or evidence of tampering.',
+    'Shut down non-essential machinery and systems if directed by USCG or if there is reason to believe the vessel has been targeted.',
+    'If the vessel is at a facility, coordinate with the facility security officer — both vessel and facility measures must be aligned.',
+    'Prepare the vessel for potential departure or movement if directed by USCG. A vessel underway may be safer than remaining at a facility that has been targeted.',
+    'Activate the Ship Security Alert System (SSAS) if the vessel is under duress and you cannot communicate freely — the SSAS sends a silent alert to authorities without alerting a potential threat actor aboard.',
+   ]},
+   {t:'SUSPICIOUS ITEM OR DEVICE FOUND',color:'#7c3aed',steps:[
+    'DO NOT touch, move, or investigate any suspicious package, device, or item.',
+    'Clear the immediate area and establish a safety perimeter — keep all crew away.',
+    'Report immediately to the Master and VSO, then to USCG on VHF Ch 16.',
+    'Do not use radios or cell phones within close proximity of a suspected explosive device.',
+    'Follow the directions of the USCG and trained bomb disposal personnel only — do not attempt to render any suspected device safe.',
+   ]},
+   {t:'NOTIFY',color:'#0d9488',steps:[
+    'USCG Sector Command — VHF Channel 16 — your primary point of contact for all Level 3 direction.',
+    'Company Security Officer (CSO) — must be continuously informed of all actions and USCG directions.',
+    'National Response Center — 1-800-424-8802 — for any security incident report.',
+    'Facility Security Officer — if moored at a facility, coordinate all measures with the FSO.',
+    'Document every action, every notification, and every USCG direction with exact times in the vessel security log.',
+   ]},
+   {t:'DO NOT',color:'#7c3aed',steps:[
+    'Do NOT take independent action without coordinating with the USCG at Level 3 — you are operating under USCG direction.',
+    'Do NOT allow any vessel to approach or come alongside without USCG authorization.',
+    'Do NOT resume normal operations until USCG officially notifies you that the level has been reduced.',
+    'Do NOT discuss the specific threat or incident publicly or on open radio channels — use secure or private communications where possible.',
+   ]},
+  ]},
 };
 
 function renderEmergency(key){
@@ -4366,16 +4589,22 @@ function renderSidebar(){
   let h='';
   NAV.forEach((g,gi)=>{
     const isEmg=g.g==='Emergency Scenarios';
-    const isProc=g.g==='Procedures';
+    const collapsible=isEmg;
+    const collapsed=collapsible&&S.collapsed&&S.collapsed[g.g];
     const emgCls=isEmg?'emg':'';
     const firstCls=gi===0?'sg-first':'';
-    h+=`<div class="sg ${emgCls} ${firstCls}">${g.g}</div>`;
-    g.items.forEach(item=>{
-      const on=S.sec===item.k?'on':'';
-      const niEmg=isEmg?'emg-item':'';
-      const bdg=item.b?`<span class="nbdg ${item.b.c}">${item.b.t}</span>`:'';
-      h+=`<div class="ni ${niEmg} ${on}" data-sec="${item.k}"><i class="ti ti-${item.i}"></i><span class="nl">${item.l}</span>${bdg}</div>`;
-    });
+    const chevron=collapsible
+      ?`<i class="ti ti-chevron-${collapsed?'down':'up'}" style="font-size:9px;margin-left:auto;opacity:.5"></i>`:'';
+    const clickable=collapsible?`onclick="toggleGroup('${g.g}')" style="cursor:pointer"`:'';
+    h+=`<div class="sg ${emgCls} ${firstCls}" ${clickable}>${g.g}${chevron}</div>`;
+    if(!collapsed){
+      g.items.forEach(item=>{
+        const on=S.sec===item.k?'on':'';
+        const niEmg=isEmg?'emg-item':'';
+        const bdg=item.b?`<span class="nbdg ${item.b.c}">${item.b.t}</span>`:'';
+        h+=`<div class="ni ${niEmg} ${on}" data-sec="${item.k}"><i class="ti ti-${item.i}"></i><span class="nl">${item.l}</span>${bdg}</div>`;
+      });
+    }
   });
   document.getElementById('sb').innerHTML=h;
 }
@@ -4387,6 +4616,7 @@ function renderMain(){
   if(S.sec==='search'){el.innerHTML=renderSearch();return;}
   if(S.sec==='manuals'){el.innerHTML=renderManuals();return;}
   if(S.sec==='feedback'){el.innerHTML=renderFeedback();return;}
+  if(S.sec==='vessel'){el.innerHTML=renderVessel();return;}
   if(S.sec.startsWith('emg-')){el.innerHTML=renderEmergency(S.sec);return;}
   if(S.sec.startsWith('proc-')){el.innerHTML=renderProcedure(S.sec);return;}
   const d=SEC[S.sec];
@@ -4664,6 +4894,22 @@ function renderFeedback(){
   </div>`;
 }
 
+function renderVessel(){
+  const v=S.vessel?VESSELS[S.vessel]:null;
+  if(!v) return '<div class="ph4"><i class="ti ti-ship"></i><h3>No vessel selected</h3><p>Use the vessel selector in the header to choose a vessel.</p></div>';
+  let h='<div class="pt"><i class="ti ti-ship" style="margin-right:6px;font-size:15px"></i>'+v.name+'</div>';
+  h+='<div class="ps" style="margin-bottom:14px">'+v.type+'</div>';
+  v.specs.forEach(function(sec){
+    h+='<div class="box" style="margin-bottom:10px">';
+    h+='<div class="bl">'+sec.cat+'</div>';
+    h+='<div class="spg" style="margin-top:8px">';
+    sec.rows.forEach(function(row){
+      h+='<div><div class="spk">'+row[0]+'</div><div class="spv" style="color:var(--t1);font-weight:500">'+row[1]+'</div></div>';
+    });
+    h+='</div></div>';
+  });
+  return h;
+}
 function renderPH4(sec){
   return `<div class="ph4"><i class="ti ti-tool"></i><h3>Section data loading next session</h3>
   <p>Full component details for <strong>${sec}</strong> are being added.</p></div>`;
@@ -4689,6 +4935,10 @@ document.addEventListener('click',e=>{
   const drop=document.getElementById('menu-drop');
   if(drop&&!drop.contains(e.target)&&e.target.id!=='menu-btn'&&!document.getElementById('menu-btn').contains(e.target)){
     drop.classList.remove('open');
+  }
+  const vdrop=document.getElementById('vessel-drop');
+  if(vdrop&&!vdrop.contains(e.target)&&e.target.id!=='vessel-btn'&&!document.getElementById('vessel-btn').contains(e.target)){
+    vdrop.classList.remove('open');
   }
 });
 render();
