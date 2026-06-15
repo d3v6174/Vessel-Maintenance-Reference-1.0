@@ -200,52 +200,9 @@ body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:v
 .qrow[onclick]:hover{background:#f8fafc}
 .qlabel{font-size:11px;color:var(--t2);flex:1}
 .qval{font-size:11px;font-weight:600;color:var(--t1);font-family:monospace;text-align:right}
-#ack-overlay{position:fixed;inset:0;background:var(--dk);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px}
-#ack-box{background:#1e2538;border:1px solid rgba(255,255,255,.1);border-radius:14px;max-width:480px;width:100%;padding:32px 28px;display:flex;flex-direction:column;gap:20px}
-.ack-logo{display:flex;align-items:center;gap:10px;margin-bottom:4px}
-.ack-logo i{font-size:26px;color:var(--r)}
-.ack-logo span{font-size:16px;font-weight:700;color:#fff;letter-spacing:.01em}
-.ack-title{font-size:13px;font-weight:600;color:rgba(255,255,255,.9);letter-spacing:.04em;text-transform:uppercase}
-.ack-body{display:flex;flex-direction:column;gap:10px}
-.ack-item{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;background:rgba(255,255,255,.04);border-radius:8px;border:.5px solid rgba(255,255,255,.07)}
-.ack-item i{font-size:14px;flex-shrink:0;margin-top:1px}
-.ack-item p{font-size:11px;color:rgba(255,255,255,.65);line-height:1.6}
-.ack-item p strong{color:rgba(255,255,255,.9);font-weight:600}
-.ack-btn{width:100%;padding:13px;background:#2563eb;border:none;border-radius:9px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:.04em;transition:opacity .15s}
-.ack-btn:hover{opacity:.88}
-.ack-footer{font-size:9.5px;color:rgba(255,255,255,.25);text-align:center;line-height:1.5}
 </style>
 </head>
 <body>
-<div id="ack-overlay">
-  <div id="ack-box">
-    <div class="ack-logo" style="justify-content:center">
-      <i class="ti ti-ship"></i>
-      <span>Vessel Maintenance Reference</span>
-    </div>
-    <div class="ack-title" style="text-align:center">Before You Proceed</div>
-    <div class="ack-body">
-      <div class="ack-item">
-        <i class="ti ti-info-circle" style="color:#60a5fa"></i>
-        <p>This application is a <strong>reference tool only.</strong> Information is based on manufacturer service manuals, industry best practices, and general marine engineering guidelines. It is not a substitute for official manufacturer documentation.</p>
-      </div>
-      <div class="ack-item">
-        <i class="ti ti-box" style="color:#fbbf24"></i>
-        <p><strong>Always verify part numbers</strong> against the current manufacturer parts catalog and the specific vessel's equipment serial numbers before ordering. Part numbers are subject to change and may vary by engine arrangement, model year, or vessel configuration.</p>
-      </div>
-      <div class="ack-item">
-        <i class="ti ti-shield-check" style="color:#34d399"></i>
-        <p>All maintenance, repairs, and inspections <strong>must be performed safely</strong> and in accordance with applicable <strong>U.S. Coast Guard regulations,</strong> company policies and procedures, and any governing federal, state, or local requirements.</p>
-      </div>
-      <div class="ack-item">
-        <i class="ti ti-alert-triangle" style="color:#f87171"></i>
-        <p>In any emergency, <strong>follow established emergency procedures</strong> and contact the appropriate authorities. This app does not replace proper training, a valid Certificate of Inspection, or qualified engineering judgment.</p>
-      </div>
-    </div>
-    <button class="ack-btn" onclick="acknowledge()">I UNDERSTAND — PROCEED</button>
-    <div class="ack-footer">By proceeding you acknowledge that you have read and understood the above statements.</div>
-  </div>
-</div>
 <div id="app">
 <header id="hdr">
   <button id="sb-toggle" onclick="toggleSidebar()"><i class="ti ti-menu-2"></i><span>Nav</span></button>
@@ -279,12 +236,6 @@ body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:v
 <main id="mn"><div id="ct"></div></main>
 </div>
 <script>
-function acknowledge(){
-  const o=document.getElementById('ack-overlay');
-  o.style.transition='opacity .3s';
-  o.style.opacity='0';
-  setTimeout(()=>o.remove(),320);
-}
 function toggleSidebar(){
   const sb=document.getElementById('sb');
   const ov=document.getElementById('sb-overlay');
@@ -496,8 +447,11 @@ const SEC={
     ['red','engine','Cylinder Packs','Liners, pistons, rings, connecting rods',['645 Power Assy','Liners'],'ok','eng-cyl'],
     ['blue','droplet','Fuel Injection','Unit injectors, pumps, jumper lines, filters',['Unit Injectors','FP Filter'],'ok','eng-fuel'],
     ['cyan','temperature','Cooling System','JW pump, thermostats, skin & oil coolers',['Skin Cooler','Oil Cooler'],'ok','eng-cool'],
+    ['cyan','droplet','Bank Water Pumps','A & B bank JW circulating pumps · Impeller, seal',['A Bank','B Bank'],'ok','eng-jwpumps'],
     ['yel','droplet-half','Lube Oil System','LO pump, duplex filter, cooler, sump',['LO Pump','Duplex Filter'],'ok','eng-lube'],
+    ['yel','filter','Oil Strainer (Ice Cream Box)','Suction-side lube oil strainer · Coarse screen',['LO Strainer','Screen'],'ok','eng-oilstrainer'],
     ['pur','wind','Turbochargers & Air','Roots blower, turbo, air box, after-cooler',['Roots Blower','Turbo'],'ok','eng-turbo'],
+    ['gra','wave-sine','Scavenging Pump','Auxiliary air pump · Low-speed scavenging',['Scavenge','Aux Blower'],'ok','eng-scavpump'],
     ['ora','bolt','Starting System','Air start motor, tanks, manifold, valves',['Air Start','Solenoid'],'ok','eng-start'],
     ['gra','settings','Governor & Controls','Woodward governor, overspeed trip',['Woodward','Overspeed'],'ok','eng-gov'],
     ['tel','rotate-clockwise','B&A Pump','Before & After pump · Turbo pre-lube & post-lube',['Pre-Lube','Post-Lube'],'ok','eng-bapump'],
@@ -518,7 +472,7 @@ const SEC={
  drivetrain:{title:'Drive Train & Propulsion',sub:'Reduction gear, shafts, propellers, stern tubes',
   groups:[
    {l:'Reduction Gear',cards:[
-    ['blue','settings-2','Reduction Gear','Twin Disc MG-5202 · Clutch packs, oil system',['Twin Disc','MG-5202'],'ok','dt-gear'],
+    ['blue','settings-2','Reduction Gear','Faulk reversing reduction gear · Clutch packs, oil system',['Faulk','Red. Gear'],'ok','dt-gear'],
     ['yel','droplet','Gear Lube Oil System','Gear oil pump, cooler, filter, sight glass',['LO Pump','Heat Exch.'],'ok','dt-lube'],
    ]},
    {l:'Shafts, Propellers & Rudders',cards:[
@@ -595,6 +549,7 @@ const SEC={
     ['cyan','droplet-half','Fuel Day Tank','Day tank · Gravity feed, overflow, alarm',['Day Tank','Gravity Feed'],'ok','fuel-daytank'],
     ['ora','rotate','Fuel Transfer Pump','Electric pump, strainer, relief valve',['Transfer Pump','Strainer'],'ok','fuel-xferpump'],
     ['yel','filter','Fuel Water Separator','Racor filter/separator · Element, drain',['Racor','Water Sep.'],'ok','fuel-sep'],
+    ['pur','circle-dashed','Fuel Centrifuge','Centrifugal fuel purifier · Water & solids removal',['Centrifuge','Purifier'],'ok','fuel-centrifuge'],
    ]},
    {l:'Lube Oil System',cards:[
     ['yel','droplet-half','Engine Lube Oil Sump','Engine sump · ~145-gal, dipstick',['LO Sump','Dipstick'],'ok','fuel-losump'],
@@ -660,7 +615,6 @@ const SEC={
    {l:'Emergency & Life Saving',cards:[
     ['cyan','lifebuoy','Life Rings','Throwable rings, lights, line · USCG',['Life Ring','Throw Line'],'ok','saf-lifering'],
     ['ora','satellite','EPIRB — 406 MHz','406 MHz · MMSI reg., hydrostatic release',['406 MHz','MMSI Reg.'],'ok','saf-epirb'],
-    ['pur','device-mobile','Personal Locator Beacons','PLBs — one per crewmember',['PLB','406 MHz'],'ok','saf-plb'],
     ['red','bolt','Pyrotechnic Flares','Handheld, aerial, parachute · USCG expiry',['Handheld','Aerial'],'ok','saf-flares'],
    ]},
   ]},
@@ -721,7 +675,7 @@ const QREF=[
  ]},
  {cat:'Key Oil & Fluid Specs',icon:'droplet',color:'blue',items:[
   ['Main engine lube oil','SAE 40 HD diesel, API CF+','eng-lube'],
-  ['Twin Disc gear oil','Twin Disc Spec S-2 / Dexron III','dt-lube'],
+  ['Faulk gear oil','Per Faulk spec (verify on nameplate)','dt-lube'],
   ['Rexroth hydraulic fluid','Rexroth HLP 46 mineral oil','rx-reservoir'],
   ['Jacket water coolant','50/50 EG with DCA4 inhibitor','eng-cool'],
   ['Coolant DCA4 concentration','0.3–0.8 units/L (test strips)','eng-cool'],
@@ -735,7 +689,7 @@ const QREF=[
   ['Shaft alignment TIR max','0.002 in. TIR at coupling','dt-shaft'],
   ['Cutless bearing clearance max','0.010 in. per inch of shaft dia.','dt-stern'],
   ['Propeller nut — ALWAYS fit cotter','Never omit cotter pin','dt-prop'],
-  ['Twin Disc clutch pressure','150–200 PSI','dt-gear'],
+  ['Faulk clutch air pressure','Verify on Faulk gear spec','dt-gear'],
   ['CO\u2082 cylinder recharge trigger','Weight loss > 10% of charge','saf-co2'],
   ['EPIRB hydrostatic release','Replace every 2 years','saf-epirb'],
  ]},
@@ -744,7 +698,7 @@ const QREF=[
   ['Fuel filter elements (engine)','Every 500 hrs','eng-fuel'],
   ['Thermostat (proactive)','Every 2,000 hrs or 2 years','cool-thermo'],
   ['JW pump mechanical seal','3,000 hrs or at first weep','cool-jwpump'],
-  ['Gear oil & filter (Twin Disc)','Every 1,000 hrs / annually','dt-gear'],
+  ['Gear oil & filter (Faulk)','Every 1,000 hrs / annually','dt-gear'],
   ['Rexroth hydraulic fluid','Every 2 years','rx-reservoir'],
   ['AGM batteries (engine start)','Every 4–5 years proactively','gen-batt'],
   ['UPS internal battery','Every 3 years','gen-ups'],
@@ -975,6 +929,83 @@ const DET={
    {p:'Engine will not reach rated RPM at full throttle',
     c:['Governor maximum speed screw is limiting RPM below rated','Injection racks not traveling to full-fuel position — mechanical interference','ECM limiting engine output due to active fault code'],
     s:['If ECM equipped: pull fault codes before adjusting anything mechanical — an active fault may be commanding reduced output deliberately','Verify that full throttle signal is reaching the governor — confirm Rexroth output to governor is commanding maximum','With engine stopped: manually move fuel rack to full-fuel position — if it binds before full travel, find and eliminate the mechanical interference']},
+  ]},
+
+ 'eng-jwpumps':{t:'Bank Water Pumps — A Bank & B Bank',sys:'Main Engines',st:'ok',
+  desc:'The EMD 645-16 has two jacket water circulating pumps — one for each bank of cylinders. The A bank pump serves cylinders A1–A8 (port side); the B bank pump serves cylinders B1–B8 (starboard side). Both are engine-driven centrifugal pumps powered off the gear train at the rear of the engine. They run simultaneously and independently — failure of one pump affects only that bank\'s cooling circuit, which means one bank may overheat while the other remains normal. The pumps are typically identical and interchangeable, so carrying one spare covers both banks.',
+  loc:'Rear of engine — one pump on each side of the V. A bank pump on the port/left side; B bank pump on the starboard/right side. Coolant inlet from the thermostat housing on each bank; outlet into the cylinder liner passages. The weep hole on each pump face is visible from the respective side of the engine.',
+  specs:[['Type','Engine-driven centrifugal pumps — gear train driven, one per bank'],['A bank serves','Port side cylinders A1–A8'],['B bank serves','Starboard side cylinders B1–B8'],['Coolant specification','50/50 ethylene glycol — DCA4 inhibitor maintained 0.3–0.8 units/L'],['Mechanical seal','Ceramic/carbon face seal — weep hole is the early warning indicator'],['Impeller material','Bronze — inspect for cavitation pitting at service'],['Interchangeability','A and B bank pumps are typically identical — one spare covers both banks'],['Drive','Gear mesh from engine rear gear train — not belt driven']],
+  parts:[
+   ['JW Pump Assembly (fits either bank)','(EMD 645 — A and B bank same part)','Carry one spare to cover both banks','1 spare/engine'],
+   ['Mechanical Seal Kit','(EMD 645 JW pump model)','Replace at first weep from weep hole on either pump','1/pump as needed'],
+   ['Impeller — Bronze','(EMD 645 JW pump)','Inspect for cavitation pitting at pump service; replace if blade tips are eroded','1/pump as needed'],
+   ['Pump Housing O-ring / Gasket','(EMD 645 JW pump)','Replace any time pump cover is removed — never reuse','1/removal'],
+  ],
+  maint:[
+   {t:'Check both pump weep holes — daily visual',n:'Walk both sides of the engine and look at the weep hole on each pump face: dry = good; wet or stained = seal weeping, plan replacement; dripping = replace immediately. A weeping weep hole is the designed early-warning system — do not plug it',i:'Daily (underway)',b:'d'},
+   {t:'Listen for pump cavitation noise at idle',n:'A whining or hissing from either pump at low idle indicates cavitation from low coolant level or aeration — check coolant level and investigate before impeller erosion occurs',i:'Daily (underway)',b:'d'},
+   {t:'Compare A bank and B bank temperatures',n:'Both banks should track within a few degrees of each other; a bank that consistently runs 10°F+ hotter than the other suggests that bank\'s pump or thermostat is underperforming',i:'Monthly',b:'ann'},
+   {t:'Inspect impellers for cavitation pitting at service',n:'At pump removal: inspect bronze impeller blades for pitting erosion; moderate pitting reduces coolant flow; replace impeller if blade tips are significantly eroded',i:'2,000 hrs or at overhaul',b:'h2k'},
+   {t:'Replace mechanical seal on condition',n:'Replace seal kit any time a pump is opened or at first sign of weep from the weep hole — a seal that begins weeping will fail completely; replace proactively',i:'On condition — at first weep',b:'h2k'},
+  ],
+  probs:[
+   {p:'One bank of cylinders overheating — other bank normal',
+    c:['That bank\'s water pump has failed — impeller worn, bearing seized, or drive gear stripped','That bank\'s thermostat stuck closed — no flow path regardless of pump condition','Air lock on that bank\'s cooling circuit'],
+    s:['Feel both pump outlet connections with engine running — a working pump will warm its outlet within seconds; a failed pump outlet stays cool','If both pump outlets are warm: suspect thermostat — a stuck closed thermostat blocks flow even with a working pump','Check coolant level — if low, the higher-mounted pump suction may uncover first, causing that bank to cavitate','Bleed air from the overheating bank circuit at the highest accessible point'],},
+   {p:'Coolant weeping from pump weep hole',
+    c:['Mechanical seal wearing — normal end of life','Seal run dry from low coolant level — seal overheated and cracked'],
+    s:['A weeping weep hole means the seal is reaching end of life — plan replacement at next opportunity','A dripping or streaming weep hole means the seal is near complete failure — replace immediately','Do not plug the weep hole — it drains seal leakage away from the bearing; plugging destroys the bearing']},
+  ]},
+
+ 'eng-oilstrainer':{t:'Lube Oil Strainer — Ice Cream Box',sys:'Main Engines',st:'ok',
+  desc:'The lube oil strainer — nicknamed the "ice cream box" for its distinctive cylindrical shape — is a coarse suction-side screen that protects the main lube oil pump from large debris before filtration. It is located in the oil suction path between the engine sump and the oil pump inlet. The strainer uses a mesh screen (not a filter element) to catch large particles — fine filtration is handled downstream by the duplex full-flow filters. A restricted ice cream box starves the oil pump of suction, causing a drop in oil pressure that may look like a pump or relief valve problem. It must be cleaned at every oil change.',
+  loc:'Lower engine, accessible from the side of the block — the cylindrical housing is typically bolted to the engine block near the oil pump suction port. Removal requires draining or pumping down oil level below the strainer. The screen element lifts out of the housing after removing the cover.',
+  specs:[['Type','Suction-side coarse strainer — mesh screen (not replaceable element)'],['Screen mesh','Approximately 100–150 micron coarse mesh'],['Location in circuit','Between sump and oil pump suction — before the duplex full-flow filters'],['Function','Catches large debris (gasket material, sealing compound, casting flash) before it reaches the oil pump'],['Cleaning interval','Every oil change — inspect screen for debris type'],['NOTE','A partially blocked strainer causes low oil pressure at the pump inlet (cavitation) — does not trigger bypass but reduces pump output']],
+  parts:[
+   ['Oil Strainer Screen Element','(EMD 645 — by engine model number)','Mesh screen; clean thoroughly at every oil change; replace if mesh is torn or collapsed','1/engine'],
+   ['Strainer Housing O-ring / Gasket','(EMD 645 strainer housing)','Replace any time cover is removed — never reuse','1/strainer'],
+   ['Strainer Cover Bolts','(by bolt size — high strength)','Inspect for corrosion at each cleaning; replace if threads are pulled','Per cover'],
+  ],
+  maint:[
+   {t:'Remove and clean strainer screen — every oil change',n:'Drain or pump oil below strainer level; remove cover; lift out screen; clean in solvent and blow dry with compressed air; inspect mesh for tears or collapse before reinstalling',i:'Every oil change — 1,000 hrs or 6 months',b:'h1k'},
+   {t:'Inspect debris caught in screen — oil change',n:'Spread debris from the screen on a clean white cloth — identify what you find: fine metallic sheen = normal wear; large metal flakes = investigate bearing or gear damage; rubber pieces = seal failure upstream; gasket material = recent engine work',i:'Every oil change',b:'h1k'},
+   {t:'Replace housing gasket or O-ring at every removal',n:'Never reinstall the strainer cover with the old gasket — a weeping strainer cover causes oil pump cavitation by admitting air to the suction line',i:'Every removal',b:'h1k'},
+   {t:'Check oil pressure after reinstallation',n:'After any strainer service: run engine and verify oil pressure at gallery is normal within 30 seconds — a pressure drop after strainer service indicates an air leak at the cover or a collapsed screen',i:'After every strainer service',b:'h1k'},
+  ],
+  probs:[
+   {p:'Low oil pressure — gradual onset, worse at idle, improves at speed',
+    c:['Ice cream box screen is partially clogged — restricting pump suction','Air leak at strainer cover gasket — pump cavitating on air','Oil level low — suction is not fully submerged'],
+    s:['Check oil level first','If level is correct and pressure is low: pull strainer and inspect screen — a screen clogged with sludge or debris is the most common cause of suction restriction','If screen is clean: check strainer cover gasket for air leak — apply clean oil around cover joint and watch for oil being drawn in (indicates air leak)','A strainer restriction causes the same symptom as a worn pump but is far easier to fix — always clean the strainer before condemning the pump']},
+   {p:'Large metallic debris found in strainer screen',
+    c:['Bearing failure upstream — large bearing material being carried by oil','Gear tooth damage — chunks of gear material in sump','Foreign object in sump from recent engine work'],
+    s:['DO NOT restart engine after finding significant metallic debris in strainer','Identify debris material: bearing overlay material (silvery gray) = rod or main bearing failure; gear material (harder, angular) = gear damage','Pull oil filter elements and cut them open — if debris is also in the filters, it is circulating through the full oil circuit','Have the engine internally inspected before returning to service — continued operation with bearing debris destroys more bearing material rapidly']},
+  ]},
+
+ 'eng-scavpump':{t:'Scavenging Pump — Auxiliary Blower',sys:'Main Engines',st:'ok',
+  desc:'The scavenging pump (auxiliary blower) on the EMD 645-16 is an electrically-driven air pump that supplements the Roots blower for cylinder scavenging at low engine speeds. On a 2-stroke engine, fresh air must be forced through the cylinders on every stroke to clear exhaust gases — this is called scavenging. At low RPM the engine-driven Roots blower cannot generate enough air pressure for complete scavenging, so the auxiliary blower kicks in automatically to maintain air box pressure and ensure clean combustion. Without adequate scavenging air, unburned fuel accumulates in the air box and creates a fire hazard.',
+  loc:'Mounted on the engine or engine room structure near the air box intake — connected to the air box (the space between the engine block and the cylinder liners that supplies air to all cylinders). Electrically driven from the ship service or engine start electrical circuit. An automatic pressure switch or speed relay activates the auxiliary blower at low RPM and deactivates it when the Roots blower has sufficient speed to take over.',
+  specs:[['Type','Electrically-driven centrifugal or positive displacement blower'],['Function','Supplements Roots blower for scavenging at low RPM (startup, idle, shutdown)'],['Activation','Automatic — controlled by engine speed or air box pressure switch'],['Deactivation','Automatic — Roots blower takes over as engine RPM rises'],['Power supply','24VDC or 120VAC — verify on motor nameplate'],['Air box pressure target','2–4 PSI positive pressure for complete scavenging at idle'],['Critical warning','Air box drain tubes must be clear — accumulated oil in air box with running auxiliary blower is a fire risk']],
+  parts:[
+   ['Auxiliary Blower Motor/Pump Assembly','(EMD 645 — by engine model)','Complete unit; replace if motor fails or blower does not produce pressure','1/engine'],
+   ['Blower Motor Brushes','(by motor model — if brush-type)','Replace if motor runs intermittently or sparks at commutator','Per motor'],
+   ['Activation Relay or Pressure Switch','(EMD 645 — by control type)','Replace if blower does not activate automatically at low RPM','1/engine'],
+   ['Blower Inlet Filter','(by blower inlet size)','Clean or replace at 500 hr service — a restricted inlet reduces blower output','1/blower'],
+   ['Blower Drive Belt','(if belt-driven type)','Replace if cracked or glazed; check tension at 500 hr service','1/blower'],
+  ],
+  maint:[
+   {t:'Verify auxiliary blower activates at engine startup',n:'Listen for the auxiliary blower to run when the engine is started — it should be audible during cranking and early idle; if not running, check electrical supply and relay',i:'Daily (startup check)',b:'d'},
+   {t:'Verify blower deactivates as RPM rises',n:'As engine accelerates to operating RPM, the auxiliary blower should shut off automatically — if it runs continuously at speed, the control relay or pressure switch has failed; continuous running at speed is not harmful but indicates a control fault',i:'Daily (startup check)',b:'d'},
+   {t:'Inspect and clean blower inlet filter',n:'A clogged inlet filter reduces blower output pressure — at low RPM this means inadequate scavenging air, incomplete combustion, and oil accumulation in the air box',i:'500 hrs',b:'h500'},
+   {t:'Check air box pressure with blower running',n:'With engine at idle and auxiliary blower active: connect a manometer or low-pressure gauge to the air box test port — should read 2–4 PSI positive; below 2 PSI indicates insufficient scavenging air for clean combustion',i:'500 hrs',b:'h500'},
+   {t:'Inspect air box drain tubes — critical',n:'With auxiliary blower running, any oil accumulated in the air box will be blown through the engine — clear ALL air box drain tubes before running the auxiliary blower after any period of sitting; a plugged drain with oil accumulation is a fire hazard',i:'Before every startup after layup',b:'ann'},
+  ],
+  probs:[
+   {p:'Auxiliary blower not running at startup — engine cranks without blower',
+    c:['Blown fuse or tripped breaker on blower circuit','Failed activation relay or pressure switch','Blower motor has failed'],
+    s:['Check the blower circuit fuse or breaker at the engine control panel — a blown fuse is the most common cause','If fuse is good: check 24VDC power to the blower relay and verify relay is receiving the activation signal','If relay is activating: check voltage at blower motor terminals — no voltage with good relay means wiring issue; voltage with no blower rotation means motor has failed','Engine can be started and operated with the auxiliary blower out of service but combustion quality at idle will be reduced — monitor air box pressure and exhaust color'],},
+   {p:'Blue or black smoke at idle — clears at speed',
+    c:['Insufficient scavenging air at idle — auxiliary blower undersupplying air box','Air box drain tubes clogged — oil accumulating and burning on each stroke','Roots blower engagement delayed — transition from auxiliary to Roots blower not smooth'],
+    s:['Check if auxiliary blower is running — if not, diagnose blower circuit first','If blower is running: measure air box pressure — below 2 PSI indicates blower output is inadequate','Inspect and clear all air box drain tubes — oil in the air box burns and creates blue/black smoke at idle','If smoke clears completely at speed (Roots blower fully engaged): issue is scavenging air at low RPM only — investigate auxiliary blower output']},
   ]},
 
  'eng-bapump':{t:'B&A Pump — Before & After Turbo Lube',sys:'Main Engines',st:'ok',
@@ -1241,10 +1272,10 @@ const DET={
     c:['Air start solenoid valve not opening (no 24V signal or failed coil)','Air supply valve to engine closed','Both receivers depleted — no air pressure','Air start motor completely failed'],
     s:['Check both air receiver pressure gauges — must read above 150 PSI','Verify main air supply valve to engine is open','Check 24VDC at solenoid terminal with multimeter — no voltage means electrical problem at start circuit','If voltage is present but solenoid does not click: solenoid coil is failed, replace it','If solenoid works but no air to motor: check air line between solenoid and motor for blockage or disconnection']},
   ]},
- 'dt-gear':{t:'Twin Disc MG-5202 Reduction Gear',sys:'Drive Train',st:'ok',
-  desc:'The Twin Disc MG-5202 is a hydraulic-actuated marine reverse/reduction gear. It transmits engine power to the propeller shaft and provides forward, neutral, and reverse selection via hydraulically-engaged clutch packs. The gear ratio reduces engine RPM to propeller RPM. Clutch engagement pressure is critical — low pressure causes slipping and rapid clutch pack wear.',
+ 'dt-gear':{t:'Faulk Reversing Reduction Gear',sys:'Drive Train',st:'ok',
+  desc:'The Faulk reversing reduction gear is a air-actuated marine reverse/reduction gear. It transmits engine power to the propeller shaft and provides forward, neutral, and reverse selection via air-actuated clutch packs. The gear ratio reduces engine RPM to propeller RPM. Air pressure to the clutch is critical — insufficient air pressure causes slipping and rapid clutch pack wear.',
   loc:'Mounted directly to engine rear (PTO end) via flexible coupling — one per engine. Output flange connects to propeller shaft via flexible coupling or direct flange.',
-  specs:[['Manufacturer','Twin Disc, Incorporated'],['Model','MG-5202'],['Gear ratio','3.54:1 or 4.05:1 (verify on nameplate)'],['Input RPM','900 RPM (engine rated)'],['Output RPM','~220–255 RPM at 3.54:1 ratio'],['Oil capacity','~8–12 gallons (verify on dipstick)'],['Oil specification','Twin Disc Spec S-2 (or Dexron III ATF)'],['Clutch engagement pressure','150–200 PSI']],
+  specs:[['Manufacturer','Faulk Corporation (now Rexnord)'],['Model','Verify model number on gear nameplate'],['Gear ratio','Verify on gear nameplate'],['Input RPM','900 RPM (engine rated)'],['Output RPM','~220–255 RPM at 3.54:1 ratio'],['Oil capacity','~8–12 gallons (verify on dipstick)'],['Oil specification','Per Faulk spec — verify on gear nameplate'],['Clutch engagement pressure','150–200 PSI']],
   parts:[
    ['Forward Clutch Pack','8070100','Friction discs & separator plates — ahead engagement','1 set/gear'],
    ['Reverse Clutch Pack','8070105','Friction discs & separator plates — astern engagement','1 set/gear'],
@@ -1257,13 +1288,13 @@ const DET={
    ['Input Flexible Coupling','8070150','Flexible disc or rubber element coupling — inspect for cracking','1/gear'],
   ],
   maint:[
-   {t:'Check gear oil level',n:'Check per Twin Disc procedure at warm idle only — level changes significantly with temperature; low level causes overheating',i:'Daily',b:'d'},
-   {t:'Change gear oil and filter',n:'Drain hot — inspect old oil for burnt smell or dark color; replace filter; refill with Twin Disc Spec S-2 only',i:'1,000 hrs / Annually',b:'h1k'},
+   {t:'Check gear oil level',n:'Check at warm idle only — level changes significantly with temperature; low level causes overheating',i:'Daily',b:'d'},
+   {t:'Change gear oil and filter',n:'Drain hot — inspect old oil for burnt smell or dark color; replace filter; refill with correct Faulk-specified oil only',i:'1,000 hrs / Annually',b:'h1k'},
    {t:'Check clutch engagement pressure',n:'Use gauge at test port in gear housing — should be 150–200 PSI when engaged in gear; low pressure = worn regulator or clutch wear',i:'500 hrs',b:'h500'},
    {t:'Inspect output shaft seal for oil leaks',n:'Check area around output flange — even a light oil film indicates lip seal is beginning to fail; replace before it becomes a flood',i:'Daily / as needed',b:'d'},
    {t:'Inspect input flexible coupling',n:'Check flexible coupling elements for cracking, hardening, or deterioration — a failed coupling means total loss of drive',i:'1,000 hrs',b:'h1k'},
    {t:'Send gear oil for lab analysis',n:'Elevated copper in analysis indicates clutch pack or cooler wear; elevated iron indicates gear wear',i:'500 hrs',b:'h500'},
-   {t:'Full gear overhaul',n:'Inspect clutch packs, replace bearings, check gear faces — requires Twin Disc-certified shop',i:'Per TD spec or condition',b:'dd'},
+   {t:'Full gear overhaul',n:'Inspect clutch packs, replace bearings, check gear faces — requires Faulk/Rexnord-certified shop',i:'Per TD spec or condition',b:'dd'},
   ],
   probs:[
    {p:'Slipping in gear — vessel cannot maintain power or speed',
@@ -1271,12 +1302,12 @@ const DET={
     s:['Check oil level and condition first — burnt smell or dark color indicates heat damage from slipping','Measure clutch engagement pressure at test port — if below 150 PSI, check pressure regulating valve','If pressure is correct and slipping continues: clutch packs are worn — gear needs overhaul','Send oil sample to lab for friction material analysis — elevated copper confirms clutch wear','Do not continue running with a slipping gear — it generates heat that accelerates damage rapidly']},
    {p:'Gear oil leak — oil visible at output shaft or housing seams',
     c:['Worn output shaft lip seal (most common)','Scored shaft surface at seal contact area','Loose housing bolts allowing housing joint to weep','Overfilled oil — above correct level forces oil past seals'],
-    s:['Confirm leak origin — clean area thoroughly and watch where oil appears first','Output shaft seal: replace lip seal; check shaft contact surface for scoring — use Speedi-Sleeve if scored','Check oil level — if above MAX mark, drain to correct level and see if leak stops','Torque all housing bolts to Twin Disc spec — check for any loose fasteners at seams','Log oil consumption between checks to quantify leak rate while planning repair']},
+    s:['Confirm leak origin — clean area thoroughly and watch where oil appears first','Output shaft seal: replace lip seal; check shaft contact surface for scoring — use Speedi-Sleeve if scored','Check oil level — if above MAX mark, drain to correct level and see if leak stops','Torque all housing bolts to Faulk spec — check for any loose fasteners at seams','Log oil consumption between checks to quantify leak rate while planning repair']},
   ]},
- 'dt-lube':{t:'Gear Lube Oil System — Twin Disc MG-5202',sys:'Drive Train',st:'ok',
-  desc:'The Twin Disc MG-5202 reduction gear uses an internal gear-driven oil pump to circulate lube oil through the gear housing, clutch packs, and a shell-and-tube cooler. Oil pressure and temperature must be monitored — low pressure starves the clutch hydraulics and bearings; high temperature signals cooler fouling or oil degradation. A magnetic drain plug captures ferrous debris and serves as an early warning indicator for internal wear.',
+ 'dt-lube':{t:'Gear Lube Oil System — Faulk Reduction Gear',sys:'Drive Train',st:'ok',
+  desc:'The Faulk reduction gear uses an internal gear-driven oil pump to circulate lube oil through the gear housing, clutch packs, and a shell-and-tube cooler. Oil pressure and temperature must be monitored — low air pressure starves the clutch and bearings; high temperature signals cooler fouling or oil degradation. A magnetic drain plug captures ferrous debris and serves as an early warning indicator for internal wear.',
   loc:'Internal oil pump inside gear housing. External oil filter and sight glass on gear housing side. Shell-and-tube oil cooler connected to engine jacket water circuit. Oil fill and drain plugs on gear housing.',
-  specs:[['Oil capacity','8–12 gallons (verify on gear nameplate)'],['Oil specification','Twin Disc Spec S-2 or Dexron III ATF'],['Normal oil pressure','40–60 PSI at operating temperature'],['Normal oil temperature','160–200°F'],['Filter type','Spin-on element on external housing'],['Cooler type','Shell-and-tube — gear oil to jacket water'],['Oil pump type','Internal gear-driven — runs whenever engine runs'],['Drain plug','Magnetic — inspect at every oil change']],
+  specs:[['Oil capacity','8–12 gallons (verify on gear nameplate)'],['Oil specification','Per Faulk specification — verify on gear nameplate'],['Normal oil pressure','40–60 PSI at operating temperature'],['Normal oil temperature','160–200°F'],['Filter type','Spin-on element on external housing'],['Cooler type','Shell-and-tube — gear oil to jacket water'],['Oil pump type','Internal gear-driven — runs whenever engine runs'],['Drain plug','Magnetic — inspect at every oil change']],
   parts:[
    ['Gear Oil Filter Element','8070120','Spin-on filter element for external filter housing — replace at every oil change','1/gear'],
    ['Filter Housing O-ring','8070121','O-ring seal for filter bowl — always replace at element change','1/gear'],
@@ -1287,7 +1318,7 @@ const DET={
   maint:[
    {t:'Check gear oil level at sight glass',n:'Check at warm idle with engine running — oil level changes with temperature; low level causes clutch slipping and bearing damage',i:'Daily',b:'d'},
    {t:'Inspect oil for contamination or burnt smell',n:'Sample oil from drain — dark brown or burnt smell indicates thermal damage; water contamination shows as milky appearance',i:'Weekly',b:'w'},
-   {t:'Change gear oil and filter',n:'Drain hot oil; inspect magnetic plug for metallic debris; replace filter element; refill with Twin Disc Spec S-2 only',i:'1,000 hrs / Annually',b:'h1k'},
+   {t:'Change gear oil and filter',n:'Drain hot oil; inspect magnetic plug for metallic debris; replace filter element; refill with Faulk-specified oil only',i:'1,000 hrs / Annually',b:'h1k'},
    {t:'Clean magnetic drain plug',n:'Inspect and clean magnetic plug at every oil change — a few fine metallic fines are normal; heavy particles or chunks indicate wear',i:'At every oil change',b:'h1k'},
    {t:'Check oil cooler performance',n:'Compare gear oil temp to jacket water temp — a large differential when JW is at normal temp indicates cooler fouling or restriction',i:'500 hrs',b:'h500'},
    {t:'Pressure-test oil cooler tubes',n:'Isolate cooler and pressure test tube bundle — a failed tube allows gear oil into the JW circuit (or vice versa), contaminating both',i:'Dry dock / 3,000 hrs',b:'h3k'},
@@ -2296,6 +2327,34 @@ const DET={
     s:['Check manual override switch position — if accidentally left in manual-on, pump will never stop','Test float switch resistance with multimeter — in full-tank position it should be open circuit (pump off)','Remove float switch and test in a bucket of fuel — if float is waterlogged (sunk), it cannot rise to shut off pump','Replace float switch if it cannot hold off position when float is at the top']},
   ]},
 
+ 'fuel-centrifuge':{t:'Fuel Centrifuge — Centrifugal Purifier',sys:'Fuel & Lube Oil',st:'ok',
+  desc:'The fuel centrifuge is a centrifugal separation unit that continuously removes water, sludge, and fine solids from diesel fuel by spinning it at high RPM. Unlike a filter element which catches particles mechanically, the centrifuge uses centrifugal force to separate contaminants by density — water and solids are heavier than diesel and are thrown to the outer wall of the spinning bowl, where they collect and are periodically discharged or drained. The centrifuge does not replace fuel filters but dramatically extends filter life and removes contaminants that can pass through coarse filters. It is particularly effective at removing the water-fuel emulsion and microbial sludge that accumulates at the bottom of storage tanks on river vessels.',
+  loc:'Engine room fuel system — typically installed in the fuel transfer circuit between the wing tanks and day tank, or in a recirculating loop on the day tank. Electric motor driven. Discharge port routes separated water and sludge to a waste container or overboard separator. Suction from the fuel transfer pump or a dedicated feed pump.',
+  specs:[['Type','Centrifugal bowl separator — continuous or batch operation'],['Separation basis','Centrifugal force — water and solids heavier than diesel are thrown outward'],['Effective on','Free water, emulsified water, sediment, sludge, microbial biomass, rust particles'],['Not effective on','Dissolved water (must be free water to separate), dissolved chemical contamination'],['Bowl cleaning interval','Verify on unit nameplate — typically daily to weekly depending on fuel condition'],['Flow rate','Verify on unit nameplate — must match the transfer/recirculation pump output'],['Motor','Electric — verify voltage on nameplate (typically 24VDC or 120VAC)'],['Discharge','Water/sludge bowl drains to waste — never overboard without MARPOL compliance']],
+  parts:[
+   ['Centrifuge Bowl Assembly','(by centrifuge manufacturer and model — verify nameplate)','Complete spinning bowl; replace if cracked or warped from improper cleaning','1/unit'],
+   ['Bowl Seal / O-ring Set','(by centrifuge model)','Seals between bowl sections; replace at every bowl cleaning if O-rings show compression set','1 set/cleaning'],
+   ['Feed Pump (if dedicated)','(by centrifuge model)','Small gear or centrifugal pump feeding fuel to centrifuge bowl; replace if flow is insufficient','1/unit'],
+   ['Drive Belt (if belt driven)','(by centrifuge model)','Check tension and condition at each bowl cleaning; replace if glazed or cracked','1/unit'],
+   ['Sludge Collection Container','(vessel-specific)','Container for separated water and sludge — must be handled as oily waste per MARPOL','1/unit'],
+  ],
+  maint:[
+   {t:'Clean centrifuge bowl — per schedule or fuel condition',n:'Stop unit; allow bowl to decelerate fully before opening — never open a spinning bowl; drain water/sludge; disassemble bowl; clean all surfaces; inspect for cracks; replace O-rings; reassemble and restart. Frequency depends on fuel quality — dirty fuel from condensation-heavy tanks may require daily cleaning',i:'Daily to weekly — per nameplate schedule or fuel condition',b:'d'},
+   {t:'Inspect bowl O-rings at every cleaning',n:'Replace O-rings if they show compression set, cracking, or flattening — a leaking O-ring allows unseparated fuel to bypass the centrifuge and contaminates the cleaned output',i:'Every bowl cleaning',b:'d'},
+   {t:'Check drive belt tension and condition',n:'A loose or worn drive belt reduces bowl RPM and separation efficiency — the bowl must spin at rated RPM to achieve full centrifugal separation',i:'Weekly or at every bowl cleaning',b:'ann'},
+   {t:'Verify discharge water container and drain',n:'The separated water/sludge must be directed to a proper waste container — check that the drain line is clear and the container has capacity; an overflowing waste container bypasses the centrifuge output back into clean fuel',i:'Daily when centrifuge is in operation',b:'d'},
+   {t:'Check fuel clarity at centrifuge outlet',n:'Observe the fuel coming out of the centrifuge clean outlet — it should be clear amber with no visible water or cloudiness; hazy output indicates the bowl is overloaded and needs more frequent cleaning',i:'Daily when operating',b:'d'},
+   {t:'Send cleaned fuel sample to lab',n:'Periodically sample fuel from the centrifuge outlet and compare to inlet — lab results confirm the unit is actually removing water and particulate to acceptable levels',i:'Annually or when fuel quality is suspect',b:'ann'},
+  ],
+  probs:[
+   {p:'Centrifuge output fuel still hazy or contains water',
+    c:['Bowl requires cleaning — accumulated sludge reducing separation efficiency','Bowl RPM too low — belt slipping or motor underperforming','Flow rate too high — fuel moving through bowl faster than separation can occur'],
+    s:['Clean bowl immediately — a bowl with heavy sludge buildup cannot achieve full separation','Check drive belt for slipping — proper belt tension is critical for bowl RPM','Reduce feed pump flow rate if adjustable — slower flow gives more residence time in the bowl for separation','If output remains hazy after cleaning and flow reduction: verify bowl is fully assembled and sealed — a missing disk or cracked bowl loses centrifugal efficiency'],},
+   {p:'Unusual vibration or noise from centrifuge',
+    c:['Bowl is unbalanced — uneven sludge distribution or missing component','Bowl is not fully closed — improper reassembly after cleaning','Bearing wear in drive spindle'],
+    s:['STOP the centrifuge immediately — an unbalanced bowl at high RPM can cause catastrophic failure','Verify bowl is fully assembled and locked — a partially open bowl will vibrate violently','Check for cracked or missing bowl disks — any asymmetry causes imbalance','If vibration returns after correct reassembly: bowl may be warped; replace bowl assembly']},
+  ]},
+
  'fuel-losump':{t:'Engine Lube Oil Sump — 145-Gallon',sys:'Fuel & Lube Oil',st:'ok',
   desc:'The lube oil sump is the oil reservoir built into the bottom of the engine crankcase. It holds the entire oil charge for the engine and is the starting point of the lube oil circulation system. The 145-gallon capacity of the EMD 645-16 gives it substantial thermal mass and reserve against minor leaks — but this also means oil contamination or dilution can develop slowly and must be caught by regular sampling rather than just checking the level.',
   loc:'Bottom of engine crankcase — the pan below the crankshaft. Dipstick tube accessible from engine room floor. Drain plug at lowest point of sump. Oil suction pickup inside sump feeds the oil pump. Magnetic drain plug captures ferrous wear debris.',
@@ -2359,7 +2418,7 @@ const DET={
   ],
   maint:[
    {t:'Submit oil sample — every 500 hrs or oil change',n:'Draw sample from dedicated port or dipstick tube with engine HOT and running — fill bottle 2/3 full; record engine hours, oil hours, and any symptoms on submission form',i:'500 hrs',b:'h500'},
-   {t:'Submit gear oil sample — Twin Disc MG-5202',n:'Sample reduction gear oil via drain port or dedicated sample valve — elevated copper = clutch wear; elevated iron = gear wear; water = cooler failure',i:'500 hrs',b:'h500'},
+   {t:'Submit gear oil sample — Faulk Reduction Gear',n:'Sample reduction gear oil via drain port or dedicated sample valve — elevated copper = clutch wear; elevated iron = gear wear; water = cooler failure',i:'500 hrs',b:'h500'},
    {t:'Submit hydraulic oil sample — Rexroth system',n:'Sample from reservoir drain or sample port — metal particles indicate pump or valve wear; water indicates breather failure',i:'Annually',b:'ann'},
    {t:'Review lab reports and trend data',n:'Compare new results to baseline and previous reports — a single elevated reading may be noise; a trend of rising wear metal across three consecutive samples is a real signal',i:'At each report receipt',b:'ann'},
    {t:'Act on lab recommendations promptly',n:'Lab reports often include condition codes and recommendations — an URGENT or ABNORMAL result requires investigation before the next scheduled service',i:'At each report receipt',b:'ann'},
@@ -2947,28 +3006,6 @@ const DET={
    {p:'Hose bursts when pressurized during test or use',
     c:['Hose jacket is cracked from UV degradation or age','Inner liner has separated from jacket — creates a blister that bursts','Hose coupling fitting is corroded and failed at the joint'],
     s:['Immediately close station valve — a burst hose releases pressure and makes suppression impossible','Inspect the hose from end to end — identify the failure point','Replace the hose before returning station to service','Inspect all other hoses at the same time — if one has failed from age, others may be at the same point']},
-  ]},
-
- 'saf-plb':{t:'Personal Locator Beacons — PLBs',sys:'Safety Systems',st:'ok',
-  desc:'Personal Locator Beacons (PLBs) are individual-worn 406 MHz distress beacons assigned one per crew member. Unlike the vessel EPIRB which is mounted on the vessel, PLBs go with the person — if a crew member goes overboard, they can activate their PLB even if they cannot reach the vessel EPIRB. PLBs transmit to the same COSPAS-SARSAT satellite network as EPIRBs, providing GPS position to the Coast Guard. Each PLB must be registered with NOAA in the crew member\'s name.',
-  loc:'Stored in crew quarters or emergency station locker — one per crew member. Should be worn or carried on the person during high-risk operations (mooring, towing, night deck work). Charging cradle if rechargeable model.',
-  specs:[['Frequency','406.028 MHz distress + 121.5 MHz homing'],['GPS','Built-in GPS — transmits position within 100 meters'],['Battery life','24 hours minimum activated'],['Registration','Individual NOAA registration required — beaconregistration.noaa.gov'],['Activation','Manual pull-pin or water-activated depending on model'],['Wearing','Must be worn or readily accessible during deck operations — stored PLB saves no one']],
-  parts:[
-   ['PLB Unit','(ACR ResQLink or equivalent — USCG approved)','One per crew member — verify model is still supported on current COSPAS-SARSAT network','Per crew'],
-   ['PLB Battery Pack','(by PLB model)','Non-rechargeable lithium — replace per expiry date on label; do not attempt field replacement on sealed units','Per PLB'],
-   ['PLB Lanyard / Attachment','(by PLB model)','Attaches PLB to PFD or clothing — must be secure but quick to deploy','Per PLB'],
-  ],
-  maint:[
-   {t:'Verify NOAA registration for each PLB',n:'Each PLB must be registered to the individual crew member at beaconregistration.noaa.gov — an unregistered PLB transmits an uncorrelated signal that may not be acted upon as quickly',i:'Annually / when crew changes',b:'ann'},
-   {t:'Check battery expiry date on each PLB',n:'Battery expiry is printed on label — replace before expiry even if PLB has never been activated; an expired battery will not power the unit for the required 24 hours',i:'Monthly — check label',b:'ann'},
-   {t:'Self-test each PLB',n:'Perform manufacturer self-test (typically hold test button 1 second) — LED flash confirms electronics are functional; this does NOT transmit',i:'Monthly',b:'ann'},
-   {t:'Inspect lanyard attachment and PLB condition',n:'Check lanyard clip for corrosion; inspect PLB housing for cracks; a cracked housing may allow water ingress that damages the circuit',i:'Monthly',b:'ann'},
-   {t:'Brief all crew on PLB activation and wearing',n:'Every crew member must know how to activate their PLB and when to wear it — a PLB stored in a locker during a man-overboard event is useless',i:'New crew at embarkation',b:'ann'},
-  ],
-  probs:[
-   {p:'PLB self-test fails — no LED response',
-    c:['Battery is dead or expired — most common cause','PLB circuit has been damaged by moisture or impact','Self-test button not held long enough'],
-    s:['Check battery expiry date — if expired, unit must be sent to manufacturer for battery replacement on sealed units','Try self-test again holding button for full 3 seconds — some models require longer hold','Inspect housing for cracks or corrosion at seams — water ingress damages circuit','If battery is current and housing is intact but test still fails: PLB requires factory service']},
   ]},
 
  'saf-flares':{t:'Pyrotechnic Flares — Visual Distress Signals',sys:'Safety Systems',st:'ok',
@@ -3753,7 +3790,7 @@ const MANUAL_CONTENT={
      'Pulling the lever aft of neutral engages reverse (astern drive) and ramps throttle the same way.',
      'The "follow-up" refers to the internal spool valve that tracks the lever position and maintains exactly that signal — it is a proportional system, not on/off. Partial lever travel = partial throttle.',
      'On vessels with a separate clutch between engine and gear: the Rexroth clutch output controls the clutch engagement valve directly. The reduction gear may be controlled by a separate directional valve also driven from the Rexroth manifold.',
-     'On vessels with a clutch-reverse-reduction gear (like a Twin Disc or Reintjes): the Rexroth clutch output feeds into the gear control valve which selects forward, neutral, or reverse internally.',
+     'On vessels with a clutch-reverse-reduction gear (like a Faulk or Reintjes): the Rexroth clutch output feeds into the gear control valve which selects forward, neutral, or reverse internally.',
      'The primary and auxiliary wheelhouse stations share the same hydraulic circuit. Only one station is active at a time — the station selector valve routes command pressure from the active station to the actuating circuit.',
     ]},
    {t:'Hydraulic System Pressure Specifications',type:'table',
@@ -4824,6 +4861,26 @@ function renderFeedback(){
   return `<div class="pt">Submit Input</div>
   <div class="ps">Help make this reference better — your field experience matters</div>
 
+  <div style="background:#1e2538;border-radius:12px;padding:20px;margin-bottom:14px">
+    <div style="display:flex;align-items:center;justify-content:center;gap:9px;margin-bottom:14px">
+      <i class="ti ti-ship" style="font-size:20px;color:var(--r)"></i>
+      <span style="font-size:14px;font-weight:700;color:#fff;letter-spacing:.02em">Vessel Maintenance Reference</span>
+    </div>
+    <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.5);letter-spacing:.1em;text-transform:uppercase;text-align:center;margin-bottom:12px">Before You Proceed</div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      ${[
+        ['ti-info-circle','#60a5fa','Reference tool only.','Information is based on manufacturer service manuals, industry best practices, and general marine engineering guidelines. It is not a substitute for official manufacturer documentation.'],
+        ['ti-box','#fbbf24','Always verify part numbers','against the current manufacturer parts catalog and the specific vessel\'s equipment serial numbers before ordering. Part numbers may vary by engine arrangement, model year, or vessel configuration.'],
+        ['ti-shield-check','#34d399','All work must be performed safely','and in accordance with applicable U.S. Coast Guard regulations, company policies and procedures, and any governing federal, state, or local requirements.'],
+        ['ti-alert-triangle','#f87171','In any emergency,','follow established emergency procedures and contact the appropriate authorities. This app does not replace proper training, a valid Certificate of Inspection, or qualified engineering judgment.'],
+      ].map(([icon,color,bold,rest])=>`
+        <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 12px;background:rgba(255,255,255,.04);border-radius:8px;border:.5px solid rgba(255,255,255,.07)">
+          <i class="ti ${icon}" style="font-size:14px;color:${color};flex-shrink:0;margin-top:1px"></i>
+          <p style="font-size:11px;color:rgba(255,255,255,.65);line-height:1.6;margin:0"><strong style="color:rgba(255,255,255,.9)">${bold}</strong> ${rest}</p>
+        </div>`).join('')}
+    </div>
+  </div>
+
   <div class="box" style="border-left:3px solid var(--r);border-radius:0 10px 10px 0">
     <div class="bl">What We're Looking For</div>
     <div class="desc">This reference is a living document. If you find something missing, incorrect, or that could be more useful to someone working on the boat, send it in. The more specific you are, the faster it can be added.</div>
@@ -4832,7 +4889,7 @@ function renderFeedback(){
   <div class="gl">Good examples of useful input</div>
   <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px">
     ${[
-      ['Specific part numbers or specs that are wrong or missing','e.g. "The Twin Disc filter element on hull 304 is actually part # XXXX, not what\'s listed"'],
+      ['Specific part numbers or specs that are wrong or missing','e.g. "The Faulk gear filter element on hull 304 is actually part # XXXX, not what\'s listed"'],
       ['Components that aren\'t covered yet','e.g. "We have a Wesmar bow thruster on the newer boats — needs its own section"'],
       ['Troubleshooting steps that don\'t match what actually works in the field','e.g. "The Rexroth neutral adjustment procedure doesn\'t match what we actually do — here\'s what works"'],
       ['Maintenance intervals that differ from what the company actually uses','e.g. "We change gear oil every 500 hrs, not 1,000"'],
