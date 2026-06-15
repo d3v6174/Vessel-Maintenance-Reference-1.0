@@ -5013,7 +5013,7 @@ function startTowboatGame(){
   window.addEventListener('keyup',_gameKeyUp);
 
   const TOUCH={L:false,R:false,U:false,D:false};
-  const BTN={L:{x:14,y:H-108,w:68,h:58},R:{x:90,y:H-108,w:68,h:58},U:{x:W-84,y:H-108,w:68,h:58},D:{x:W-162,y:H-108,w:68,h:58}};
+  const BTN={L:{x:10,y:H-105,w:92,h:80},R:{x:110,y:H-105,w:92,h:80},U:{x:W-102,y:H-105,w:92,h:80},D:{x:W-202,y:H-105,w:92,h:80}};
 
   (function setupTouch(){
     const held={};
@@ -5306,7 +5306,7 @@ function startTowboatGame(){
 
   function drawBtns(){
     const labels={L:'◀',R:'▶',U:'▲',D:'▼'},pressed={L:KEY.ArrowLeft||KEY.KeyA||TOUCH.L,R:KEY.ArrowRight||KEY.KeyD||TOUCH.R,U:KEY.ArrowUp||KEY.KeyW||TOUCH.U,D:KEY.ArrowDown||KEY.KeyS||TOUCH.D};
-    Object.entries(BTN).forEach(([k,b])=>{const pr=pressed[k];ctx.fillStyle=pr?'rgba(28,80,130,0.88)':'rgba(8,20,36,0.72)';ctx.strokeStyle=pr?'#38a0cc':'#1e4e66';ctx.lineWidth=2;ctx.beginPath();ctx.roundRect(b.x,b.y,b.w,b.h,9);ctx.fill();ctx.stroke();ctx.fillStyle=pr?'#78ccee':'#386880';ctx.font='bold 22px monospace';ctx.textAlign='center';ctx.fillText(labels[k],b.x+b.w/2,b.y+b.h/2+8);});
+    Object.entries(BTN).forEach(([k,b])=>{const pr=pressed[k];ctx.fillStyle=pr?'rgba(28,80,130,0.88)':'rgba(8,20,36,0.72)';ctx.strokeStyle=pr?'#38a0cc':'#1e4e66';ctx.lineWidth=2;ctx.beginPath();ctx.roundRect(b.x,b.y,b.w,b.h,9);ctx.fill();ctx.stroke();ctx.fillStyle=pr?'#78ccee':'#386880';ctx.font='bold 34px monospace';ctx.textAlign='center';ctx.fillText(labels[k],b.x+b.w/2,b.y+b.h/2+11);});
   }
 
   function drawOverlay(){
