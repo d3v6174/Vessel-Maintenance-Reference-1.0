@@ -4945,13 +4945,16 @@ function renderFeedback(){
 
 function renderHowto(key){
   const titles={
-    'howto-startengine':'Start Main Engine',
-    'howto-lash':'Set Lash Adjustments',
+    'howto-startengine':'Start Main Engine — EMD 645',
+    'howto-lash':'Set Lash Adjustments — EMD 645',
     'howto-swapgen':'Swap Generators',
     'howto-boilertochiller':'Boiler to Chiller',
     'howto-chillertobboiler':'Chiller to Boiler',
   };
   const title=titles[key]||'How To';
+  if(key==='howto-startengine') return renderStartEngine();
+  if(key==='howto-lash') return renderLashAdjustment();
+  if(key==='howto-swapgen') return renderSwapGenerators();
   return `<div class="pt"><i class="ti ti-school" style="margin-right:6px;font-size:15px"></i>${title}</div>
   <div class="ps" style="margin-bottom:14px">Step-by-step procedure — coming soon</div>
   <div style="display:flex;align-items:center;gap:12px;padding:18px;background:#f8fafc;border:.5px solid var(--bd);border-radius:10px;color:var(--t2)">
@@ -4961,6 +4964,308 @@ function renderHowto(key){
       <div style="font-size:11px;color:var(--t3);line-height:1.6">This procedure is being documented. Check back after the next update — step-by-step instructions with checkboxes will appear here.</div>
     </div>
   </div>`;
+}
+
+function renderSwapGenerators(){
+  const phases=[
+    {
+      phase:'PHASE 1 — PM Service on the Outgoing Generator',
+      color:'#2563eb',
+      note:'Before you can take a generator offline, verify the incoming unit is serviceable. Then perform PM on the outgoing unit while it is cooling down after transfer. This phase covers routine oil, filter, and inspection tasks.',
+      steps:[
+        {t:'Isolate the outgoing generator — control panel to OFF',d:'Switch the outgoing generator\'s control panel from Auto or Remote to Manual/Off/Isolate. This prevents the unit from auto-starting while you are working on it. Lock out the starting system: disable the 24VDC starter battery disconnect switch. Hang a "DO NOT OPERATE — MAINTENANCE IN PROGRESS" tag on the switchboard and the engine panel.'},
+        {t:'Drain engine oil — best done while warm',d:'After the generator has been shut down and allowed to cool slightly (warm but not hot), use the vessel\'s crankcase pump-out system or a manual hand pump to evacuate the sump into the dirty oil slop tank. Warm oil flows easier and holds suspended contaminants better than cold oil.'},
+        {t:'Change oil filters — inspect gaskets carefully',d:'Place rags under the filter to catch spillage. Spin off the old filter and verify the old sealing gasket came off with it — a gasket left on the engine housing creates a double gasket that will blow out immediately on the next startup. Pre-fill the new filter with clean engine oil to prevent a dry start. Smear a thin film of oil on the new gasket. Spin on until the gasket seats, then turn an additional 3/4 to 1 full turn by hand only — never use a wrench to tighten a spin-on filter.'},
+        {t:'Service primary fuel/water separator (Racor)',d:'Close the fuel supply valves. Drain the water collection bowl at the bottom. Replace the filter element and the large O-ring on the housing lid. Pre-fill the bowl with clean fuel before reassembly to minimize air introduced into the fuel lines.'},
+        {t:'Replace secondary (engine-mounted) fuel filter',d:'Replace the fine-micron engine-mounted fuel filter the same way as the oil filter. Bleed air from the system after reassembly using the mechanical primer thumb pump on the fuel transfer pump — pump until the plunger feels solid, indicating no air in the lines.'},
+        {t:'Check jacket water coolant level — expansion tank',d:'Check the coolant level in the expansion tank only when the engine is cool. Top off with the correct water/antifreeze mix if needed. Do not open a pressurized expansion tank cap on a hot engine.'},
+        {t:'Inspect drive belts — alternator and water pump',d:'Inspect the alternator belt and water pump belt for correct tension and for checking (small surface cracks), glazing, or fraying. A belt that is cracked, glazed, or loose should be replaced before the generator returns to service.'},
+        {t:'Inspect raw water heat exchanger zinc anodes (if equipped)',d:'If this generator uses a separate raw water heat exchanger for cooling rather than the vessel\'s keel cooler circuit, inspect and replace the sacrificial zinc anodes in the heat exchanger end caps. Replace if more than 50% wasted. Generators on keel cooler loops do not have this requirement.'},
+        {t:'Refill sump to Full mark — confirm on dipstick',d:'Fill the engine with the manufacturer-specified oil volume and grade. Pull the dipstick and confirm the level sits exactly at the Full mark. Write the oil change in the generator maintenance log with date, hours, and oil brand/grade.'},
+      ]
+    },
+    {
+      phase:'PHASE 2 — Pre-Start & Warm-Up of Incoming Generator',
+      color:'#f59e0b',
+      note:'Before any electrical transfer can happen, the incoming generator must be running, warmed up, and electrically stable.',
+      steps:[
+        {t:'Pre-start walk-around on incoming generator',d:'Inspect the incoming generator before starting: verify oil level, coolant level, fuel supply valve is open, no fuel or oil leaks visible, belt condition, and that no LOTO tags are on this unit from previous maintenance. Confirm the unit is in a serviceable state.'},
+        {t:'Enable starting system — turn on battery disconnect',d:'Turn on the 24VDC starter battery disconnect switch for the incoming generator. Verify the control panel is in Manual or Local mode. Confirm the main circuit breaker for this generator at the switchboard is OPEN (off-bus) before starting.'},
+        {t:'Start the incoming generator — allow 3–5 minutes to warm up',d:'Start the incoming generator manually. Allow it to run at rated speed for 3 to 5 minutes to warm up, stabilize voltage and frequency, and allow the voltage regulator (AVR) to settle. Do not attempt to parallel onto the bus with a cold or unstable generator.'},
+      ]
+    },
+    {
+      phase:'PHASE 3 — Match Voltage & Frequency at the Switchboard',
+      color:'#0d9488',
+      note:'You cannot close two generators onto the same bus unless their voltage, frequency, and phase are matched. Closing out of sync causes a severe electrical fault that can damage both generators and the switchboard.',
+      steps:[
+        {t:'Go to the main switchboard — observe both generators',d:'Stand at the main switchboard where you can see instrumentation for both the running generator (on-bus) and the incoming generator (off-bus). The on-bus generator is the reference — you are adjusting the incoming unit to match it.'},
+        {t:'Match voltage — adjust voltage regulator on incoming generator',d:'Compare the voltmeter readings for both generators. This fleet runs 480VAC 3-phase, 60 Hz. Adjust the voltage regulator trim (AVR adjust) on the incoming generator until its voltage matches the on-bus generator exactly. A 480V bus requires an incoming generator reading 480V — not 479V, not 481V.'},
+        {t:'Match frequency — adjust governor speed on incoming generator',d:'Compare the frequency meters for both generators. Adjust the speed governor control on the incoming generator to match the live bus frequency. Target 60.0–60.2 Hz on the incoming generator — running the incoming unit very slightly fast means it will actively accept load when the breaker closes rather than motoring (being driven by the bus).'},
+      ]
+    },
+    {
+      phase:'PHASE 4 — Synchroscope & Parallel Transfer',
+      color:'#7c3aed',
+      note:'The synchroscope shows the phase relationship between the two generators. The needle must be rotating SLOWLY CLOCKWISE and you close the breaker just before 12 o\'clock. Too fast = electrical fault. Counter-clockwise = generator will motor. Patience here prevents catastrophic damage.',
+      steps:[
+        {t:'Turn the synchroscope switch to the incoming generator',d:'On the switchboard, turn the synchroscope selector switch to the position for the incoming generator. The synchroscope needle will begin rotating. Clockwise rotation means the incoming generator is running faster than the bus (correct direction). Counter-clockwise means it is running slower — increase governor speed on the incoming unit.'},
+        {t:'Fine-tune until the needle rotates SLOWLY clockwise',d:'Adjust the incoming generator\'s governor speed until the synchroscope needle rotates clockwise very slowly — approximately one full rotation every 5 to 10 seconds. A fast-spinning needle means frequencies are too far apart — do not close the breaker. A needle that is nearly stopped is ideal but watch carefully as a stopped needle may actually be slowly drifting counter-clockwise.'},
+        {t:'Close the breaker — anticipate at 11 o\'clock',d:'Watch the needle as it approaches the 12 o\'clock position (12 o\'clock = perfect phase alignment). Account for the mechanical delay of your hand and the breaker mechanism — throw the breaker closed switch as the needle passes the 11 o\'clock position on its way to 12. The breaker will snap closed. Both generator breaker indicator lights will now be illuminated — both generators are now sharing the bus in parallel.'},
+        {t:'Verify parallel operation — no alarms, both breakers closed',d:'Immediately after closing the breaker, verify: no reverse power trip, no frequency or voltage alarms, both breaker indicator lights lit. If a reverse power relay trips or you hear/see any abnormality, open the incoming generator breaker immediately and investigate before attempting again.'},
+      ]
+    },
+    {
+      phase:'PHASE 5 — Transfer Load & Take Outgoing Generator Off-Bus',
+      color:'#ef4444',
+      note:'Right now the outgoing generator is carrying all the load and the incoming unit is spinning along on the bus. You must shift the kW load over before you can open the outgoing breaker.',
+      steps:[
+        {t:'Locate governor speed controls for both generators',d:'Find the governor speed adjust switches for both generators on the switchboard panel. You will work both simultaneously — increasing speed on the incoming generator while decreasing speed on the outgoing generator. Watch the kW meters on both units constantly while doing this.'},
+        {t:'Shift load — increase incoming, decrease outgoing',d:'Gradually increase the governor speed on the incoming generator and decrease governor speed on the outgoing generator in small, equal increments. Watch the kW meters: the outgoing generator\'s kW reading should drop while the incoming generator\'s kW reading rises. Move slowly and deliberately — large adjustments cause voltage swings on the bus.'},
+        {t:'Trip the outgoing generator breaker — at 5–10 kW remaining',d:'When the outgoing generator\'s kW meter drops to approximately 5–10 kW, open (trip) its main circuit breaker at the switchboard. Do NOT let the outgoing generator reach zero kW or go negative — a negative kW reading means the incoming generator is driving the outgoing unit as a motor, which will trip the reverse power relay automatically. Trip the breaker while a small positive load remains.'},
+        {t:'Turn off the synchroscope switch',d:'Turn the synchroscope selector switch to the off position. The incoming generator is now independently carrying the entire electrical load for the vessel. Verify the bus voltage and frequency are stable and within normal range.'},
+      ]
+    },
+    {
+      phase:'PHASE 6 — Cool Down & Safe Shutdown of Outgoing Generator',
+      color:'#6b7280',
+      note:'Never shut a generator down hard from full load. The turbocharger and engine components need to cool under light load before shutdown.',
+      steps:[
+        {t:'Allow the outgoing generator to cool down — 3–5 minutes at no load',d:'With its breaker now open and off-bus, the outgoing generator is running at no load. Allow it to idle for 3 to 5 minutes. This allows the turbocharger, oil, and cooling system to stabilize before shutdown. Shutting down immediately from heavy load causes heat soak in the turbocharger and can carbonize the oil in the bearing housing.'},
+        {t:'Shut down the outgoing generator',d:'Use the control panel to shut down the outgoing generator normally. Verify it comes to a complete stop and does not coast to an unusual RPM or produce abnormal smoke on shutdown.'},
+        {t:'Perform PM service on the outgoing unit',d:'The outgoing generator is now safely shut down and isolated. It is safe to perform Phase 1 PM service procedures (oil change, filter service, coolant check, belt inspection). The unit is warm, which is ideal for draining oil. Hang your LOTO tags before beginning any work.'},
+      ]
+    }
+  ];
+
+  const phaseColors=phases.map(function(p){return p.color;});
+  let h=`<div class="pt"><i class="ti ti-bolt" style="margin-right:6px;font-size:15px"></i>Swap Generators — Service & Parallel Transfer</div>
+  <div class="ps" style="margin-bottom:14px">Parallel load transfer · 480VAC 3-phase · Cat C4.4/C7 or Cummins QSB6.7</div>
+  <div style="background:#fff8e1;border:.5px solid #f59e0b;border-radius:10px;padding:11px 14px;margin-bottom:8px;display:flex;gap:9px;align-items:flex-start">
+    <i class="ti ti-alert-triangle" style="color:#f59e0b;font-size:14px;flex-shrink:0;margin-top:1px"></i>
+    <span style="font-size:11px;color:#7c5a00;line-height:1.6"><strong>Reference procedure only.</strong> Switchboard configurations vary by vessel. Always follow vessel-specific procedures. Closing out of phase causes severe electrical fault — take your time at the synchroscope.</span>
+  </div>
+  <div style="background:#eff6ff;border:.5px solid #2563eb;border-radius:10px;padding:11px 14px;margin-bottom:12px;display:flex;gap:9px;align-items:flex-start">
+    <i class="ti ti-info-circle" style="color:#2563eb;font-size:14px;flex-shrink:0;margin-top:1px"></i>
+    <span style="font-size:11px;color:#1e3a8a;line-height:1.6"><strong>Synchroscope rule:</strong> Needle slowly clockwise, close at 11 o\'clock. Never close counter-clockwise. Never close fast. Trip outgoing breaker at 5–10 kW remaining — never at zero or negative.</span>
+  </div>`;
+
+  phases.forEach(function(phase){
+    h+=`<div style="margin-bottom:10px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;padding:8px 12px;background:${phase.color};border-radius:8px">
+        <span style="font-size:10px;font-weight:700;color:#fff;letter-spacing:.05em">${phase.phase}</span>
+      </div>`;
+    if(phase.note){
+      h+=`<div style="font-size:10.5px;color:${phase.color};background:${phase.color}14;border-left:3px solid ${phase.color};padding:7px 11px;border-radius:0 6px 6px 0;margin-bottom:6px;line-height:1.5">${phase.note}</div>`;
+    }
+    h+=`<div style="display:flex;flex-direction:column;gap:4px">`;
+    phase.steps.forEach(function(step,i){
+      h+=`<div style="display:flex;align-items:flex-start;gap:10px;background:#fff;border:.5px solid #e2e8f0;border-left:3px solid ${phase.color};border-radius:0 7px 7px 0;padding:9px 12px">
+        <span style="font-size:10px;font-weight:700;color:#fff;background:${phase.color};border-radius:4px;min-width:20px;height:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">${i+1}</span>
+        <div>
+          <div style="font-size:11.5px;font-weight:600;color:#1e293b;margin-bottom:3px">${step.t}</div>
+          <div style="font-size:11px;color:#475569;line-height:1.6">${step.d}</div>
+        </div>
+      </div>`;
+    });
+    h+=`</div></div>`;
+  });
+  return h;
+}
+
+function renderLashAdjustment(){
+  const phases=[
+    {
+      phase:'PHASE 1 — Preparation & Safety (LOTO)',
+      color:'#ef4444',
+      note:'You will be working directly under the rocker covers with your hands near the valve train. An accidental engine rotation causes catastrophic injury. Do not skip LOTO.',
+      steps:[
+        {t:'Lock Out / Tag Out the air start system',d:'Close and lock the air start supply valve to the engine. Bleed the air start manifold lines to zero pressure. Hang your LOTO tag on the valve. Verify the air receivers cannot supply starting air to this engine while you are working.'},
+        {t:'Place the governor in the stop / fuel-off position',d:'Move the ED05 governor control to the stop position and verify the fuel rack is in the no-fuel position. A rack that moves to fuel during valve work will crank the engine without air start — the accessory gear drive alone has enough rotational mass to cause injury.'},
+        {t:'Confirm the Faulk gear is in Neutral — air clutch deflated',d:'Verify the Faulk reversing reduction gear is in Neutral and the air clutch is fully deflated (zero air pressure). This decouples the shaft from the engine so even if the engine were somehow bumped, the propeller would not move.'},
+        {t:'Establish Cold State — engine must be fully cooled',d:'The EMD 645 lash is set COLD. The engine must have sat idle for a minimum of 4–6 hours at ambient temperature before lash adjustment. Metal expansion at operating temperature will change your clearances significantly. Do not set lash on a warm engine.'},
+        {t:'Clean the valve cover area before removing covers',d:'Blow off and wipe down the rocker covers and surrounding area before removing any fasteners. Engine room debris falling into the cylinder head area can damage camshaft lobes or block oil passages. This is not optional.'},
+      ]
+    },
+    {
+      phase:'PHASE 2 — EMD 645 Valve Train Overview',
+      color:'#2563eb',
+      note:'The EMD 645 is a 2-stroke engine. There are NO intake valves — air enters through ports in the cylinder liner uncovered by the piston. Each cylinder head has exhaust valves only. You are adjusting exhaust valve lash and injector rocker arm lash.',
+      steps:[
+        {t:'Identify what you are adjusting — exhaust valves and injector rocker arm',d:'Each EMD 645 cylinder has a camshaft lobe for the exhaust valves and a separate lobe for the unit injector push rod. You will set lash on the exhaust valve rocker arm(s) and verify the injector rocker arm travel. Consult the EMD 645 service manual for the exact clearance specs for this engine model — exhaust valve and injector lash specs differ and must not be confused.'},
+        {t:'Identify the firing order for cylinder sequencing',d:'Adjust cylinders in firing order sequence, not cylinder number order, to minimize the number of times you bar the engine over. The EMD 645-16 firing order: verify in the engine service manual for this specific installation. Record your sequence before starting.'},
+        {t:'Gather your tools — 3 forks, wrench, screwdriver, turning bar',d:'You need three feeler gauge forks for each lash spec you are setting: one UNDER spec (always slides in — confirms minimum clearance is met), one AT spec (slides with smooth firm drag — this is your target), and one OVER spec (will not fit — confirms you have not gone too tight). Also need a box-end wrench for the locknut, a screwdriver or hex key for the adjusting screw, and the manual turning bar.'},
+      ]
+    },
+    {
+      phase:'PHASE 3 — Finding Top Dead Center (TDC)',
+      color:'#f59e0b',
+      note:'You can only adjust lash on a cylinder when its cam follower is sitting on the base circle of the camshaft lobe — the lowest point, with no lift applied to the valves.',
+      steps:[
+        {t:'Bar the engine over using the manual turning bar',d:'Insert the manual turning bar into the flywheel and rotate the crankshaft in the normal direction of rotation (verify direction in the service manual — rotating backward can damage certain components). Move slowly and deliberately.'},
+        {t:'Watch the exhaust valve rocker arms on the target cylinder',d:'Observe the rocker arm(s) for the cylinder you are adjusting. Rotate until you see the exhaust valve rocker arm push the valves open — then continue rotating until the valves come back down and fully close.'},
+        {t:'Continue to TDC on compression stroke',d:'After the exhaust valves fully close, continue barring slowly. The piston is now on its compression stroke heading toward TDC. Use the timing marks on the flywheel or front damper to confirm TDC for that cylinder. Stop exactly at TDC.'},
+        {t:'Perform the wiggle test',d:'At true TDC on the compression stroke, the cam follower is sitting on the base circle of the exhaust cam lobe — no lift force is applied. Try to wiggle the exhaust valve rocker arm by hand. You should feel a small but definite amount of play. If the rocker arm is tight with no play, you are not at TDC — bar over slightly and re-check.'},
+      ]
+    },
+    {
+      phase:'PHASE 4 — Setting Lash with the 3-Fork Method',
+      color:'#0d9488',
+      note:'Use three feeler gauge forks: THIN (always fits), SPEC (target drag), THICK (never fits). All three must pass their test for the adjustment to be correct.',
+      steps:[
+        {t:'Insert the THIN fork (under-spec gauge)',d:'Slide the thin fork — the one thinner than the spec clearance — into the gap between the rocker arm and the valve stem or bridge. This fork should slide in effortlessly with no resistance. If it does not fit, your gap is already too tight — loosen the adjusting screw before proceeding.'},
+        {t:'Insert the SPEC fork — evaluate the drag',d:'Slide the spec-thickness fork into the gap. You want a smooth, firm drag — like pulling a sheet of paper from under a book. It moves, but with resistance. If it slides freely with no drag, the gap is too loose. If it will not fit at all, the gap is too tight. This is your target feel.'},
+        {t:'Loosen the locknut and adjust the screw',d:'Hold the adjusting screw steady with your screwdriver so it cannot rotate. Loosen the locknut with your wrench. To decrease the gap (tighten), turn the adjusting screw clockwise. To increase the gap (loosen), turn counter-clockwise. Make small adjustments and re-check with the spec fork after each one.'},
+        {t:'Set final clearance — spec fork in gap, snug the screw',d:'With the spec fork inserted in the gap, gently snug the adjusting screw until you feel that firm, smooth drag on the fork. Hold the screw absolutely still with your screwdriver and torque the locknut down to the manufacturer\'s specified torque. Do not let the screw turn as you tighten the locknut — this is the most common way lash gets shifted off spec.'},
+        {t:'Insert the THICK fork — it must not fit',d:'Try to insert the thick fork — the one thicker than the spec clearance. It should not fit. If it does, the gap is still too wide — the adjusting screw moved when you tightened the locknut. Loosen the locknut and re-set. The thick fork not fitting is your confirmation that you are at or below the upper limit.'},
+        {t:'Re-check the SPEC fork after tightening locknut',d:'Re-insert the spec fork after the locknut is torqued. Tightening the locknut sometimes rotates the screw slightly, shifting the clearance. The spec fork must still slide with the same firm drag after locknut tightening. If the feel has changed, the screw moved — loosen and re-set.'},
+      ]
+    },
+    {
+      phase:'PHASE 5 — Record, Repeat, and Return to Service',
+      color:'#7c3aed',
+      note:'Do not skip documentation. Lash records are maintenance history and are required for COI and class surveys.',
+      steps:[
+        {t:'Record the final clearance in the maintenance log',d:'Write down: cylinder number, intake (exhaust) valve clearance measured, date, engine hours, and your name. Note any cylinders that were out of spec before adjustment. This record is required and may be reviewed by the USCG or class surveyor.'},
+        {t:'Bar to the next cylinder in firing order and repeat',d:'Move the turning bar to the next cylinder in the firing order. Repeat Phases 3 and 4 for each cylinder until all cylinders are complete. Do not skip any cylinder — uneven lash causes uneven combustion and can mask a developing cylinder problem.'},
+        {t:'Inspect valve covers and gaskets before reinstalling',d:'Inspect the valve cover gaskets for compression set, cracking, or damage before reinstalling covers. A leaking valve cover gasket drips oil onto hot exhaust surfaces — a fire hazard. Replace gaskets if there is any doubt.'},
+        {t:'Reinstall valve covers — torque to spec in sequence',d:'Reinstall rocker covers and torque fasteners in the correct sequence (typically center out) to the manufacturer\'s torque spec. Do not overtighten — cracked valve covers on the EMD 645 are an expensive repair.'},
+        {t:'Remove all LOTO — restore starting systems',d:'Remove your lockout tag from the air start supply valve. Open the valve and verify air receivers are charged to operating pressure (200+ PSI). Restore the governor to the run position. Walk the engine room and verify all tools, rags, and feeler gauges are accounted for before restoring the starting system.'},
+        {t:'Start the engine and verify smooth operation',d:'Follow the normal cold-start procedure including full blowdown. After the engine fires and stabilizes at idle, walk both banks and listen for excessive valve train clatter. A rhythmic ticking from the top end indicates a valve lash that is too loose. A dull thud or irregular top-end knock indicates a lash that is too tight or a valve issue — shut down and re-check that cylinder.'},
+      ]
+    }
+  ];
+
+  let h=`<div class="pt"><i class="ti ti-adjustments-horizontal" style="margin-right:6px;font-size:15px"></i>Set Lash Adjustments — EMD 645 Exhaust Valves</div>
+  <div class="ps" style="margin-bottom:14px">Valve lash (tappet clearance) adjustment · EMD 645-16 · Cold engine only</div>
+  <div style="background:#fff8e1;border:.5px solid #f59e0b;border-radius:10px;padding:11px 14px;margin-bottom:8px;display:flex;gap:9px;align-items:flex-start">
+    <i class="ti ti-alert-triangle" style="color:#f59e0b;font-size:14px;flex-shrink:0;margin-top:1px"></i>
+    <span style="font-size:11px;color:#7c5a00;line-height:1.6"><strong>Reference procedure only.</strong> Verify all clearance specs in the EMD 645 service manual for this specific engine model. Specs vary by engine variant and must be confirmed before adjustment.</span>
+  </div>
+  <div style="background:#fee2e2;border:.5px solid #ef4444;border-radius:10px;padding:11px 14px;margin-bottom:12px;display:flex;gap:9px;align-items:flex-start">
+    <i class="ti ti-shield-lock" style="color:#ef4444;font-size:14px;flex-shrink:0;margin-top:1px"></i>
+    <span style="font-size:11px;color:#7f1d1d;line-height:1.6"><strong>LOTO required before any valve cover is removed.</strong> An accidental engine rotation during valve work causes catastrophic injury. Lock out the air start system and tag it before proceeding.</span>
+  </div>
+  <div style="background:#eff6ff;border:.5px solid #2563eb;border-radius:10px;padding:11px 14px;margin-bottom:12px;display:flex;gap:9px;align-items:flex-start">
+    <i class="ti ti-info-circle" style="color:#2563eb;font-size:14px;flex-shrink:0;margin-top:1px"></i>
+    <span style="font-size:11px;color:#1e3a8a;line-height:1.6"><strong>3-Fork Method:</strong> Use three feeler gauges — <strong>THIN</strong> (always fits, under spec), <strong>SPEC</strong> (target drag, at clearance spec), and <strong>THICK</strong> (never fits, over spec). All three must pass their test for the lash to be correctly set.</span>
+  </div>`;
+
+  phases.forEach(function(phase){
+    h+=`<div style="margin-bottom:10px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;padding:8px 12px;background:${phase.color};border-radius:8px">
+        <span style="font-size:10px;font-weight:700;color:#fff;letter-spacing:.05em">${phase.phase}</span>
+      </div>`;
+    if(phase.note){
+      h+=`<div style="font-size:10.5px;color:${phase.color};background:${phase.color}14;border-left:3px solid ${phase.color};padding:7px 11px;border-radius:0 6px 6px 0;margin-bottom:6px;line-height:1.5">${phase.note}</div>`;
+    }
+    h+=`<div style="display:flex;flex-direction:column;gap:4px">`;
+    phase.steps.forEach(function(step,i){
+      h+=`<div style="display:flex;align-items:flex-start;gap:10px;background:#fff;border:.5px solid #e2e8f0;border-left:3px solid ${phase.color};border-radius:0 7px 7px 0;padding:9px 12px">
+        <span style="font-size:10px;font-weight:700;color:#fff;background:${phase.color};border-radius:4px;min-width:20px;height:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">${i+1}</span>
+        <div>
+          <div style="font-size:11.5px;font-weight:600;color:#1e293b;margin-bottom:3px">${step.t}</div>
+          <div style="font-size:11px;color:#475569;line-height:1.6">${step.d}</div>
+        </div>
+      </div>`;
+    });
+    h+=`</div></div>`;
+  });
+  return h;
+}
+
+function renderStartEngine(){
+  const phases=[
+    {
+      phase:'PHASE 1 — Pre-Start Inspection & Fluid Checks',
+      color:'#2563eb',
+      note:'Before rolling anything over, verify engine room vitals are in order.',
+      steps:[
+        {t:'Check engine sump oil level',d:'Pull the dipstick on the engine oil pan. Level must be between LOW and FULL marks. Oil should be clean black/brown — milky oil indicates coolant contamination; fuel smell indicates injector leakage. Do not start with contaminated oil.'},
+        {t:'Check ED05 governor oil level',d:'Locate the governor assembly and verify the oil level at the sight glass or dipstick per the governor spec. Wrong or missing governor oil causes hunting and erratic RPM response.'},
+        {t:'Check Faulk reduction gear fluid level',d:'Verify fluid level in the Faulk reversing reduction gear per the dipstick or sight glass. The air-actuated clutch packs depend on proper gear oil — low level causes overheating and clutch slip.'},
+        {t:'Inspect air intakes and educator tube area',d:'Verify air silencer housings are clear and undamaged. Note the vacuum reading at the educator/inductor tubes above the after cooler — this is your baseline. Inspect for any debris blocking the intake.'},
+        {t:'Inspect accessory drive area for leaks',d:'Walk the front of the engine. Check the fuel pump, scavenge pump, oil spinners, and Moatti filter area for any oil or fuel seepage that was not present at last shutdown.'},
+      ]
+    },
+    {
+      phase:'PHASE 2 — System Line-Up & Pre-Lubrication',
+      color:'#f59e0b',
+      note:'Never crank an EMD 645 dry. The turbocharger and main bearings require an established oil film before rotation.',
+      steps:[
+        {t:'Verify keel cooler (skin cooler) circuit is lined up',d:'Unlike vessels with sea chest raw water cooling, the EMD 645 on this fleet uses hull-integral skin coolers (keel coolers). Verify the JW cooling circuit isolation valves are open and that the expansion tank level is within range. No sea cock manipulation is required for the cooling system.'},
+        {t:'Open primary fuel supply and return valves',d:'Verify the day tank supply valve and fuel return line are open. Confirm the day tank has adequate fuel. Check the fuel water separator bowl for water accumulation and drain if needed.'},
+        {t:'Start the B&A (Before & After) pre-lube pump',d:'Engage the B&A pump to circulate lube oil through the turbocharger bearing housing before any rotation. The turbocharger must have an established oil film before the engine turns. Allow the pump to run until positive oil pressure is confirmed at the turbo sight glass.'},
+        {t:'Engage the auxiliary electric lube oil pre-lube pump',d:'Turn on the auxiliary lube oil pump. Monitor the main oil pressure gauge on the engine control panel. Allow pressure to build and stabilize — do not proceed until positive pressure is confirmed.'},
+        {t:'Verify the scavenge pump circuit is primed',d:'The scavenge lube oil pump is gear-driven and will self-prime on cranking, but confirm the oil strainer (ice cream box) is clean and the suction path is clear. A restricted strainer at start-up causes immediate low oil pressure.'},
+      ]
+    },
+    {
+      phase:'PHASE 3 — Blowdown Protocol',
+      color:'#ef4444',
+      note:'CRITICAL — Never skip this step. On a 2-stroke EMD 645, coolant or fuel can accumulate in cylinders during shutdown. Cranking with liquid in a cylinder causes hydrostatic lock, which bends connecting rods instantly.',
+      steps:[
+        {t:'Verify air clutch is fully deflated — gear in Neutral',d:'Confirm the Faulk reversing reduction gear air clutch is completely deflated (air pressure to zero) and the gear selector is in Neutral. The turning bar must be fully disengaged from the flywheel.'},
+        {t:'Open ALL 16 indicator (test) cocks',d:'Walk both banks of the engine and open every indicator cock on every cylinder head — all 16 total (8 per bank). Use your wrench. Do not skip any. Stand clear of the test cock outlets; if liquid is present, it will discharge under pressure.'},
+        {t:'Enter Maintenance / Barring Mode — disable fuel delivery',d:'At the engine control panel, place the control switch in Maintenance or Barring mode. This disables fuel injection so the engine cranks without firing. If your panel does not have a dedicated mode, manually ensure the fuel rack is in the no-fuel position before cranking.'},
+        {t:'Crank the engine through 2–3 full rotations',d:'Press and hold the air start button to crank the engine over. Allow 2 to 3 complete revolutions. Watch every open test cock simultaneously — any discharge of coolant or fuel from a cock means there is liquid in that cylinder.'},
+        {t:'Inspect test cock discharge — clear = proceed, liquid = STOP',d:'If all 16 test cocks discharged only air: proceed. If any cock discharged coolant (green/blue tinted liquid), fuel, or oil: DO NOT START. Stop, identify the source — a leaking head gasket, cracked liner O-ring, or weeping injector — and report it before any attempt to start the engine.'},
+        {t:'Close all 16 indicator cocks',d:'Once blowdown is confirmed clean on all cylinders, close each test cock firmly with your wrench. Verify each one is fully closed — a test cock that is left cracked will leak combustion gas at full pressure when the engine fires.'},
+      ]
+    },
+    {
+      phase:'PHASE 4 — Start Execution',
+      color:'#0d9488',
+      note:'Cylinders are confirmed dry, oil film is established, fuel system is lined up. Safe to fire.',
+      steps:[
+        {t:'Switch from Maintenance Mode to Run / Remote',d:'Return the engine control switch to the Run position (for local start) or Remote (if the wheelhouse will be commanding the start). Confirm the governor is in the run position and the overspeed trip lever is in the reset position.'},
+        {t:'Verify fuel rack moves freely',d:'Briefly check that the fuel injection lay-shaft (rack) moves freely through its full travel without binding. A sticking rack at start-up will cause over-fueling on that bank. The ED05 governor will attempt to correct this but a seized rack requires manual intervention.'},
+        {t:'Press and hold the air start button',d:'Engage the air start motor. The pneumatic air start system cranks the engine using compressed air from the receivers (minimum 200 PSI in receivers before cranking — verify on gauge). Hold the button until the engine fires and catches.'},
+        {t:'Release at idle — confirm engine catches and stabilizes',d:'Once the engine fires and accelerates under its own power, release the start button. The engine should settle into low idle — typically 350–400 RPM on the EMD 645, but verify the rated idle for this specific engine on the nameplate. Abnormal firing speed, misfiring on one bank, or failure to stabilize at idle requires immediate shutdown.'},
+      ]
+    },
+    {
+      phase:'PHASE 5 — Post-Start Verification',
+      color:'#7c3aed',
+      note:'The engine is running but your job is not done until all vitals are confirmed stable.',
+      steps:[
+        {t:'Verify lube oil pressure — 10–15 second window',d:'Main engine oil pressure must rise into the normal operating range within 10–15 seconds of the engine firing. If the pressure gauge does not reach nominal within this window, shut down immediately and investigate. Running an EMD 645 without oil pressure destroys main bearings in seconds.'},
+        {t:'Verify fuel flow — check sight glass for air bubbles',d:'Check the fuel primary sight glass. Fuel should be running clear with no air bubbles. Air bubbles in the fuel sight glass indicate a suction-side air leak — find and eliminate it before loading the engine.'},
+        {t:'Confirm jacket water (JW) cooling flow',d:'Verify that the JW circulating pump on both A and B banks has established pressure and cooling water is circulating. Check the educator tube vacuum reading — it should match your pre-start baseline. A rising vacuum after start indicates an intake restriction.'},
+        {t:'Walk the engine — listen and observe',d:'Walk both sides of the engine room and listen: smooth mechanical noise from the accessory drive, even combustion rhythm from the exhaust stack, no governor hunting, no air leaks at the test cocks (all must be confirmed closed). Any knock, sharp metallic sound, or uneven combustion requires investigation before loading.'},
+        {t:'Allow warm-up before loading',d:'Let the engine idle and warm up evenly before the wheelhouse applies throttle. Do not load a cold EMD 645. Allow jacket water temperature to come up toward normal operating range (170–195°F) before accepting any propulsion load from the pilothouse.'},
+      ]
+    }
+  ];
+
+  let h=`<div class="pt"><i class="ti ti-engine" style="margin-right:6px;font-size:15px"></i>Start Main Engine — EMD 645</div>
+  <div class="ps" style="margin-bottom:14px">Cold-start procedure from engine room · EMD 645-16 · Two-stroke diesel</div>
+  <div style="background:#fff8e1;border:.5px solid #f59e0b;border-radius:10px;padding:11px 14px;margin-bottom:12px;display:flex;gap:9px;align-items:flex-start">
+    <i class="ti ti-alert-triangle" style="color:#f59e0b;font-size:14px;flex-shrink:0;margin-top:1px"></i>
+    <span style="font-size:11px;color:#7c5a00;line-height:1.6"><strong>Reference procedure only.</strong> Every vessel is configured differently. Always follow your vessel-specific procedures and company policies. When in doubt, ask a senior engineer before proceeding.</span>
+  </div>`;
+
+  phases.forEach(function(phase){
+    h+=`<div style="margin-bottom:10px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;padding:8px 12px;background:${phase.color};border-radius:8px">
+        <span style="font-size:10px;font-weight:700;color:#fff;letter-spacing:.05em">${phase.phase}</span>
+      </div>`;
+    if(phase.note){
+      h+=`<div style="font-size:10.5px;color:${phase.color};background:${phase.color}14;border-left:3px solid ${phase.color};padding:7px 11px;border-radius:0 6px 6px 0;margin-bottom:6px;line-height:1.5">${phase.note}</div>`;
+    }
+    h+=`<div style="display:flex;flex-direction:column;gap:4px">`;
+    phase.steps.forEach(function(step,i){
+      h+=`<div style="display:flex;align-items:flex-start;gap:10px;background:#fff;border:.5px solid #e2e8f0;border-left:3px solid ${phase.color};border-radius:0 7px 7px 0;padding:9px 12px">
+        <span style="font-size:10px;font-weight:700;color:#fff;background:${phase.color};border-radius:4px;min-width:20px;height:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">${i+1}</span>
+        <div>
+          <div style="font-size:11.5px;font-weight:600;color:#1e293b;margin-bottom:3px">${step.t}</div>
+          <div style="font-size:11px;color:#475569;line-height:1.6">${step.d}</div>
+        </div>
+      </div>`;
+    });
+    h+=`</div></div>`;
+  });
+  return h;
 }
 
 function renderPH4(sec){
@@ -5045,15 +5350,12 @@ function startTowboatGame(){
   let gameState,scroll,score,barges,fr,spd,currentLevel,levelUpTimer;
   let tow,obstacles,buoys,wakeP,sparks,structures,fleets,rings;
   let flashTimer,bankCooldown,nextObsFr,nextBuoyWY,nextStructureScore,nextFleetScore,nextRingScore,healTimer;
-
   function handleBtn(){if(gameState==='START')gameState='PLAY';else if(gameState==='OVER'||gameState==='WIN')init();}
   function init(){gameState='START';scroll=0;score=0;barges=TOTAL;fr=0;spd=1.6;currentLevel=0;levelUpTimer=0;tow={x:W/2,y:378,angle:0,vx:0,av:0};obstacles=[];buoys=[];wakeP=[];sparks=[];structures=[];fleets=[];rings=[];flashTimer=0;bankCooldown=0;nextObsFr=90;nextBuoyWY=-600;nextStructureScore=20;nextFleetScore=30;nextRingScore=45;healTimer=0;}
-
   function loseBarge(n){if(gameState!=='PLAY')return;barges-=(n||1);flashTimer=14;if(barges<=0){barges=0;gameState='OVER';}}
   function bankHit(){if(bankCooldown>0)return;loseBarge(1);bankCooldown=28;}
   function gainBarge(n){if(barges<TOTAL){barges=Math.min(TOTAL,barges+(n||1));healTimer=16;}}
   function segDist(px,py,ax,ay,bx,by){const dx=bx-ax,dy=by-ay,L2=dx*dx+dy*dy||1;let t=((px-ax)*dx+(py-ay)*dy)/L2;t=Math.max(0,Math.min(1,t));const cx=ax+t*dx,cy=ay+t*dy;return Math.hypot(px-cx,py-cy);}
-
   function update(){
     if(gameState!=='PLAY')return;fr++;
     const newLvl=LEVELS.reduce((best,l,i)=>score>=l.miles?i:best,0);
@@ -5070,10 +5372,8 @@ function startTowboatGame(){
     tow.av*=0.91;tow.angle=Math.max(-0.52,Math.min(0.52,tow.angle+tow.av));
     const wy=scroll+tow.y,rcx=rCX(wy),hw=rHW(wy);
     const firstRow=Math.floor((TOTAL-barges)/COLS);
-    const bargeTopLocal=-FH/2+firstRow*(BH+BG);
-    const bargeBotLocal=FH/2;
-    const unitBotLocal=FH/2+BG+TWH;
-    const hhUnit=(unitBotLocal-bargeTopLocal)/2;
+    const bargeTopLocal=-FH/2+firstRow*(BH+BG),bargeBotLocal=FH/2;
+    const unitBotLocal=FH/2+BG+TWH,hhUnit=(unitBotLocal-bargeTopLocal)/2;
     const sinA=Math.sin(tow.angle),cosA=Math.cos(tow.angle);
     const effW=FW/2*Math.abs(cosA)+hhUnit*Math.abs(sinA);
     tow.vx+=Math.sin(tow.angle)*spd*0.85;
@@ -5100,127 +5400,40 @@ function startTowboatGame(){
     for(let i=sparks.length-1;i>=0;i--){const s=sparks[i];s.x+=s.vx;s.y+=s.vy+spd*0.45;s.life-=0.05;if(s.life<=0)sparks.splice(i,1);}
     if(flashTimer>0)flashTimer--;if(bankCooldown>0)bankCooldown--;if(healTimer>0)healTimer--;
   }
-
   function spawnObs(){
     const count=currentLevel>=3?(Math.random()<0.40?2:1):currentLevel>=1?(Math.random()<0.25?2:1):1;
-    for(let c=0;c<count;c++){const sy=-80-Math.random()*60,wy=scroll+sy,cx=rCX(wy),hw=rHW(wy),x=cx+(Math.random()-0.5)*2*(hw-22);const boatChance=currentLevel>=1?0.08+currentLevel*0.06:0,roll=Math.random();if(roll<boatChance){const styles=[{r:14,drift:3.5+Math.random()*2.0,c1:'#e8e4d8',c2:'#c8c4b0',stripeCol:'#2255bb'},{r:12,drift:4.8+Math.random()*2.5,c1:'#f0eee4',c2:'#d0cec0',stripeCol:'#cc2222'},{r:11,drift:5.5+Math.random()*3.0,c1:'#e4f0e8',c2:'#c4d0c8',stripeCol:'#cc9922'}];const style=styles[Math.min(currentLevel-1,styles.length-1)];obstacles.push({x,y:sy,vx:(Math.random()-0.5)*0.3,drift:style.drift,r:style.r,c1:style.c1,c2:style.c2,nm:'boat',stripeCol:style.stripeCol,rot:0,rspd:0});}else{const nm=roll-boatChance<0.55?'log':'log2';const r=nm==='log'?15:22;const drift=nm==='log'?1.0+Math.random()*1.3:0.5+Math.random()*0.8;const c1=nm==='log'?'#5a3018':'#3e2010';const c2=nm==='log'?'#7a4828':'#5a3018';obstacles.push({x,y:sy,vx:(Math.random()-0.5)*0.55,drift,r,c1,c2,nm,rot:Math.random()*Math.PI*2,rspd:(Math.random()-0.5)*0.025,stripeCol:null});}}
+    for(let c=0;c<count;c++){const sy=-80-Math.random()*60,wy=scroll+sy,cx=rCX(wy),hw=rHW(wy),x=cx+(Math.random()-0.5)*2*(hw-22);const boatChance=currentLevel>=1?0.08+currentLevel*0.06:0,roll=Math.random();
+    if(roll<boatChance){const styles=[{r:14,drift:1.75+Math.random()*1.0,c1:'#e8e4d8',c2:'#c8c4b0',stripeCol:'#2255bb'},{r:12,drift:2.4+Math.random()*1.25,c1:'#f0eee4',c2:'#d0cec0',stripeCol:'#cc2222'},{r:11,drift:2.75+Math.random()*1.5,c1:'#e4f0e8',c2:'#c4d0c8',stripeCol:'#cc9922'}];const style=styles[Math.min(currentLevel-1,styles.length-1)];obstacles.push({x,y:sy,vx:(Math.random()-0.5)*0.3,drift:style.drift,r:style.r,c1:style.c1,c2:style.c2,nm:'boat',stripeCol:style.stripeCol,rot:0,rspd:0});}
+    else{const nm=roll-boatChance<0.55?'log':'log2';const r=nm==='log'?15:22;const drift=nm==='log'?0.5+Math.random()*0.65:0.25+Math.random()*0.4;const c1=nm==='log'?'#5a3018':'#3e2010';const c2=nm==='log'?'#7a4828':'#5a3018';obstacles.push({x,y:sy,vx:(Math.random()-0.5)*0.55,drift,r,c1,c2,nm,rot:Math.random()*Math.PI*2,rspd:(Math.random()-0.5)*0.025,stripeCol:null});}}
   }
   function spawnBuoy(){const sy=-42,wy=scroll+sy,cx=rCX(wy),hw=rHW(wy);buoys.push({x:cx-hw+22,y:sy,col:'#228844',blink:(Math.random()*30)|0},{x:cx+hw-22,y:sy,col:'#cc2222',blink:(Math.random()*30)|0});}
   function spawnBridge(){const sy=-55,wy=scroll+sy,cx=rCX(wy),hw=rHW(wy),margin=28,gapW=BRIDGE_GAP,gapX=cx-hw+margin+Math.random()*(hw*2-margin*2-gapW);structures.push({type:'bridge',y:sy,deckH:30,gapX,gapW,cx,hw,hitCD:0});}
   function spawnLock(){const sy=-55,wy=scroll+sy,cx=rCX(wy),hw=rHW(wy),margin=28,gapW=LOCK_GAP,bias=[-0.25,0,0.25][Math.floor(Math.random()*3)],gapX=Math.max(cx-hw+margin,Math.min(cx-hw+hw*2-margin-gapW,cx-gapW/2+bias*hw));structures.push({type:'lock',y:sy,deckH:82,gapX,gapW,cx,hw,hitCD:0});}
   function spawnFleet(){const r=Math.random();let cols,rows;if(r<0.40){cols=1;rows=1;}else if(r<0.75){cols=1;rows=3;}else{cols=3;rows=5;}const fleetH=rows*(BH+BG)-BG;fleets.push({side:Math.random()<0.5?'L':'R',cols,rows,offset:4+Math.random()*10,y:-fleetH-30,h:fleetH,w:cols*(BW+BG)-BG,x:0,innerEdge:0,hitCD:0});}
-  function spawnRing(){const sy=-50,wy=scroll+sy,cx=rCX(wy),hw=rHW(wy),x=cx+(Math.random()-0.5)*2*(hw-90);rings.push({x,y:sy,drift:0.5+Math.random()*0.6,bob:Math.random()*Math.PI*2});}
-
-  function updateStructures(effW,towTopLocal,towBotLocal){
-    const towTop=tow.y+towTopLocal,towBot=tow.y+towBotLocal;
-    for(let i=structures.length-1;i>=0;i--){const s=structures[i];s.y+=spd;if(s.hitCD>0)s.hitCD--;if(s.y>H+20){structures.splice(i,1);continue;}const sTop=s.y,sBot=s.y+s.deckH;if(sBot>towTop&&sTop<towBot){const towL=tow.x-effW,towR=tow.x+effW,inGap=(towL>=s.gapX-10)&&(towR<=s.gapX+s.gapW+10);if(!inGap&&s.hitCD===0){loseBarge(1);mkSparks(towL<s.gapX?s.gapX:s.gapX+s.gapW,sBot);const gapCX=s.gapX+s.gapW/2;tow.vx+=(gapCX-tow.x)*0.18;tow.angle*=0.6;tow.av*=0.4;s.hitCD=18;if(gameState!=='PLAY')break;}}}
-  }
-  function updateFleets(effW,towTopLocal,towBotLocal){
-    const towTop=tow.y+towTopLocal,towBot=tow.y+towBotLocal;
-    for(let i=fleets.length-1;i>=0;i--){const f=fleets[i];f.y+=spd;if(f.hitCD>0)f.hitCD--;if(f.y>H+20){fleets.splice(i,1);continue;}const cwy=scroll+f.y+f.h/2,bankL=rCX(cwy)-rHW(cwy),bankR=rCX(cwy)+rHW(cwy);f.x=f.side==='L'?bankL+f.offset:bankR-f.offset-f.w;f.innerEdge=f.side==='L'?f.x+f.w:f.x;const fTop=f.y,fBot=f.y+f.h;if(fBot>towTop&&fTop<towBot){if(f.side==='L'&&(tow.x-effW)<f.innerEdge){tow.x=f.innerEdge+effW+1;tow.vx=Math.abs(tow.vx)*0.35+0.4;if(f.hitCD===0){loseBarge(1);mkSparks(f.innerEdge,Math.max(fTop,towTop));f.hitCD=22;}}else if(f.side==='R'&&(tow.x+effW)>f.innerEdge){tow.x=f.innerEdge-effW-1;tow.vx=-Math.abs(tow.vx)*0.35-0.4;if(f.hitCD===0){loseBarge(1);mkSparks(f.innerEdge,Math.max(fTop,towTop));f.hitCD=22;}}if(gameState!=='PLAY')break;}}
-  }
-
+  function spawnRing(){const sy=-50,wy=scroll+sy,cx=rCX(wy),hw=rHW(wy),x=cx+(Math.random()-0.5)*2*(hw-90);rings.push({x,y:sy,drift:0.25+Math.random()*0.3,bob:Math.random()*Math.PI*2});}
+  function updateStructures(effW,towTopLocal,towBotLocal){const towTop=tow.y+towTopLocal,towBot=tow.y+towBotLocal;for(let i=structures.length-1;i>=0;i--){const s=structures[i];s.y+=spd;if(s.hitCD>0)s.hitCD--;if(s.y>H+20){structures.splice(i,1);continue;}const sTop=s.y,sBot=s.y+s.deckH;if(sBot>towTop&&sTop<towBot){const towL=tow.x-effW,towR=tow.x+effW,inGap=(towL>=s.gapX-10)&&(towR<=s.gapX+s.gapW+10);if(!inGap&&s.hitCD===0){loseBarge(1);mkSparks(towL<s.gapX?s.gapX:s.gapX+s.gapW,sBot);const gapCX=s.gapX+s.gapW/2;tow.vx+=(gapCX-tow.x)*0.18;tow.angle*=0.6;tow.av*=0.4;s.hitCD=18;if(gameState!=='PLAY')break;}}}}
+  function updateFleets(effW,towTopLocal,towBotLocal){const towTop=tow.y+towTopLocal,towBot=tow.y+towBotLocal;for(let i=fleets.length-1;i>=0;i--){const f=fleets[i];f.y+=spd;if(f.hitCD>0)f.hitCD--;if(f.y>H+20){fleets.splice(i,1);continue;}const cwy=scroll+f.y+f.h/2,bankL=rCX(cwy)-rHW(cwy),bankR=rCX(cwy)+rHW(cwy);f.x=f.side==='L'?bankL+f.offset:bankR-f.offset-f.w;f.innerEdge=f.side==='L'?f.x+f.w:f.x;const fTop=f.y,fBot=f.y+f.h;if(fBot>towTop&&fTop<towBot){if(f.side==='L'&&(tow.x-effW)<f.innerEdge){tow.x=f.innerEdge+effW+1;tow.vx=Math.abs(tow.vx)*0.35+0.4;if(f.hitCD===0){loseBarge(1);mkSparks(f.innerEdge,Math.max(fTop,towTop));f.hitCD=22;}}else if(f.side==='R'&&(tow.x+effW)>f.innerEdge){tow.x=f.innerEdge-effW-1;tow.vx=-Math.abs(tow.vx)*0.35-0.4;if(f.hitCD===0){loseBarge(1);mkSparks(f.innerEdge,Math.max(fTop,towTop));f.hitCD=22;}}if(gameState!=='PLAY')break;}}}
   function mkSparks(sx,sy){for(let i=0;i<14;i++){const a=Math.random()*Math.PI*2,sp=1.5+Math.random()*3;sparks.push({x:sx,y:sy,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,life:1.0,col:Math.random()<0.5?'#ffaa44':'#ff4422'});}}
   function mkHealSparks(sx,sy){for(let i=0;i<16;i++){const a=Math.random()*Math.PI*2,sp=1.2+Math.random()*2.6;sparks.push({x:sx,y:sy,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,life:1.0,col:Math.random()<0.5?'#3ce070':'#a6ffb0'});}}
-
   function draw(){ctx.fillStyle='#0c1a0c';ctx.fillRect(0,0,W,H);drawRiver();drawFleets();drawBuoys();drawStructures();drawWake();drawObstacles();drawRings();drawTow();drawSparks();drawHUD();if(gameState!=='PLAY')drawOverlay();}
-
-  function drawRiver(){
-    const N=36,lp=[],rp=[];
-    for(let i=0;i<=N;i++){const sy=(i/N)*H,wy=scroll+sy,cx=rCX(wy),hw=rHW(wy);lp.push([cx-hw,sy]);rp.push([cx+hw,sy]);}
-    ctx.beginPath();lp.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));for(let i=rp.length-1;i>=0;i--)ctx.lineTo(rp[i][0],rp[i][1]);ctx.closePath();
-    const g=ctx.createLinearGradient(0,0,W,0);g.addColorStop(0,'#0e2030');g.addColorStop(0.12,'#163a56');g.addColorStop(0.35,'#1a4a6e');g.addColorStop(0.50,'#1c5278');g.addColorStop(0.65,'#1a4a6e');g.addColorStop(0.88,'#163a56');g.addColorStop(1,'#0e2030');ctx.fillStyle=g;ctx.fill();
-    ctx.lineWidth=8;ctx.strokeStyle='#3a2818';ctx.beginPath();lp.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.stroke();ctx.beginPath();rp.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.stroke();
-    for(let r=0;r<14;r++){const baseY=((fr*1.5+r*44)%(H+44))-44,wy=scroll+baseY,cx=rCX(wy),hw=rHW(wy),alpha=0.05+0.025*Math.sin(r*0.8+fr*0.03);ctx.strokeStyle=`rgba(80,165,210,${alpha})`;ctx.lineWidth=1;ctx.beginPath();for(let dx=0;dx<=(hw-14)*2;dx+=18){const px=cx-hw+14+dx,py=baseY+3*Math.sin(dx*0.1+fr*0.04+r*0.7);dx?ctx.lineTo(px,py):ctx.moveTo(px,py);}ctx.stroke();}
-    ctx.fillStyle='#0f200f';for(let i=0;i<lp.length-1;i++){if(i%2!==0)continue;const[x,y]=lp[i],wy=scroll+y,th=30+12*Math.abs(Math.sin(wy*0.068));ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-5,y-th*.45);ctx.lineTo(x-9,y-th*.62);ctx.lineTo(x-3,y-th*.78);ctx.lineTo(x-7,y-th);ctx.lineTo(x,y-th*.86);ctx.lineTo(x+3,y-th);ctx.lineTo(x+1,y-th*.70);ctx.lineTo(x+7,y-th*.46);ctx.closePath();ctx.fill();}
-    for(let i=0;i<rp.length-1;i++){if(i%2!==0)continue;const[x,y]=rp[i],wy=scroll+y,th=30+12*Math.abs(Math.sin(wy*0.068+1.4));ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+5,y-th*.45);ctx.lineTo(x+9,y-th*.62);ctx.lineTo(x+3,y-th*.78);ctx.lineTo(x+7,y-th);ctx.lineTo(x,y-th*.86);ctx.lineTo(x-3,y-th);ctx.lineTo(x-1,y-th*.70);ctx.lineTo(x-7,y-th*.46);ctx.closePath();ctx.fill();}
-  }
-
+  function drawRiver(){const N=36,lp=[],rp=[];for(let i=0;i<=N;i++){const sy=(i/N)*H,wy=scroll+sy,cx=rCX(wy),hw=rHW(wy);lp.push([cx-hw,sy]);rp.push([cx+hw,sy]);}ctx.beginPath();lp.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));for(let i=rp.length-1;i>=0;i--)ctx.lineTo(rp[i][0],rp[i][1]);ctx.closePath();const g=ctx.createLinearGradient(0,0,W,0);g.addColorStop(0,'#0e2030');g.addColorStop(0.12,'#163a56');g.addColorStop(0.35,'#1a4a6e');g.addColorStop(0.50,'#1c5278');g.addColorStop(0.65,'#1a4a6e');g.addColorStop(0.88,'#163a56');g.addColorStop(1,'#0e2030');ctx.fillStyle=g;ctx.fill();ctx.beginPath();lp.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));for(let i=rp.length-1;i>=0;i--)ctx.lineTo(rp[i][0],rp[i][1]);ctx.closePath();const gd=ctx.createLinearGradient(W*.2,0,W*.8,0);gd.addColorStop(0,'rgba(0,0,0,0)');gd.addColorStop(0.5,'rgba(0,0,0,0.22)');gd.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=gd;ctx.fill();const ga=0.07+0.04*Math.sin(fr*0.02);ctx.fillStyle=`rgba(120,200,240,${ga})`;ctx.beginPath();for(let i=0;i<=N;i++){const[lx,ly]=lp[i];i===0?ctx.moveTo(lx,ly):ctx.lineTo(lx,ly);if(i===N){for(let j=N;j>=0;j--){const[lxj,lyj]=lp[j];ctx.lineTo(lxj+28,lyj);}}}ctx.fill();ctx.beginPath();for(let i=0;i<=N;i++){const[rx,ry]=rp[i];i===0?ctx.moveTo(rx,ry):ctx.lineTo(rx,ry);if(i===N){for(let j=N;j>=0;j--){const[rxj,ryj]=rp[j];ctx.lineTo(rxj-28,ryj);}}}ctx.fill();ctx.lineWidth=8;ctx.strokeStyle='#3a2818';ctx.beginPath();lp.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.stroke();ctx.beginPath();rp.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.stroke();for(let r=0;r<14;r++){const baseY=((fr*1.5+r*44)%(H+44))-44,wy=scroll+baseY,cx=rCX(wy),hw=rHW(wy),alpha=0.05+0.025*Math.sin(r*0.8+fr*0.03);ctx.strokeStyle=`rgba(80,165,210,${alpha})`;ctx.lineWidth=1;ctx.beginPath();for(let dx=0;dx<=(hw-14)*2;dx+=18){const px=cx-hw+14+dx,py=baseY+3*Math.sin(dx*0.1+fr*0.04+r*0.7);dx?ctx.lineTo(px,py):ctx.moveTo(px,py);}ctx.stroke();}ctx.fillStyle='#0f200f';for(let i=0;i<lp.length-1;i++){if(i%2!==0)continue;const[x,y]=lp[i],wy=scroll+y,th=30+12*Math.abs(Math.sin(wy*0.068));ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-5,y-th*.45);ctx.lineTo(x-9,y-th*.62);ctx.lineTo(x-3,y-th*.78);ctx.lineTo(x-7,y-th);ctx.lineTo(x,y-th*.86);ctx.lineTo(x+3,y-th);ctx.lineTo(x+1,y-th*.70);ctx.lineTo(x+7,y-th*.46);ctx.closePath();ctx.fill();}for(let i=0;i<rp.length-1;i++){if(i%2!==0)continue;const[x,y]=rp[i],wy=scroll+y,th=30+12*Math.abs(Math.sin(wy*0.068+1.4));ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+5,y-th*.45);ctx.lineTo(x+9,y-th*.62);ctx.lineTo(x+3,y-th*.78);ctx.lineTo(x+7,y-th);ctx.lineTo(x,y-th*.86);ctx.lineTo(x-3,y-th);ctx.lineTo(x-1,y-th*.70);ctx.lineTo(x-7,y-th*.46);ctx.closePath();ctx.fill();}}
   function drawBuoys(){buoys.forEach(b=>{const bob=Math.sin(fr*0.06+b.x*0.01)*2;ctx.save();ctx.translate(b.x,b.y+bob);ctx.strokeStyle='#3a3828';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(0,8);ctx.lineTo(0,17);ctx.stroke();ctx.fillStyle=b.col;ctx.beginPath();ctx.ellipse(0,0,7,11,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='rgba(255,255,255,0.22)';ctx.beginPath();ctx.ellipse(-2,-3,3,4.5,0,0,Math.PI*2);ctx.fill();if(((fr+b.blink)>>4)&1){ctx.shadowColor=b.col;ctx.shadowBlur=14;ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(0,-13,2.5,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;}ctx.restore();});}
   function drawStructures(){structures.forEach(s=>{if(s.type==='bridge')drawBridge(s);else drawLock(s);});}
-
-  function drawBridge(s){
-    const{y,deckH,gapX,gapW,cx,hw}=s,riverL=cx-hw,riverR=cx+hw,y2=y+deckH,warnY=y-200;
-    if(warnY>-16&&warnY<H){const flash=(fr>>4)&1,absAngleDeg=Math.abs(Math.round(tow.angle*57.296)),needsStraight=absAngleDeg>17;ctx.fillStyle=needsStraight?(flash?'#ff8800':'#cc5500'):(flash?'#ffdd00':'#cc9900');ctx.font='bold 11px "Courier New"';ctx.textAlign='center';ctx.fillText(needsStraight?`\u26a0  BRIDGE \u2014 STRAIGHTEN HEADING  ${absAngleDeg}\u00b0\u21920\u00b0  \u26a0`:'\u26a0  RAILROAD BRIDGE \u2014 ALIGN WITH SPAN  \u26a0',W/2,warnY);ctx.strokeStyle=`rgba(255,220,0,${flash?0.35:0.15})`;ctx.lineWidth=1;ctx.setLineDash([6,6]);ctx.beginPath();ctx.moveTo(gapX,warnY+4);ctx.lineTo(gapX,y);ctx.stroke();ctx.beginPath();ctx.moveTo(gapX+gapW,warnY+4);ctx.lineTo(gapX+gapW,y);ctx.stroke();ctx.setLineDash([]);}
-    ctx.fillStyle='#7a7a6a';ctx.fillRect(riverL,y,gapX-riverL,deckH);ctx.fillRect(gapX+gapW,y,riverR-(gapX+gapW),deckH);
-    ctx.strokeStyle='#5a5a4a';ctx.lineWidth=1.5;function drawTruss(lx,rx){const spanW=rx-lx,panels=Math.max(2,Math.floor(spanW/40));for(let p=0;p<panels;p++){const px=lx+(p/panels)*spanW,nx=lx+((p+1)/panels)*spanW;ctx.beginPath();ctx.moveTo(px,y);ctx.lineTo(nx,y2);ctx.stroke();ctx.beginPath();ctx.moveTo(px,y2);ctx.lineTo(nx,y);ctx.stroke();}}drawTruss(riverL,gapX);drawTruss(gapX+gapW,riverR);
-    ctx.fillStyle='#4a3018';for(let ty=y+2;ty<y2-2;ty+=8){ctx.fillRect(riverL+2,ty,gapX-riverL-4,4);ctx.fillRect(gapX+gapW+2,ty,riverR-gapX-gapW-4,4);}
-    ctx.fillStyle='#909080';ctx.fillRect(riverL,y,10,deckH);ctx.fillRect(riverR-10,y,10,deckH);ctx.fillRect(gapX-10,y,10,deckH);ctx.fillRect(gapX+gapW,y,10,deckH);
-    ctx.fillStyle='#5a5a4a';ctx.fillRect(riverL,y,riverR-riverL,3);ctx.fillRect(riverL,y2-3,gapX-riverL,3);ctx.fillRect(gapX+gapW,y2-3,riverR-gapX-gapW,3);
-    const lt=(fr>>3)&1;ctx.shadowBlur=10;ctx.fillStyle=lt?'#ff4444':'#880000';ctx.shadowColor='#ff0000';ctx.beginPath();ctx.arc(gapX-5,y2-4,4,0,Math.PI*2);ctx.fill();ctx.fillStyle=lt?'#880000':'#ff4444';ctx.beginPath();ctx.arc(gapX-5,y+4,4,0,Math.PI*2);ctx.fill();ctx.fillStyle=(1-lt)?'#44ff44':'#004400';ctx.shadowColor='#00ff00';ctx.beginPath();ctx.arc(gapX+gapW+5,y2-4,4,0,Math.PI*2);ctx.fill();ctx.fillStyle=(1-lt)?'#004400':'#44ff44';ctx.beginPath();ctx.arc(gapX+gapW+5,y+4,4,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
-    ctx.fillStyle='rgba(20,60,90,0.35)';ctx.fillRect(gapX,y,gapW,deckH);ctx.strokeStyle='#303830';ctx.lineWidth=1;ctx.strokeRect(gapX,y,gapW,deckH);
-  }
-
-  function drawLock(s){
-    const{y,deckH,gapX,gapW,cx,hw}=s,riverL=cx-hw,riverR=cx+hw,y2=y+deckH,lockL=gapX,lockR=gapX+gapW,warnY=y-220;
-    if(warnY>-16&&warnY<H){const flash=(fr>>4)&1,absAngleDeg=Math.abs(Math.round(tow.angle*57.296)),needsStraight=absAngleDeg>22;ctx.fillStyle=needsStraight?(flash?'#ff8800':'#cc5500'):(flash?'#ffdd00':'#aa8800');ctx.font='bold 11px "Courier New"';ctx.textAlign='center';ctx.fillText(needsStraight?`\u26a0  LOCK \u2014 STRAIGHTEN HEADING  ${absAngleDeg}\u00b0\u21920\u00b0  \u26a0`:`\u26a0  LOCK & DAM \u2014 ENTER CHAMBER ON ${lockL<cx?'LEFT':'RIGHT'}  \u26a0`,W/2,warnY);ctx.strokeStyle=`rgba(255,220,0,${flash?0.35:0.15})`;ctx.lineWidth=1;ctx.setLineDash([6,6]);ctx.beginPath();ctx.moveTo(lockL,warnY+4);ctx.lineTo(lockL,y);ctx.stroke();ctx.beginPath();ctx.moveTo(lockR,warnY+4);ctx.lineTo(lockR,y);ctx.stroke();ctx.setLineDash([]);}
-    function drawDam(lx,rx){ctx.fillStyle='#8a8870';ctx.fillRect(lx,y,rx-lx,deckH);ctx.fillStyle='#6a6850';for(let sy2=y+8;sy2<y2-8;sy2+=14)ctx.fillRect(lx+6,sy2,rx-lx-12,5);ctx.fillStyle='#a0a090';ctx.fillRect(lx,y,rx-lx,4);ctx.fillRect(lx,y,6,deckH);ctx.fillRect(rx-6,y,6,deckH);}
-    drawDam(riverL,lockL);drawDam(lockR,riverR);
-    ctx.fillStyle='#12344e';ctx.fillRect(lockL,y,gapW,deckH);ctx.fillStyle='#909080';ctx.fillRect(lockL-8,y,8,deckH);ctx.fillRect(lockR,y,8,deckH);
-    ctx.strokeStyle='#4a5a4a';ctx.lineWidth=4;const gyb=y2-10,gyt=y+10;ctx.beginPath();ctx.moveTo(lockL,gyb);ctx.lineTo(lockL+gapW/2,gyb-16);ctx.stroke();ctx.beginPath();ctx.moveTo(lockR,gyb);ctx.lineTo(lockL+gapW/2,gyb-16);ctx.stroke();ctx.beginPath();ctx.moveTo(lockL,gyt);ctx.lineTo(lockL+gapW/2,gyt+14);ctx.stroke();ctx.beginPath();ctx.moveTo(lockR,gyt);ctx.lineTo(lockL+gapW/2,gyt+14);ctx.stroke();
-    ctx.fillStyle='#304040';[[lockL,gyb],[lockR,gyb],[lockL,gyt],[lockR,gyt]].forEach(([gx,gy])=>{ctx.beginPath();ctx.arc(gx,gy,4,0,Math.PI*2);ctx.fill();});
-    ctx.strokeStyle='rgba(80,160,200,0.18)';ctx.lineWidth=1;for(let ry=y+20;ry<y2-18;ry+=12){ctx.beginPath();ctx.moveTo(lockL+2,ry);ctx.lineTo(lockR-2,ry);ctx.stroke();}
-    const lt=(fr>>3)&1;ctx.shadowBlur=10;ctx.fillStyle=lt?'#ff4444':'#660000';ctx.shadowColor='#ff0000';ctx.beginPath();ctx.arc(lockL-4,y2-3,4.5,0,Math.PI*2);ctx.fill();ctx.fillStyle=(1-lt)?'#44ff44':'#004400';ctx.shadowColor='#00ff00';ctx.beginPath();ctx.arc(lockR+4,y2-3,4.5,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
-    ctx.fillStyle='#c8c0a0';ctx.font='bold 9px "Courier New"';ctx.textAlign='center';const midY=y+deckH/2;ctx.fillText('LOCK',lockL+gapW/2,midY+3);if(lockL-riverL>40)ctx.fillText('DAM',riverL+(lockL-riverL)/2,midY+3);if(riverR-lockR>40)ctx.fillText('DAM',lockR+(riverR-lockR)/2,midY+3);
-    ctx.strokeStyle='#606050';ctx.lineWidth=1.5;ctx.strokeRect(riverL,y,riverR-riverL,deckH);
-  }
-
+  function drawBridge(s){const{y,deckH,gapX,gapW,cx,hw}=s,riverL=cx-hw,riverR=cx+hw,y2=y+deckH,warnY=y-200;if(warnY>-16&&warnY<H){const flash=(fr>>4)&1,absAngleDeg=Math.abs(Math.round(tow.angle*57.296)),needsStraight=absAngleDeg>17;ctx.fillStyle=needsStraight?(flash?'#ff8800':'#cc5500'):(flash?'#ffdd00':'#cc9900');ctx.font='bold 11px "Courier New"';ctx.textAlign='center';ctx.fillText(needsStraight?`\u26a0  BRIDGE \u2014 STRAIGHTEN HEADING  ${absAngleDeg}\u00b0\u21920\u00b0  \u26a0`:'\u26a0  RAILROAD BRIDGE \u2014 ALIGN WITH SPAN  \u26a0',W/2,warnY);ctx.strokeStyle=`rgba(255,220,0,${flash?0.35:0.15})`;ctx.lineWidth=1;ctx.setLineDash([6,6]);ctx.beginPath();ctx.moveTo(gapX,warnY+4);ctx.lineTo(gapX,y);ctx.stroke();ctx.beginPath();ctx.moveTo(gapX+gapW,warnY+4);ctx.lineTo(gapX+gapW,y);ctx.stroke();ctx.setLineDash([]);}ctx.fillStyle='#7a7a6a';ctx.fillRect(riverL,y,gapX-riverL,deckH);ctx.fillRect(gapX+gapW,y,riverR-(gapX+gapW),deckH);ctx.strokeStyle='#5a5a4a';ctx.lineWidth=1.5;function drawTruss(lx,rx){const spanW=rx-lx,panels=Math.max(2,Math.floor(spanW/40));for(let p=0;p<panels;p++){const px=lx+(p/panels)*spanW,nx=lx+((p+1)/panels)*spanW;ctx.beginPath();ctx.moveTo(px,y);ctx.lineTo(nx,y2);ctx.stroke();ctx.beginPath();ctx.moveTo(px,y2);ctx.lineTo(nx,y);ctx.stroke();}}drawTruss(riverL,gapX);drawTruss(gapX+gapW,riverR);ctx.fillStyle='#4a3018';for(let ty=y+2;ty<y2-2;ty+=8){ctx.fillRect(riverL+2,ty,gapX-riverL-4,4);ctx.fillRect(gapX+gapW+2,ty,riverR-gapX-gapW-4,4);}ctx.fillStyle='#909080';ctx.fillRect(riverL,y,10,deckH);ctx.fillRect(riverR-10,y,10,deckH);ctx.fillRect(gapX-10,y,10,deckH);ctx.fillRect(gapX+gapW,y,10,deckH);ctx.fillStyle='#5a5a4a';ctx.fillRect(riverL,y,riverR-riverL,3);ctx.fillRect(riverL,y2-3,gapX-riverL,3);ctx.fillRect(gapX+gapW,y2-3,riverR-gapX-gapW,3);const lt=(fr>>3)&1;ctx.shadowBlur=10;ctx.fillStyle=lt?'#ff4444':'#880000';ctx.shadowColor='#ff0000';ctx.beginPath();ctx.arc(gapX-5,y2-4,4,0,Math.PI*2);ctx.fill();ctx.fillStyle=lt?'#880000':'#ff4444';ctx.beginPath();ctx.arc(gapX-5,y+4,4,0,Math.PI*2);ctx.fill();ctx.fillStyle=(1-lt)?'#44ff44':'#004400';ctx.shadowColor='#00ff00';ctx.beginPath();ctx.arc(gapX+gapW+5,y2-4,4,0,Math.PI*2);ctx.fill();ctx.fillStyle=(1-lt)?'#004400':'#44ff44';ctx.beginPath();ctx.arc(gapX+gapW+5,y+4,4,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;ctx.fillStyle='rgba(20,60,90,0.35)';ctx.fillRect(gapX,y,gapW,deckH);ctx.strokeStyle='#303830';ctx.lineWidth=1;ctx.strokeRect(gapX,y,gapW,deckH);}
+  function drawLock(s){const{y,deckH,gapX,gapW,cx,hw}=s,riverL=cx-hw,riverR=cx+hw,y2=y+deckH,lockL=gapX,lockR=gapX+gapW,warnY=y-220;if(warnY>-16&&warnY<H){const flash=(fr>>4)&1,absAngleDeg=Math.abs(Math.round(tow.angle*57.296)),needsStraight=absAngleDeg>22;ctx.fillStyle=needsStraight?(flash?'#ff8800':'#cc5500'):(flash?'#ffdd00':'#aa8800');ctx.font='bold 11px "Courier New"';ctx.textAlign='center';ctx.fillText(needsStraight?`\u26a0  LOCK \u2014 STRAIGHTEN HEADING  ${absAngleDeg}\u00b0\u21920\u00b0  \u26a0`:`\u26a0  LOCK & DAM \u2014 ENTER CHAMBER ON ${lockL<cx?'LEFT':'RIGHT'}  \u26a0`,W/2,warnY);ctx.strokeStyle=`rgba(255,220,0,${flash?0.35:0.15})`;ctx.lineWidth=1;ctx.setLineDash([6,6]);ctx.beginPath();ctx.moveTo(lockL,warnY+4);ctx.lineTo(lockL,y);ctx.stroke();ctx.beginPath();ctx.moveTo(lockR,warnY+4);ctx.lineTo(lockR,y);ctx.stroke();ctx.setLineDash([]);}function drawDam(lx,rx){ctx.fillStyle='#8a8870';ctx.fillRect(lx,y,rx-lx,deckH);ctx.fillStyle='#6a6850';for(let sy2=y+8;sy2<y2-8;sy2+=14)ctx.fillRect(lx+6,sy2,rx-lx-12,5);ctx.fillStyle='#a0a090';ctx.fillRect(lx,y,rx-lx,4);ctx.fillRect(lx,y,6,deckH);ctx.fillRect(rx-6,y,6,deckH);}drawDam(riverL,lockL);drawDam(lockR,riverR);ctx.fillStyle='#12344e';ctx.fillRect(lockL,y,gapW,deckH);ctx.fillStyle='#909080';ctx.fillRect(lockL-8,y,8,deckH);ctx.fillRect(lockR,y,8,deckH);ctx.strokeStyle='#4a5a4a';ctx.lineWidth=4;const gyb=y2-10,gyt=y+10;ctx.beginPath();ctx.moveTo(lockL,gyb);ctx.lineTo(lockL+gapW/2,gyb-16);ctx.stroke();ctx.beginPath();ctx.moveTo(lockR,gyb);ctx.lineTo(lockL+gapW/2,gyb-16);ctx.stroke();ctx.beginPath();ctx.moveTo(lockL,gyt);ctx.lineTo(lockL+gapW/2,gyt+14);ctx.stroke();ctx.beginPath();ctx.moveTo(lockR,gyt);ctx.lineTo(lockL+gapW/2,gyt+14);ctx.stroke();ctx.fillStyle='#304040';[[lockL,gyb],[lockR,gyb],[lockL,gyt],[lockR,gyt]].forEach(([gx,gy])=>{ctx.beginPath();ctx.arc(gx,gy,4,0,Math.PI*2);ctx.fill();});ctx.strokeStyle='rgba(80,160,200,0.18)';ctx.lineWidth=1;for(let ry=y+20;ry<y2-18;ry+=12){ctx.beginPath();ctx.moveTo(lockL+2,ry);ctx.lineTo(lockR-2,ry);ctx.stroke();}const lt=(fr>>3)&1;ctx.shadowBlur=10;ctx.fillStyle=lt?'#ff4444':'#660000';ctx.shadowColor='#ff0000';ctx.beginPath();ctx.arc(lockL-4,y2-3,4.5,0,Math.PI*2);ctx.fill();ctx.fillStyle=(1-lt)?'#44ff44':'#004400';ctx.shadowColor='#00ff00';ctx.beginPath();ctx.arc(lockR+4,y2-3,4.5,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;ctx.fillStyle='#c8c0a0';ctx.font='bold 9px "Courier New"';ctx.textAlign='center';const midY=y+deckH/2;ctx.fillText('LOCK',lockL+gapW/2,midY+3);if(lockL-riverL>40)ctx.fillText('DAM',riverL+(lockL-riverL)/2,midY+3);if(riverR-lockR>40)ctx.fillText('DAM',lockR+(riverR-lockR)/2,midY+3);ctx.strokeStyle='#606050';ctx.lineWidth=1.5;ctx.strokeRect(riverL,y,riverR-riverL,deckH);}
   function drawWake(){wakeP.forEach(p=>{ctx.save();ctx.globalAlpha=p.life*0.33;ctx.fillStyle='#88bcd4';ctx.beginPath();ctx.ellipse(p.x,p.y,p.sz,p.sz*0.46,0,0,Math.PI*2);ctx.fill();ctx.restore();});}
-
   function drawObstacles(){obstacles.forEach(o=>{ctx.save();ctx.translate(o.x,o.y);ctx.rotate(o.rot);if(o.nm==='log'||o.nm==='log2'){const len=o.r*3.2,w=o.r*0.65,rx=w/2;ctx.fillStyle=o.c1;ctx.beginPath();ctx.moveTo(-len/2+rx,-w/2);ctx.lineTo(len/2-rx,-w/2);ctx.arcTo(len/2,-w/2,len/2,0,rx);ctx.lineTo(len/2,w/2-rx);ctx.arcTo(len/2,w/2,len/2-rx,w/2,rx);ctx.lineTo(-len/2+rx,w/2);ctx.arcTo(-len/2,w/2,-len/2,0,rx);ctx.lineTo(-len/2,-w/2+rx);ctx.arcTo(-len/2,-w/2,-len/2+rx,-w/2,rx);ctx.closePath();ctx.fill();ctx.strokeStyle=o.c2;ctx.lineWidth=0.85;for(let i=-len/2+8;i<len/2-4;i+=10){ctx.beginPath();ctx.moveTo(i,-w/2+1);ctx.lineTo(i+3,w/2-1);ctx.stroke();}}else if(o.nm==='boat'){const len=o.r*4.2,bwid=o.r*1.55;ctx.fillStyle=o.c1;ctx.beginPath();ctx.moveTo(0,len/2);ctx.bezierCurveTo(bwid/2,len/4,bwid/2,-len/4,bwid/2,-len/2);ctx.lineTo(-bwid/2,-len/2);ctx.bezierCurveTo(-bwid/2,-len/4,-bwid/2,len/4,0,len/2);ctx.fill();ctx.strokeStyle=o.c2;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(0,len/2);ctx.bezierCurveTo(bwid/2,len/4,bwid/2,-len/4,bwid/2,-len/2);ctx.lineTo(-bwid/2,-len/2);ctx.bezierCurveTo(-bwid/2,-len/4,-bwid/2,len/4,0,len/2);ctx.stroke();ctx.strokeStyle=o.stripeCol;ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(bwid/2-2,-len/2+4);ctx.bezierCurveTo(bwid/2-2,0,bwid/2-2,len/4-4,bwid/2-6,len/2-8);ctx.stroke();ctx.beginPath();ctx.moveTo(-bwid/2+2,-len/2+4);ctx.bezierCurveTo(-bwid/2+2,0,-bwid/2+2,len/4-4,-bwid/2+6,len/2-8);ctx.stroke();const cabW=bwid*0.62,cabH=len*0.36,cabX=-cabW/2,cabY=-len/2;ctx.fillStyle=o.c2;ctx.fillRect(cabX,cabY,cabW,cabH);ctx.shadowBlur=7;ctx.fillStyle='#ff4444';ctx.shadowColor='#ff0000';ctx.beginPath();ctx.arc(-bwid/2+3,-len/2+4,2.5,0,Math.PI*2);ctx.fill();ctx.fillStyle='#44ff44';ctx.shadowColor='#00ff00';ctx.beginPath();ctx.arc(bwid/2-3,-len/2+4,2.5,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;}ctx.restore();});}
-
   function drawFleets(){fleets.forEach(f=>{const cwy=scroll+f.y+f.h/2,bankX=f.side==='L'?rCX(cwy)-rHW(cwy):rCX(cwy)+rHW(cwy);ctx.strokeStyle='rgba(18,26,16,0.55)';ctx.lineWidth=1.5;const tieN=Math.max(2,f.rows),bx=f.side==='L'?f.x:f.x+f.w;for(let t=0;t<tieN;t++){const ly=f.y+(t+0.5)/tieN*f.h;ctx.beginPath();ctx.moveTo(bx,ly);ctx.lineTo(bankX,ly);ctx.stroke();}ctx.fillStyle='#2a2218';[f.y+3,f.y+f.h-3].forEach(py=>{ctx.beginPath();ctx.arc(f.innerEdge,py,3,0,Math.PI*2);ctx.fill();});for(let row=0;row<f.rows;row++)for(let col=0;col<f.cols;col++)drawMooredBarge(f.x+col*(BW+BG),f.y+row*(BH+BG));});}
-
   function drawMooredBarge(x,y){ctx.fillStyle='#5e5448';ctx.fillRect(x,y,BW,BH);ctx.fillStyle='#6a6052';ctx.fillRect(x+2,y+5,BW-4,BH-10);ctx.fillStyle='#3b3630';ctx.beginPath();ctx.ellipse(x+BW/2,y+BH/2,BW*0.34,BH*0.36,0,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#4a4238';ctx.lineWidth=1;ctx.strokeRect(x+2,y+5,BW-4,BH-10);ctx.strokeStyle='#34302a';ctx.lineWidth=1;ctx.strokeRect(x,y,BW,BH);ctx.fillStyle='#26221c';[[2,3],[BW-7,3],[2,BH-8],[BW-7,BH-8]].forEach(([ox,oy])=>ctx.fillRect(x+ox,y+oy,5,5));}
-
   function drawRings(){rings.forEach(ring=>{const bob=Math.sin(ring.bob)*2.5,cx=ring.x,cy=ring.y+bob,R=16,thick=7;ctx.save();ctx.globalAlpha=0.22;ctx.fillStyle='#06121c';ctx.beginPath();ctx.ellipse(cx,ring.y+13,18,6,0,0,Math.PI*2);ctx.fill();ctx.restore();const pulse=0.5+0.5*Math.sin(fr*0.12);ctx.save();ctx.shadowColor='#37e070';ctx.shadowBlur=9+pulse*9;ctx.strokeStyle='#ff7a1a';ctx.lineWidth=thick;ctx.beginPath();ctx.arc(cx,cy,R-thick/2,0,Math.PI*2);ctx.stroke();ctx.shadowBlur=0;ctx.strokeStyle='rgba(150,66,10,0.55)';ctx.lineWidth=1;ctx.beginPath();ctx.arc(cx,cy,R,0,Math.PI*2);ctx.stroke();ctx.beginPath();ctx.arc(cx,cy,R-thick,0,Math.PI*2);ctx.stroke();ctx.strokeStyle='rgba(245,245,235,0.92)';ctx.lineWidth=thick-2;[0,Math.PI/2,Math.PI,3*Math.PI/2].forEach(a=>{ctx.beginPath();ctx.arc(cx,cy,R-thick/2,a-0.27,a+0.27);ctx.stroke();});const arm=R-thick-1,pw=3.2;ctx.shadowColor='#2ecc4a';ctx.shadowBlur=6;ctx.fillStyle='#2ecc4a';ctx.fillRect(cx-pw,cy-arm,pw*2,arm*2);ctx.fillRect(cx-arm,cy-pw,arm*2,pw*2);ctx.restore();});}
-
-  function drawTow(){
-    const firstRow=Math.floor((TOTAL-barges)/COLS);
-    const unitTopLocal=-FH/2+firstRow*(BH+BG);
-    const boatBotLocal=FH/2+BG+TWH;
-    ctx.save();ctx.translate(tow.x,tow.y);ctx.rotate(tow.angle);
-    for(let row=0;row<ROWS;row++)for(let col=0;col<COLS;col++){const n=row*COLS+col+1;if(n<=TOTAL-barges)continue;drawBarge(-FW/2+col*(BW+BG),-FH/2+row*(BH+BG),n);}
-    drawBoat(-TWW/2,FH/2+BG);ctx.restore();
-    if(flashTimer>0){ctx.save();ctx.translate(tow.x,tow.y);ctx.rotate(tow.angle);ctx.globalAlpha=(flashTimer/14)*0.40;ctx.fillStyle='#ff1800';ctx.fillRect(-FW/2-3,unitTopLocal-3,FW+6,(boatBotLocal-unitTopLocal)+6);ctx.restore();}
-    if(healTimer>0){ctx.save();ctx.translate(tow.x,tow.y);ctx.rotate(tow.angle);ctx.globalAlpha=(healTimer/16)*0.35;ctx.fillStyle='#22ff66';ctx.fillRect(-FW/2-3,unitTopLocal-3,FW+6,(boatBotLocal-unitTopLocal)+6);ctx.restore();}
-  }
-
+  function drawTow(){const firstRow=Math.floor((TOTAL-barges)/COLS),unitTopLocal=-FH/2+firstRow*(BH+BG),boatBotLocal=FH/2+BG+TWH;ctx.save();ctx.translate(tow.x,tow.y);ctx.rotate(tow.angle);for(let row=0;row<ROWS;row++)for(let col=0;col<COLS;col++){const n=row*COLS+col+1;if(n<=TOTAL-barges)continue;drawBarge(-FW/2+col*(BW+BG),-FH/2+row*(BH+BG),n);}drawBoat(-TWW/2,FH/2+BG);ctx.restore();if(flashTimer>0){ctx.save();ctx.translate(tow.x,tow.y);ctx.rotate(tow.angle);ctx.globalAlpha=(flashTimer/14)*0.40;ctx.fillStyle='#ff1800';ctx.fillRect(-FW/2-3,unitTopLocal-3,FW+6,(boatBotLocal-unitTopLocal)+6);ctx.restore();}if(healTimer>0){ctx.save();ctx.translate(tow.x,tow.y);ctx.rotate(tow.angle);ctx.globalAlpha=(healTimer/16)*0.35;ctx.fillStyle='#22ff66';ctx.fillRect(-FW/2-3,unitTopLocal-3,FW+6,(boatBotLocal-unitTopLocal)+6);ctx.restore();}}
   function drawBarge(x,y,n){ctx.fillStyle='#6a7878';ctx.fillRect(x,y,BW,BH);ctx.fillStyle='#788a8c';ctx.fillRect(x+2,y+6,BW-4,BH-12);ctx.strokeStyle='#4a5858';ctx.lineWidth=1.5;[0.28,0.72].forEach(t=>{ctx.beginPath();ctx.moveTo(x,y+BH*t);ctx.lineTo(x+BW,y+BH*t);ctx.stroke();});ctx.strokeStyle='#3a4848';ctx.lineWidth=1;ctx.strokeRect(x,y,BW,BH);ctx.fillStyle='#2a3838';[[2,3],[BW-7,3],[2,BH-8],[BW-7,BH-8]].forEach(([ox,oy])=>ctx.fillRect(x+ox,y+oy,5,5));ctx.fillStyle='#4e6272';ctx.font='7px monospace';ctx.textAlign='center';ctx.fillText(n,x+BW/2,y+BH/2+2.5);}
-
-  function drawBoat(x,y){const hg=ctx.createLinearGradient(x,0,x+TWW,0);hg.addColorStop(0,'#182838');hg.addColorStop(0.5,'#263a4e');hg.addColorStop(1,'#182838');ctx.fillStyle=hg;ctx.fillRect(x,y,TWW,TWH);ctx.fillStyle='#bb2020';ctx.fillRect(x,y+TWH-16,TWW,8);ctx.strokeStyle='#0a1420';ctx.lineWidth=1.5;ctx.strokeRect(x,y,TWW,TWH);const wx=x+5,wy=y+7,ww=TWW-10,wh=(TWH*0.48)|0;ctx.fillStyle='#e0d8c8';ctx.fillRect(wx,wy,ww,wh);ctx.strokeStyle='#c0b0a0';ctx.lineWidth=1;ctx.strokeRect(wx,wy,ww,wh);ctx.fillStyle='#5aa8c4';[[wx+3],[wx+ww/2-4.5],[wx+ww-13]].forEach(([wx2])=>ctx.fillRect(wx2,wy+5,9,8));ctx.shadowBlur=8;ctx.fillStyle='#ff5555';ctx.shadowColor='#ff0000';ctx.beginPath();ctx.arc(x+3,y+4,3,0,Math.PI*2);ctx.fill();ctx.fillStyle='#55ff55';ctx.shadowColor='#00ff00';ctx.beginPath();ctx.arc(x+TWW-3,y+4,3,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;if((fr&3)<2){ctx.fillStyle='rgba(88,168,224,0.55)';[8,23,38].forEach(bx2=>{const r2=3+Math.sin(fr*0.3+bx2)*1.2;ctx.beginPath();ctx.arc(x+bx2,y+TWH-4,r2,0,Math.PI*2);ctx.fill();});}}
-
+  function drawBoat(x,y){const hg=ctx.createLinearGradient(x,0,x+TWW,0);hg.addColorStop(0,'#182838');hg.addColorStop(0.5,'#263a4e');hg.addColorStop(1,'#182838');ctx.fillStyle=hg;ctx.fillRect(x,y,TWW,TWH);ctx.fillStyle='#bb2020';ctx.fillRect(x,y+TWH-16,TWW,8);ctx.strokeStyle='#0a1420';ctx.lineWidth=1.5;ctx.strokeRect(x,y,TWW,TWH);const wx=x+5,wy=y+7,ww=TWW-10,wh=(TWH*0.48)|0;ctx.fillStyle='#e0d8c8';ctx.fillRect(wx,wy,ww,wh);ctx.strokeStyle='#c0b0a0';ctx.lineWidth=1;ctx.strokeRect(wx,wy,ww,wh);ctx.fillStyle='#5aa8c4';[[wx+3],[wx+ww/2-4.5],[wx+ww-13]].forEach(([wx2])=>ctx.fillRect(wx2,wy+5,9,8));ctx.fillStyle='rgba(255,255,255,0.24)';[[wx+3],[wx+ww/2-4.5],[wx+ww-13]].forEach(([wx2])=>ctx.fillRect(wx2+1,wy+5,2.5,3));const mx=x+TWW/2;ctx.strokeStyle='#6a7888';ctx.lineWidth=1.8;ctx.beginPath();ctx.moveTo(mx,wy);ctx.lineTo(mx,wy-14);ctx.stroke();ctx.lineWidth=1.3;ctx.beginPath();ctx.moveTo(mx-9,wy-14);ctx.lineTo(mx+9,wy-14);ctx.stroke();ctx.fillStyle='#1a2838';[mx-10,mx+3].forEach(sx=>{ctx.fillRect(sx,wy-8,6,13);});if((fr&7)<3){ctx.fillStyle='rgba(60,60,60,0.4)';[mx-7,mx+6].forEach(sx=>{ctx.beginPath();ctx.arc(sx,wy-10+((fr>>1)%4),3.5,0,Math.PI*2);ctx.fill();});}ctx.shadowBlur=8;ctx.fillStyle='#ff5555';ctx.shadowColor='#ff0000';ctx.beginPath();ctx.arc(x+3,y+4,3,0,Math.PI*2);ctx.fill();ctx.fillStyle='#55ff55';ctx.shadowColor='#00ff00';ctx.beginPath();ctx.arc(x+TWW-3,y+4,3,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;if((fr&3)<2){ctx.fillStyle='rgba(88,168,224,0.55)';[8,23,38].forEach(bx2=>{const r2=3+Math.sin(fr*0.3+bx2)*1.2;ctx.beginPath();ctx.arc(x+bx2,y+TWH-4,r2,0,Math.PI*2);ctx.fill();});}}
   function drawSparks(){sparks.forEach(s=>{ctx.save();ctx.globalAlpha=s.life;ctx.fillStyle=s.col;ctx.beginPath();ctx.arc(s.x,s.y,3*s.life,0,Math.PI*2);ctx.fill();ctx.restore();});}
-
-  function drawHUD(){
-    ctx.fillStyle='rgba(4,10,18,0.88)';ctx.fillRect(0,0,W,42);
-    ctx.textAlign='left';ctx.font='bold 14px "Courier New",monospace';ctx.fillStyle='#5ab0cc';
-    ctx.fillText(`DIST: ${score} MI`,12,28);
-    ctx.fillStyle='#5ab0cc';ctx.fillText('TOW',150,28);
-    const ratio=barges/TOTAL,fillCol=ratio>0.6?'#22bb55':ratio>0.3?'#bbbb22':'#cc2222';
-    const segX=192,segY=15,segW=7,segH=14,segGap=2;
-    for(let i=0;i<TOTAL;i++){ctx.beginPath();ctx.roundRect(segX+i*(segW+segGap),segY,segW,segH,2);ctx.fillStyle=i<barges?fillCol:'#152535';ctx.fill();}
-    ctx.fillStyle=fillCol;ctx.font='bold 13px "Courier New",monospace';ctx.fillText(`${barges}/${TOTAL}`,segX+TOTAL*(segW+segGap)+6,27);
-    const hdg=Math.round(tow.angle*(180/Math.PI)),lvlD=LEVELS[currentLevel];
-    ctx.textAlign='right';ctx.fillStyle=lvlD.col;ctx.font='bold 14px "Courier New",monospace';
-    ctx.fillText(lvlD.label,W-200,28);ctx.fillStyle='#5ab0cc';
-    ctx.fillText(`HDG ${hdg>=0?'+':''}${hdg}\u00b0  SPD ${(spd*2.55).toFixed(1)} kt`,W-12,28);
-    const pbar=(score/500);ctx.fillStyle='rgba(4,10,18,0.70)';ctx.fillRect(0,H-20,W,20);ctx.fillStyle='#0f2535';ctx.fillRect(8,H-13,W-16,7);ctx.fillStyle='#1a6e9a';ctx.fillRect(8,H-13,(W-16)*Math.min(pbar,1),7);
-    LEVELS.slice(1).forEach(l=>{const tx=8+(W-16)*(l.miles/500);ctx.fillStyle=l.col;ctx.fillRect(tx-1,H-15,2,11);ctx.font='7px "Courier New"';ctx.textAlign='center';ctx.fillStyle=l.col;ctx.fillText(l.miles,tx,H-17);});
-    ctx.fillStyle='#3ab0d0';ctx.font='9px "Courier New"';ctx.textAlign='left';ctx.fillText('START',8,H-5);ctx.textAlign='right';ctx.fillText('PORT (500 MI)',W-8,H-5);
-    if(gameState==='PLAY')drawBtns();if(levelUpTimer>0)drawLevelBanner();
-  }
-
+  function drawHUD(){ctx.fillStyle='rgba(4,10,18,0.88)';ctx.fillRect(0,0,W,42);ctx.textAlign='left';ctx.font='bold 14px "Courier New",monospace';ctx.fillStyle='#5ab0cc';ctx.fillText(`DIST: ${score} MI`,12,28);ctx.fillStyle='#5ab0cc';ctx.fillText('TOW',150,28);const ratio=barges/TOTAL,fillCol=ratio>0.6?'#22bb55':ratio>0.3?'#bbbb22':'#cc2222';const segX=192,segY=15,segW=7,segH=14,segGap=2;for(let i=0;i<TOTAL;i++){ctx.beginPath();ctx.roundRect(segX+i*(segW+segGap),segY,segW,segH,2);ctx.fillStyle=i<barges?fillCol:'#152535';ctx.fill();}ctx.fillStyle=fillCol;ctx.font='bold 13px "Courier New",monospace';ctx.fillText(`${barges}/${TOTAL}`,segX+TOTAL*(segW+segGap)+6,27);const hdg=Math.round(tow.angle*(180/Math.PI)),lvlD=LEVELS[currentLevel];ctx.textAlign='right';ctx.fillStyle=lvlD.col;ctx.font='bold 14px "Courier New",monospace';ctx.fillText(lvlD.label,W-200,28);ctx.fillStyle='#5ab0cc';ctx.fillText(`HDG ${hdg>=0?'+':''}${hdg}\u00b0  SPD ${(spd*2.55).toFixed(1)} kt`,W-12,28);const pbar=score/500;ctx.fillStyle='rgba(4,10,18,0.70)';ctx.fillRect(0,H-20,W,20);ctx.fillStyle='#0f2535';ctx.fillRect(8,H-13,W-16,7);ctx.fillStyle='#1a6e9a';ctx.fillRect(8,H-13,(W-16)*Math.min(pbar,1),7);LEVELS.slice(1).forEach(l=>{const tx=8+(W-16)*(l.miles/500);ctx.fillStyle=l.col;ctx.fillRect(tx-1,H-15,2,11);ctx.font='7px "Courier New"';ctx.textAlign='center';ctx.fillStyle=l.col;ctx.fillText(l.miles,tx,H-17);});ctx.fillStyle='#3ab0d0';ctx.font='9px "Courier New"';ctx.textAlign='left';ctx.fillText('START',8,H-5);ctx.textAlign='right';ctx.fillText('PORT (500 MI)',W-8,H-5);if(gameState==='PLAY')drawBtns();if(levelUpTimer>0)drawLevelBanner();}
   function drawLevelBanner(){const lvl=LEVELS[currentLevel],fade=Math.min(1,levelUpTimer/40),slideIn=Math.max(0,1-(levelUpTimer-170)/40),bannerY=60+slideIn*(-80);ctx.save();ctx.globalAlpha=fade;ctx.fillStyle='rgba(4,10,20,0.88)';ctx.beginPath();ctx.roundRect(W/2-200,bannerY,400,56,10);ctx.fill();ctx.strokeStyle=lvl.col;ctx.lineWidth=2;ctx.beginPath();ctx.roundRect(W/2-200,bannerY,400,56,10);ctx.stroke();ctx.shadowColor=lvl.col;ctx.shadowBlur=18*Math.abs(Math.sin(fr*0.08));ctx.fillStyle=lvl.col;ctx.textAlign='center';ctx.font='bold 22px "Courier New",monospace';ctx.fillText(`\u2b06  ${lvl.label} REACHED  \u2b06`,W/2,bannerY+24);ctx.shadowBlur=0;const msgs=['','CURRENT STRONGER \u2014 WATCH YOUR SPEED','DRIFT INCREASING \u2014 BARGES ARE RESTLESS','VESSELS AHEAD \u2014 STAND ON YOUR WHISTLE','MAXIMUM CURRENT \u2014 DON\'T LOSE HEADWAY'];ctx.fillStyle='rgba(180,220,240,0.85)';ctx.font='11px "Courier New",monospace';ctx.fillText(msgs[currentLevel]||'',W/2,bannerY+44);ctx.restore();}
-
   function drawBtns(){const labels={L:'\u25c4',R:'\u25ba',U:'\u25b2',D:'\u25bc'},pressed={L:KEY.ArrowLeft||KEY.KeyA||TOUCH.L,R:KEY.ArrowRight||KEY.KeyD||TOUCH.R,U:KEY.ArrowUp||KEY.KeyW||TOUCH.U,D:KEY.ArrowDown||KEY.KeyS||TOUCH.D};Object.entries(BTN).forEach(([k,b])=>{const pr=pressed[k];ctx.fillStyle=pr?'rgba(28,80,130,0.88)':'rgba(8,20,36,0.72)';ctx.strokeStyle=pr?'#38a0cc':'#1e4e66';ctx.lineWidth=2;ctx.beginPath();ctx.roundRect(b.x,b.y,b.w,b.h,9);ctx.fill();ctx.stroke();ctx.fillStyle=pr?'#78ccee':'#386880';ctx.font='bold 34px monospace';ctx.textAlign='center';ctx.fillText(labels[k],b.x+b.w/2,b.y+b.h/2+11);});}
-
-  function drawOverlay(){ctx.fillStyle='rgba(3,8,16,0.90)';ctx.fillRect(0,0,W,H);ctx.textAlign='center';
-    if(gameState==='START'){ctx.fillStyle='#48b0d0';ctx.font='bold 54px "Courier New"';ctx.fillText('RIVER PUSH',W/2,H/2-138);ctx.fillStyle='#2a6082';ctx.font='14px "Courier New"';ctx.fillText('TOWBOAT NAVIGATION SIMULATOR',W/2,H/2-96);ctx.strokeStyle='#265a78';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(W/2-205,H/2-76);ctx.lineTo(W/2+205,H/2-76);ctx.stroke();const lines=['Push a 15-barge tow 500 miles upriver.','Every collision tears a barge loose \u2014','lose the whole tow and the run is over.','','A D / \u25c4 \u25ba   Steer','W S / \u25b2 \u25bc   Throttle'];ctx.fillStyle='#78bac8';ctx.font='13px "Courier New"';lines.forEach((l,i)=>ctx.fillText(l,W/2,H/2-47+i*22));ctx.fillStyle='#0c2e48';ctx.fillRect(W/2-110,H/2+98,220,48);ctx.strokeStyle='#3a88aa';ctx.lineWidth=2;ctx.strokeRect(W/2-110,H/2+98,220,48);ctx.fillStyle='#78bac8';ctx.font='bold 16px "Courier New"';ctx.fillText('ALL AHEAD FULL',W/2,H/2+128);}
-    else if(gameState==='OVER'){ctx.fillStyle='#cc3322';ctx.font='bold 48px "Courier New"';ctx.fillText('TOW LOST',W/2,H/2-92);ctx.strokeStyle='#5a2020';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(W/2-185,H/2-70);ctx.lineTo(W/2+185,H/2-70);ctx.stroke();ctx.fillStyle='#5ab8d8';ctx.font='15px "Courier New"';ctx.fillText('All 15 barges torn away.',W/2,H/2-30);ctx.fillText('FINAL DISTANCE',W/2,H/2+2);ctx.fillStyle='#48b0d0';ctx.font='bold 40px "Courier New"';ctx.fillText(`${score} MILES`,W/2,H/2+44);ctx.fillStyle='#3a7890';ctx.font='13px "Courier New"';ctx.fillText('SPACE or CLICK to try again',W/2,H/2+88);}
-    else if(gameState==='WIN'){ctx.fillStyle='#22cc55';ctx.font='bold 44px "Courier New"';ctx.fillText('DELIVERED!',W/2,H/2-90);ctx.strokeStyle='#205a30';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(W/2-185,H/2-68);ctx.lineTo(W/2+185,H/2-68);ctx.stroke();ctx.fillStyle='#78bac8';ctx.font='15px "Courier New"';ctx.fillText(`${barges} of ${TOTAL} barges delivered to port.`,W/2,H/2-28);ctx.fillText('500 miles upriver \u2014 well done, Captain.',W/2,H/2+2);ctx.fillStyle='#48b0d0';ctx.font='bold 28px "Courier New"';ctx.fillText('MISSION COMPLETE',W/2,H/2+48);ctx.fillStyle='#3a7890';ctx.font='13px "Courier New"';ctx.fillText('SPACE or CLICK to run again',W/2,H/2+88);}
-  }
-
+  function drawOverlay(){ctx.fillStyle='rgba(3,8,16,0.90)';ctx.fillRect(0,0,W,H);ctx.textAlign='center';if(gameState==='START'){ctx.fillStyle='#48b0d0';ctx.font='bold 54px "Courier New"';ctx.fillText('RIVER PUSH',W/2,H/2-138);ctx.fillStyle='#2a6082';ctx.font='14px "Courier New"';ctx.fillText('TOWBOAT NAVIGATION SIMULATOR',W/2,H/2-96);ctx.strokeStyle='#265a78';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(W/2-205,H/2-76);ctx.lineTo(W/2+205,H/2-76);ctx.stroke();const lines=['Push a 15-barge tow 500 miles upriver.','Every collision tears a barge loose \u2014','lose the whole tow and the run is over.','','A D / \u25c4 \u25ba   Steer','W S / \u25b2 \u25bc   Throttle'];ctx.fillStyle='#78bac8';ctx.font='13px "Courier New"';lines.forEach((l,i)=>ctx.fillText(l,W/2,H/2-47+i*22));ctx.fillStyle='#0c2e48';ctx.fillRect(W/2-110,H/2+98,220,48);ctx.strokeStyle='#3a88aa';ctx.lineWidth=2;ctx.strokeRect(W/2-110,H/2+98,220,48);ctx.fillStyle='#78bac8';ctx.font='bold 16px "Courier New"';ctx.fillText('ALL AHEAD FULL',W/2,H/2+128);ctx.fillStyle='#265870';ctx.font='11px "Courier New"';ctx.fillText('SPACE  \u00b7  ENTER  \u00b7  CLICK to start',W/2,H/2+168);}else if(gameState==='OVER'){ctx.fillStyle='#cc3322';ctx.font='bold 48px "Courier New"';ctx.fillText('TOW LOST',W/2,H/2-92);ctx.strokeStyle='#5a2020';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(W/2-185,H/2-70);ctx.lineTo(W/2+185,H/2-70);ctx.stroke();ctx.fillStyle='#5ab8d8';ctx.font='15px "Courier New"';ctx.fillText('All 15 barges torn away.',W/2,H/2-30);ctx.fillText('FINAL DISTANCE',W/2,H/2+2);ctx.fillStyle='#48b0d0';ctx.font='bold 40px "Courier New"';ctx.fillText(`${score} MILES`,W/2,H/2+44);ctx.fillStyle='#3a7890';ctx.font='13px "Courier New"';ctx.fillText('SPACE  \u00b7  CLICK to try again',W/2,H/2+88);}else if(gameState==='WIN'){ctx.fillStyle='#22cc55';ctx.font='bold 44px "Courier New"';ctx.fillText('DELIVERED!',W/2,H/2-90);ctx.strokeStyle='#205a30';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(W/2-185,H/2-68);ctx.lineTo(W/2+185,H/2-68);ctx.stroke();ctx.fillStyle='#78bac8';ctx.font='15px "Courier New"';ctx.fillText(`${barges} of ${TOTAL} barges delivered to port.`,W/2,H/2-28);ctx.fillText('500 miles upriver \u2014 well done, Captain.',W/2,H/2+2);ctx.fillStyle='#48b0d0';ctx.font='bold 28px "Courier New"';ctx.fillText('MISSION COMPLETE',W/2,H/2+48);ctx.fillStyle='#3a7890';ctx.font='13px "Courier New"';ctx.fillText('SPACE  \u00b7  CLICK to run again',W/2,H/2+88);}}
   function loop(){if(!_gameRunning)return;update();draw();_gameRAF=requestAnimationFrame(loop);}
   init();loop();
 }
