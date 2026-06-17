@@ -34,17 +34,10 @@ body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:v
 #menu-btn i{font-size:14px}
 #menu-drop{display:none;position:absolute;top:52px;right:10px;background:#fff;border:.5px solid var(--bd);border-radius:11px;box-shadow:0 8px 28px rgba(0,0,0,.14);min-width:200px;padding:6px;z-index:500}
 #menu-drop.open{display:block}
-#vessel-btn{display:flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;background:rgba(255,255,255,.13);border:none;cursor:pointer;color:rgba(255,255,255,.85);font-size:10px;font-weight:500;transition:background .15s;max-width:160px}
-#vessel-btn:hover{background:rgba(255,255,255,.22)}
-#vessel-btn i{font-size:13px;flex-shrink:0}
-#vessel-btn .vname{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-#vessel-drop{display:none;position:absolute;top:52px;left:50%;transform:translateX(-50%);background:#fff;border:.5px solid var(--bd);border-radius:11px;box-shadow:0 8px 28px rgba(0,0,0,.14);min-width:230px;padding:6px;z-index:500}
-#vessel-drop.open{display:block}
-.vdlbl{font-size:9px;font-weight:700;color:var(--t3);letter-spacing:.08em;text-transform:uppercase;padding:6px 11px 4px}
-.vitem{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:7px;cursor:pointer;font-size:12px;color:var(--t1);font-weight:500}
-.vitem:hover{background:var(--bg)}
-.vitem.active{color:var(--r);background:#fff5f5}
-.vitem i{font-size:14px;color:var(--t2);width:18px;text-align:center}
+#howto-btn{display:flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;background:rgba(255,255,255,.13);border:none;cursor:pointer;color:rgba(255,255,255,.85);font-size:10px;font-weight:500;transition:background .15s}
+#howto-btn:hover{background:rgba(255,255,255,.22)}
+#howto-drop{display:none;position:absolute;top:52px;left:50%;transform:translateX(-50%);background:#fff;border:.5px solid var(--bd);border-radius:11px;box-shadow:0 8px 28px rgba(0,0,0,.14);min-width:230px;padding:6px;z-index:500}
+#howto-drop.open{display:block}
 .mdiv{height:.5px;background:var(--bd);margin:4px 6px}
 .mitem{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:7px;cursor:pointer;font-size:12px;color:var(--t1);font-weight:500}
 .mitem:hover{background:var(--bg)}
@@ -209,17 +202,19 @@ body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:v
   <i class="ti ti-ship hico"></i>
   <div><div class="hsys">Vessel Maintenance Reference</div></div>
   <div class="hsp"></div>
-  <button id="vessel-btn" onclick="toggleVesselDrop()">
-    <i class="ti ti-ship"></i><span class="vname" id="vessel-btn-name">Select Vessel</span><i class="ti ti-chevron-down" style="font-size:10px;margin-left:2px"></i>
+  <button id="howto-btn" onclick="toggleHowto()">
+    <i class="ti ti-school" style="font-size:13px"></i>&nbsp;How To<i class="ti ti-chevron-down" style="font-size:10px;margin-left:2px"></i>
   </button>
   <button id="menu-btn" onclick="toggleMenu()">
     <i class="ti ti-menu-2"></i>Menu
   </button>
 </header>
-<div id="vessel-drop">
-  <div class="vdlbl">Fleet Vessels</div>
-  <div class="vitem" onclick="selectVessel('mvAubreyHarwell')"><i class="ti ti-ship"></i>M/V Aubrey B. Harwell Jr.</div>
-  <div class="vitem" onclick="selectVessel('mvSusanJohnson')"><i class="ti ti-ship"></i>M/V Susan Johnson</div>
+<div id="howto-drop">
+  <div class="mitem" onclick="goHowto('howto-startengine')"><i class="ti ti-engine"></i>Start Main Engine</div>
+  <div class="mitem" onclick="goHowto('howto-lash')"><i class="ti ti-adjustments-horizontal"></i>Set Lash Adjustments</div>
+  <div class="mitem" onclick="goHowto('howto-swapgen')"><i class="ti ti-bolt"></i>Swap Generators</div>
+  <div class="mitem" onclick="goHowto('howto-boilertochiller')"><i class="ti ti-temperature-minus"></i>Boiler to Chiller</div>
+  <div class="mitem" onclick="goHowto('howto-chillertobboiler')"><i class="ti ti-temperature-plus"></i>Chiller to Boiler</div>
 </div>
 <div id="sb-overlay" onclick="closeSidebar()"></div>
 <div id="menu-drop">
@@ -255,148 +250,22 @@ function closeSidebar(){
 function toggleMenu(){
   document.getElementById('menu-drop').classList.toggle('open');
 }
-function toggleVesselDrop(){
-  const d=document.getElementById('vessel-drop');
-  d.classList.toggle('open');
-  // highlight active vessel
-  d.querySelectorAll('.vitem').forEach(el=>{
-    const k=el.getAttribute('onclick')?.match(/selectVessel\('(\w+)'\)/)?.[1];
-    el.classList.toggle('active',k===S.vessel);
-  });
+function toggleHowto(){
+  document.getElementById('howto-drop').classList.toggle('open');
 }
-function selectVessel(k){
-  S.vessel=k;
-  document.getElementById('vessel-drop').classList.remove('open');
-  const v=VESSELS[k];
-  const btn=document.getElementById('vessel-btn-name');
-  if(btn&&v) btn.textContent=v.short;
-  go('vessel');
+function goHowto(k){
+  document.getElementById('howto-drop').classList.remove('open');
+  go(k);
 }
-function navTo(sec){
-  document.getElementById('menu-drop').classList.remove('open');
-  go(sec);
-}
-const IC={red:'#B81C2E',blue:'#2563eb',cyan:'#0891b2',yel:'#b45309',pur:'#7c3aed',ora:'#c2410c',tel:'#0d9488',gra:'#64748b',grn:'#15803d'};
-const SL={ok:'Normal',wn:'Monitor',cr:'Attention'};
-const INTV_ORDER=['d','w','h250','h500','h1k','h2k','h3k','h6k','h12k','ann','dd'];
-const INTV_LABEL={d:'Daily',w:'Weekly',h250:'250 hrs',h500:'500 hrs',h1k:'1,000 hrs',h2k:'2,000 hrs',h3k:'3,000 hrs',h6k:'6,000 hrs',h12k:'12,000 hrs',ann:'Annual',dd:'Dry Dock'};
-const INTV_COLOR={d:'#10b981',w:'#10b981',h250:'#f59e0b',h500:'#f59e0b',h1k:'#f59e0b',h2k:'#2563eb',h3k:'#2563eb',h6k:'#2563eb',h12k:'#2563eb',ann:'#2563eb',dd:'#64748b'};
-function getIntervalBadge(dk){
-  if(!dk||!DET[dk]) return '';
-  const maint=DET[dk].maint;
-  if(!maint||!maint.length) return '';
-  let best=null;
-  maint.forEach(m=>{
-    const rank=INTV_ORDER.indexOf(m.b);
-    if(rank>=0&&(best===null||rank<INTV_ORDER.indexOf(best))) best=m.b;
-  });
-  if(!best) return '';
-  const lbl=INTV_LABEL[best];
-  const clr=INTV_COLOR[best];
-  return `<span style="font-size:9px;font-weight:600;padding:2px 7px;border-radius:9px;background:${clr}18;color:${clr};border:.5px solid ${clr}44;white-space:nowrap">${lbl}</span>`;
-}
-// ─── VESSEL DATA ──────────────────────────────────────────────
-const VESSELS={
- 'mvAubreyHarwell':{
-  name:'M/V Aubrey B. Harwell Jr.',
-  short:'Harwell Jr.',
-  type:'Inland River Towboat — Twin Screw — Ingram Barge Company',
-  specs:[
-   {cat:'Identification',rows:[
-    ['Vessel Name','M/V Aubrey B. Harwell Jr.'],
-    ['Former Name','Peter Fanchi (Federal Barge Lines Inc.)'],
-    ['USCG Doc. No.','579561'],
-    ['Call Sign','WDK9932'],
-    ['MMSI','366963520'],
-    ['Vessel Service','Towing Vessel — Coastwise Unrestricted'],
-    ['Hailing Port','Cincinnati, OH'],
-    ['Operator','Ingram Barge Company — Nashville, TN'],
-    ['Hull Material','Steel'],
-    ['Hull Number','3595'],
-    ['Flag','United States'],
-   ]},
-   {cat:'Dimensions & Tonnage',rows:[
-    ['Length','157.5 ft'],
-    ['Beam (Breadth)','45 ft'],
-    ['Hull Depth','8.1 ft'],
-    ['Height','48.6 ft'],
-    ['Gross Tonnage','787'],
-    ['Net Tonnage','553'],
-   ]},
-   {cat:'Propulsion',rows:[
-    ['Main Engines','Two EMD 645-16 diesel engines (16-cylinder, 2-stroke) — Port & Starboard'],
-    ['Total Horsepower','6,120 HP'],
-    ['Per Engine','3,060 HP'],
-    ['Configuration','Twin screw'],
-    ['Throttle / Clutch Control','Rexroth MFZP single-lever hydraulic system'],
-   ]},
-   {cat:'Construction',rows:[
-    ['Year Built','1977'],
-    ['Shipyard','St. Louis Ship — St. Louis, Missouri'],
-    ['Acquired by Ingram','2009 (renamed from Peter Fanchi)'],
-   ]},
-   {cat:'Area of Operation',rows:[
-    ['Waterways','Gulf Intracoastal Waterway; Cumberland, Illinois, Arkansas, Mississippi, Ohio, Tennessee, and Monongahela Rivers; Tenn-Tom, Black Warrior, and Tombigbee Waterways'],
-    ['Commodities','Towing, petroleum products, bulk freight, coal, coke, grain, and aggregates'],
-   ]},
-   {cat:'Electrical System',rows:[
-    ['Ship Service Power','480VAC, 3-phase, 60 Hz'],
-    ['Control & Alarm Power','24VDC battery-backed'],
-   ]},
-   {cat:'Reference Notes',rows:[
-    ['COI & Drawings','Verify all specifications against the vessel\'s Certificate of Inspection and engineering drawings on file'],
-    ['Transfer Procedures','The fuel transfer procedures book for this vessel is in the engine room control booth'],
-   ]},
-  ]},
- 'mvSusanJohnson':{
-  name:'M/V Susan Johnson',
-  short:'Susan Johnson',
-  type:'Inland River Towboat — Triple Screw — Ingram Barge Company',
-  specs:[
-   {cat:'Identification',rows:[
-    ['Vessel Name','M/V Susan Johnson'],
-    ['USCG Doc. No.','569359'],
-    ['Call Sign','WDK9605'],
-    ['MMSI','367533150'],
-    ['Vessel Service','Towing Vessel'],
-    ['Operator','Ingram Barge Company — Nashville, TN'],
-    ['Hull Material','Steel'],
-    ['Flag','United States'],
-   ]},
-   {cat:'Dimensions & Tonnage',rows:[
-    ['Length','180 ft'],
-    ['Beam (Breadth)','52 ft'],
-    ['Load Draft','9.2 ft'],
-    ['Height','42.9 ft'],
-    ['Net Tonnage','785'],
-   ]},
-   {cat:'Propulsion',rows:[
-    ['Total Horsepower','8,400 HP'],
-    ['Configuration','Triple screw'],
-    ['Engine Type','Verify on vessel COI and engine room nameplate'],
-    ['Throttle / Clutch Control','Rexroth MFZP single-lever hydraulic system'],
-   ]},
-   {cat:'Area of Operation',rows:[
-    ['Waterways','Cumberland, Illinois, Arkansas, Mississippi, Ohio, Tennessee, and Monongahela Rivers; Gulf Intracoastal Waterway; Tenn-Tom, Black Warrior, and Tombigbee Waterways'],
-    ['Commodities','Towing, petroleum products, bulk freight, coal, coke, grain, and aggregates'],
-   ]},
-   {cat:'Electrical System',rows:[
-    ['Ship Service Power','480VAC, 3-phase, 60 Hz'],
-    ['Control & Alarm Power','24VDC battery-backed'],
-   ]},
-   {cat:'Reference Notes',rows:[
-    ['COI & Drawings','Verify all specifications against the vessel\'s Certificate of Inspection and engineering drawings on file'],
-    ['Transfer Procedures','The fuel transfer procedures book for this vessel is in the engine room control booth'],
-   ]},
-  ]},
-};
-let S={sec:'engines',comp:null,tab:'overview',openProb:null,manual:null,openMsec:null,engType:'emd645',steerType:'emi',vessel:null,collapsed:{'Emergency Scenarios':true}};
+
+let S={sec:'engines',comp:null,tab:'overview',openProb:null,manual:null,openMsec:null,engType:'emd645',steerType:'emi',collapsed:{'Emergency Scenarios':true}};
 function toggleGroup(g){S.collapsed=S.collapsed||{};S.collapsed[g]=!S.collapsed[g];renderSidebar();}
+
 function go(sec){
   if(sec.startsWith('emg-')&&S.collapsed&&S.collapsed['Emergency Scenarios']){
     S.collapsed['Emergency Scenarios']=false;
   }
-  S={sec,comp:null,tab:'overview',openProb:null,manual:null,openMsec:null,engType:S.engType,steerType:S.steerType,vessel:S.vessel,collapsed:S.collapsed};
+  S={sec,comp:null,tab:'overview',openProb:null,manual:null,openMsec:null,engType:S.engType,steerType:S.steerType,collapsed:S.collapsed};
   render();
 }
 function openComp(k){if(!k)return;S.comp=k;S.tab='overview';S.openProb=null;S.manual=null;render()}
@@ -486,6 +355,7 @@ const SEC={
     ['gra','minus','Propeller Shaft','4" shaft, keyway, flex coupling',['4" Shaft','Coupling'],'ok','dt-shaft'],
     ['tel','refresh','Propeller','4-blade fixed pitch · Diameter, pitch, hub',['4-Blade','Fixed Pitch'],'ok','dt-prop'],
     ['ora','circles-relation','Stern Tubes & Seals','Cutless bearings, lip seals, water lube',['Cutless Brg.','Lip Seal'],'ok','dt-stern'],
+    ['cyan','droplets','Shaft Packing','Stuffing box packing · Flax or synthetic gland seal',['Shaft Packing','Stuffing Box'],'ok','dt-packing'],
     ['red','temperature','Gear Oil Cooler','Faulk gear lube oil cooler · One per gearbox',['Gear Cooler','LO Temp'],'ok','dt-gearcooler'],
     ['pur','steering-wheel','Rudder System','Blades, pintles, gudgeons, steering rams',['Rudder Blade','Steering Ram'],'ok','dt-rudder'],
    ]},
@@ -641,6 +511,8 @@ const SEC={
     ['ora','circles-relation','Steering Rams','Hydraulic cylinders at rudder tiller arms',['Hyd. Cylinder','Ram Seals'],'ok','steer-rams'],
     ['gra','circuit-board','Control Manifold','Relief valves, check valves, directional control',['Relief Valve','Check Valve'],'ok','steer-manifold'],
     ['tel','arrows-left-right','Rudder Angle Senders','Position feedback transducers to pilothouse',['Sender','Feedback'],'ok','steer-senders'],
+    ['blue','steering-wheel','Flanking Rudders','Forward-of-prop rudders · Braking & maneuvering',['Flanking Rdr','Ahead of Prop'],'ok','steer-flanking'],
+    ['gra','engine','Auxiliary Steering Pump','Backup HPU · Emergency steering power',['Aux Pump','Backup HPU'],'ok','steer-auxpump'],
    ]},
   ],
   lgroups:[
@@ -1649,6 +1521,31 @@ const DET={
    {p:'Milky gear oil — water contamination in gearbox',
     c:['Gear oil cooler tube or plate failure — cooling water leaking into gear oil circuit','Water ingress through vent or fill point — condensation or rain water'],
     s:['Drain a gear oil sample and check for milkiness — milky gear oil with a cooler installed almost always means cooler failure','Pressure test the cooler immediately to confirm — isolate the cooler from the circuit; if milkiness clears, cooler is the source','Do not operate the gearbox with water-contaminated oil — water destroys bearing surfaces in a short time; drain and refill before returning to service']},
+  ]},
+
+ 'dt-packing':{t:'Shaft Packing — Stuffing Box Gland Seal',sys:'Drive Train',st:'ok',
+  desc:'Shaft packing — also called stuffing box packing or gland packing — is the seal material compressed around the propeller shaft where it exits the hull through the stern tube. Traditional shaft packing consists of braided flax rope rings impregnated with grease or PTFE, compressed between the shaft and the stuffing box housing by tightening the gland nut. A properly adjusted stuffing box should weep a slow, controlled drip of water while the shaft is turning — this water flow lubricates and cools the packing material. A completely dry stuffing box means the packing is over-tightened or failed, which causes the packing to overheat and burn, rapidly destroying it. A heavy stream or gushing flow means the packing is worn out or the gland nut needs tightening. Modern vessels may use a mechanical face seal instead of traditional packing — the maintenance differs significantly between the two types.',
+  loc:'Stern tube area — the stuffing box housing is where the propeller shaft exits the hull. Accessible from inside the engine room by crawling into the bilge area near the stern. The gland nut is the large threaded ring that compresses the packing material around the shaft. On a twin-screw vessel there is one stuffing box per shaft — two total.',
+  specs:[['Type','Braided flax or synthetic PTFE packing — or mechanical face seal on newer installations'],['Desired drip rate','3–8 drops per minute while shaft is turning — this is CORRECT; a dry box is a problem'],['Gland nut tightening','Adjust in small increments (1/6 turn at a time) — wait and observe before tightening further'],['Packing ring quantity','Typically 4–6 rings of packing — never remove all rings at once'],['Packing replacement','At drydocking or when drip rate cannot be controlled by gland nut adjustment'],['WARNING','A completely dry stuffing box overheats — the heat will score the shaft and burn the packing in minutes']],
+  parts:[
+   ['Shaft Packing — Braided Flax','(by shaft diameter — square cross-section)','Measure shaft diameter carefully before ordering — wrong size packing will not seal','Per stuffing box'],
+   ['Shaft Packing — PTFE/Teflon','(by shaft diameter — square cross-section)','PTFE packing runs cooler and lasts longer than flax; confirm compatibility with existing box','Per stuffing box'],
+   ['Stuffing Box Gland Nut / Follower','(by shaft diameter and box model)','Replace if threads are damaged or if follower face is scored','1/stuffing box'],
+   ['Lantern Ring','(by shaft diameter)','Spacer ring between packing layers; allows water in to lubricate packing','1/stuffing box'],
+  ],
+  maint:[
+   {t:'Check stuffing box drip rate during engine room rounds',n:'Look at the stuffing box on each shaft during every 2–4 hour round while underway — you want to see a steady slow drip; a dry shaft is an emergency; a heavy stream means tighten the gland nut; note the drip rate in the log because a trend toward drying or flooding tells you packing condition',i:'Every 2–4 hour round (underway)',b:'d'},
+   {t:'Adjust gland nut if drip rate is too high or too low',n:'If dripping faster than desired: tighten gland nut 1/6 turn at a time maximum; wait several minutes and observe before tightening further — overtightening is more damaging than a fast drip; if dripping too slowly or dry: loosen gland nut 1/6 turn at a time and verify drip resumes',i:'As needed during rounds',b:'d'},
+   {t:'Check stuffing box for heat after shaft has been running',n:'After the vessel has been underway for several hours: carefully feel the stuffing box housing area (not the rotating shaft) — it should be cool or slightly warm; a hot stuffing box means the packing is too tight or has failed; loosen gland nut immediately if box is hot and confirm drip resumes',i:'At engine room rounds — underway',b:'d'},
+   {t:'Replace packing at drydocking',n:'At every drydocking: remove the gland nut and follower; pull all old packing rings; clean the stuffing box bore and shaft; install new rings of correct-size packing, staggering the ring cuts 90° apart; install lantern ring in correct position; replace gland nut and adjust to achieve proper drip rate on first start',i:'Drydocking — every 2–5 years per COI',b:'dd'},
+  ],
+  probs:[
+   {p:'Stuffing box completely dry — no drip',
+    c:['Gland nut over-tightened — packing compressed too hard against shaft','Packing material has glazed or burned from previous dry running — no longer seals or lubricates properly','Packing has set and hardened over a long layup period'],
+    s:['LOOSEN GLAND NUT IMMEDIATELY — do not continue running dry; a dry stuffing box destroys the packing and scores the shaft in minutes','Loosen 1/6 to 1/4 turn; wait and observe for drip to resume','If loosening does not restore drip: the packing material has failed; plan replacement at earliest opportunity; monitor closely in the meantime'],},
+   {p:'Stuffing box gushing or flooding — cannot control with gland nut',
+    c:['Packing rings worn out — no material left to seal','Packing rings have been pushed forward out of the box by water pressure','Gland nut has reached end of its adjustment travel — no further compression available'],
+    s:['Tighten gland nut firmly — if box continues to flood heavily, the packing is spent','If vessel is underway: station a bilge pump on that compartment and head for a safe berth','The only repair for spent packing is packing replacement — this can be done at dock by hauling the shaft back slightly or by a diver if the vessel cannot be hauled out immediately']},
   ]},
 
  'dt-stern':{t:'Stern Tubes & Shaft Seals',sys:'Drive Train',st:'ok',
@@ -3417,6 +3314,58 @@ const DET={
     s:['Check return filter — if bypass indicator is red, restricted return filter is causing back-pressure','Check return line for kink or blockage','If return line is clear and filter is clean: system relief valve is stuck or drifted — test with gauge and replace relief cartridge if above spec']},
   ]},
 
+ 'steer-flanking':{t:'Flanking Rudders — Forward-of-Propeller Maneuvering Rudders',sys:'Steering',st:'ok',
+  desc:'Flanking rudders are positioned AHEAD of the propellers — unique to towboats and essential for their maneuvering capability. By deflecting propeller wash sideways, they create lateral force that allows the towboat to brake the tow, walk the stern sideways, and pivot in place — maneuvers that are impossible on conventional vessels where all rudders are aft of the propellers. When backing, the flanking rudders deflect the prop wash to slow or steer the tow without the prop wash passing by the stern first. Captains on the inland river operate all four rudders simultaneously — port and starboard main rudders (aft of props) and port and starboard flanking rudders (ahead of props) — through the same control system, giving precise control over a 1,200-foot tow string in a narrow channel.',
+  loc:'Forward of each propeller — one flanking rudder on each side (port and starboard). The flanking rudder pintles and gudgeons are mounted on the hull forward of the propeller aperture. Hydraulic actuating cylinders connect to tiller arms on the flanking rudder stocks. The hydraulic supply and return lines run from the main steering manifold or a dedicated flanking rudder manifold.',
+  specs:[['Position','Ahead of propeller — deflects prop wash laterally'],['Quantity','Two total — one port, one starboard'],['Actuation','Hydraulic cylinders — same system as main rudders or dedicated circuit'],['Travel','Typically ±35° to ±45° — verify on vessel COI'],['Function','Braking, lateral walking, pivot-in-place — not possible with aft rudders alone'],['Critical note','Flanking rudders allow backing maneuvers without loss of steering control — essential for locks and tight bends'],['Inspection','Inspect pintles, gudgeons, and tiller arm connections at each drydocking']],
+  parts:[
+   ['Flanking Rudder Blade Assembly','(by vessel — port or starboard)','Replace if blade is cracked, bent, or severely eroded by cavitation','1 port / 1 starboard'],
+   ['Flanking Rudder Pintle & Gudgeon','(by vessel dimensions)','Inspect for wear at every drydocking — worn pintles cause rudder slop and reduce steering response','Per rudder'],
+   ['Flanking Rudder Actuating Cylinder','(by cylinder bore and stroke)','Replace seals if cylinder weeps; replace rod if scored','1/rudder'],
+   ['Cylinder Rod End / Clevis Pin','(by pin diameter)','Inspect for wear and replace if clevis pin has measurable slop','Per cylinder'],
+   ['Hydraulic Supply/Return Hoses','(by hose size and pressure rating)','Inspect for swelling, abrasion, or coupling damage at 500 hr service','Per rudder'],
+  ],
+  maint:[
+   {t:'Test flanking rudder travel — full stroke each side',n:'At engine room rounds: verify the flanking rudders travel through full travel from hard over to hard over on both sides — a flanking rudder that does not reach full travel means a cylinder, hydraulic, or mechanical restriction exists; reduced travel reduces maneuvering capability',i:'Weekly',b:'ann'},
+   {t:'Check flanking rudder hydraulic cylinders for leaks',n:'Inspect each flanking rudder cylinder body and rod seal area for weeping; a cylinder that shows oil on the rod indicates the rod seal is failing; a small weep can become a significant leak quickly under repeated cycling',i:'Monthly',b:'ann'},
+   {t:'Inspect pintles and gudgeons — drydock',n:'At every drydocking: check pintle wear with a dial indicator; measure pin-to-gudgeon clearance; compare to original spec; excessive wear causes rudder wobble and reduced response — replace worn pintles before return to service',i:'Drydock — every 2–5 years per COI',b:'dd'},
+   {t:'Grease rudder stock bearings',n:'Zerk fittings on the flanking rudder stock bearings should be greased at each drydocking and at the manufacturer-specified interval; dry bearings accelerate wear on both the stock and the bearing surface',i:'Per manufacturer — typically annually or at drydock',b:'ann'},
+  ],
+  probs:[
+   {p:'Flanking rudder sluggish or does not reach full travel',
+    c:['Hydraulic cylinder seal worn — cylinder bypassing internally, not generating full stroke','Debris fouling the rudder blade — marine growth or debris wedged around the blade','Pintle binding from corrosion or impact damage'],
+    s:['Check cylinder hydraulic pressure while commanding full travel — if pressure builds but rudder stops short, the cylinder is not faulty; the rudder blade or stock is obstructed','If pressure does not build: cylinder is bypassing internally; replace seals or cylinder','A rudder that was working and suddenly stops at the same point suggests impact damage or debris — inspect when possible at a dive survey']},
+   {p:'Flanking rudder hard to port or starboard in emergency',
+    c:['Hydraulic supply lost to flanking rudder circuit','Control valve or manifold fault blocking flow to flanking side','Cylinder rod seized'],
+    s:['Verify hydraulic pressure at flanking rudder manifold','Check the dedicated flanking rudder control valve for mechanical or electrical fault','If main steering is functional but flanking is not: the issue is in the flanking-specific circuit — isolate to manifold, valve, or cylinder']},
+  ]},
+
+ 'steer-auxpump':{t:'Auxiliary Steering Pump — Backup HPU',sys:'Steering',st:'ok',
+  desc:'The auxiliary steering pump is a backup hydraulic power unit that provides steering hydraulic pressure if the main HPU (hydraulic power unit) fails. On a towboat where loss of steering at a critical moment can mean loss of the tow, a vessel, or crew lives, redundancy in the steering hydraulic supply is essential. The auxiliary pump is typically a smaller electric pump that can supply adequate flow for steering in a degraded-speed or emergency condition. It is activated manually from the engine room or pilothouse when the main HPU has failed, or it may activate automatically on detection of low steering pressure. The auxiliary pump must be tested regularly so that it is known to be operational before it is ever needed.',
+  loc:'Engine room — mounted near the main steering HPU or on the steering hydraulic reservoir. Electric motor driven from the ship service electrical panel. Manual start switch in the engine room; remote start may be available at the pilothouse. Hydraulic connections tie into the main steering supply circuit downstream of the main HPU.',
+  specs:[['Type','Electric motor driven gear or vane pump — backup to main HPU'],['Activation','Manual switch (engine room) and/or pilothouse remote; may have auto-start on low pressure'],['Voltage','480VAC 3-phase or 24VDC depending on installation — verify on motor nameplate'],['Capacity','Sufficient for steering at reduced speed — not full-power maneuvering; adequate for safe harbor entry'],['Pressure output','Same as main system working pressure — verify on nameplate (typically 1,400–1,800 PSI)'],['Test requirement','Monthly functional test — verify pump starts, builds pressure, and steering responds'],['NOTE','Auxiliary pump is an emergency backup only — do not operate as the primary pump continuously']],
+  parts:[
+   ['Aux Steering Pump Assembly','(by pump model on nameplate)','Replace complete unit if output pressure is below spec with clean filter and correct voltage','1/vessel'],
+   ['Aux Pump Electric Motor','(by motor specs on nameplate)','Replace if motor fails to start or runs but produces no rotation','1/pump'],
+   ['Aux Pump Motor Starter / Contactor','(by motor amperage)','Replace if motor does not start when switch is closed but power is confirmed at switch','1/pump'],
+   ['Aux Pump Inlet Filter / Strainer','(by filter size)','Clean at 500 hr service — a clogged suction strainer reduces aux pump output','1/pump'],
+   ['Control Fuse or Breaker','(by circuit amperage)','Check fuse/breaker before condemning motor or starter','Per circuit'],
+  ],
+  maint:[
+   {t:'Monthly functional test — start aux pump, verify steering response',n:'Once per month: start the auxiliary steering pump from the engine room switch; verify it builds system pressure on the gauge; command a steering input and confirm the rudders respond; shut down after confirming response; log the test date and result',i:'Monthly',b:'ann'},
+   {t:'Check aux pump motor and connections at 500 hr service',n:'Inspect motor terminals for corrosion; check motor mounts for looseness; verify the automatic start circuit (if equipped) is functional by simulating a low-pressure condition on the test circuit; a pump that will not auto-start in an emergency provides no backup value',i:'500 hrs',b:'h500'},
+   {t:'Test auto-start circuit if equipped',n:'With the main HPU running: simulate low steering pressure by closing the main supply valve briefly; verify the aux pump auto-starts within the design delay time; restore main supply and confirm both pressures normalize',i:'Annually',b:'ann'},
+   {t:'Verify isolation valve between aux pump and main circuit',n:'The aux pump connects to the main steering circuit through an isolation or check valve; verify this valve is in the correct position (open for auto-start type; closed for manual-cut-in type) and that it operates freely',i:'Monthly at test',b:'ann'},
+  ],
+  probs:[
+   {p:'Auxiliary pump does not build pressure when started',
+    c:['Suction strainer clogged — pump starved','Isolation valve between aux pump and main circuit is closed','Aux pump internal wear — not producing adequate output','Motor runs but pump shaft is not turning — coupling failure'],
+    s:['Check suction strainer first — a clogged strainer produces exactly this symptom','Verify isolation valve is open and allowing flow','Confirm motor is actually driving the pump — listen for pump hum separately from motor sound; a spinning motor with a broken coupling sounds like a motor but produces no pressure','If strainer, valve, and coupling are confirmed: measure pressure output at pump outlet — compare to spec'],},
+   {p:'Aux pump starts but steering response is very slow',
+    c:['Aux pump is undersized for full-speed maneuvering — this is by design','Aux pump output below spec — internal wear reducing flow rate','Partial restriction in hydraulic circuit between aux pump and cylinders'],
+    s:['A slow but functional steering response from the aux pump may be normal — the aux pump is sized for safe harbor entry at reduced speed, not full-power maneuvering; reduce vessel speed when operating on aux steering','If response was faster in previous tests and has degraded: pump output has dropped; send oil sample and measure pump flow output','Check for restrictions at the isolation valve and downstream fittings']},
+  ]},
+
  'steer-senders':{t:'Rudder Angle Senders — Position Feedback',sys:'Steering',st:'ok',
   desc:'The rudder angle senders are rotary position transducers mounted on the rudder stocks that provide continuous position feedback to the pilothouse rudder angle indicators and the autopilot system. They convert the mechanical rotation of the rudder stock into an electrical signal — typically 0–5VDC or a resistance change — that drives the pilothouse gauge needles and the autopilot control loop. A failed sender causes a dead or erratic rudder angle indicator and disables autopilot.',
   loc:'Mounted on the rudder stock or tiller arm — one sender per rudder. A linkage rod connects the rudder stock rotation to the sender wiper arm. Signal cables run from the sender through the vessel structure to the pilothouse and autopilot.',
@@ -4668,6 +4617,26 @@ function renderSidebar(){
   });
   document.getElementById('sb').innerHTML=h;
 }
+// Icon color map
+const IC={red:'#ef4444',blue:'#3b82f6',cyan:'#06b6d4',yel:'#eab308',pur:'#a855f7',ora:'#f97316',gra:'#6b7280',tel:'#14b8a6',grn:'#22c55e',ind:'#6366f1'};
+
+function getIntervalBadge(dk){
+  if(!dk) return '';
+  const det=DET[dk];
+  if(!det||!det.maint||!det.maint.length) return '';
+  const order=['d','w','h500','h1k','h2k','ann','dd'];
+  const cols={d:'#22c55e',w:'#22c55e',h500:'#f59e0b',h1k:'#f59e0b',h2k:'#f59e0b',ann:'#3b82f6',dd:'#6b7280'};
+  const labels={d:'Daily',w:'Weekly',h500:'500hr',h1k:'1,000hr',h2k:'2,000hr',ann:'Annual',dd:'Dry Dock'};
+  let best=null;
+  det.maint.forEach(function(m){
+    if(!m.b) return;
+    const bi=order.indexOf(m.b);
+    if(bi>=0&&(best===null||bi<order.indexOf(best))) best=m.b;
+  });
+  if(!best) return '';
+  return `<div style="background:${cols[best]};color:#fff;font-size:8px;font-weight:700;padding:2px 6px;border-radius:4px;letter-spacing:.04em">${labels[best]}</div>`;
+}
+
 function renderMain(){
   const el=document.getElementById('ct');
   if(S.manual){el.innerHTML=renderManualDetail();return;}
@@ -4676,7 +4645,7 @@ function renderMain(){
   if(S.sec==='search'){el.innerHTML=renderSearch();return;}
   if(S.sec==='manuals'){el.innerHTML=renderManuals();return;}
   if(S.sec==='feedback'){el.innerHTML=renderFeedback();return;}
-  if(S.sec==='vessel'){el.innerHTML=renderVessel();return;}
+  if(S.sec.startsWith('howto-')){el.innerHTML=renderHowto(S.sec);return;}
   if(S.sec.startsWith('emg-')){el.innerHTML=renderEmergency(S.sec);return;}
   if(S.sec.startsWith('proc-')){el.innerHTML=renderProcedure(S.sec);return;}
   const d=SEC[S.sec];
@@ -4974,22 +4943,26 @@ function renderFeedback(){
   </div>`;
 }
 
-function renderVessel(){
-  const v=S.vessel?VESSELS[S.vessel]:null;
-  if(!v) return '<div class="ph4"><i class="ti ti-ship"></i><h3>No vessel selected</h3><p>Use the vessel selector in the header to choose a vessel.</p></div>';
-  let h='<div class="pt"><i class="ti ti-ship" style="margin-right:6px;font-size:15px"></i>'+v.name+'</div>';
-  h+='<div class="ps" style="margin-bottom:14px">'+v.type+'</div>';
-  v.specs.forEach(function(sec){
-    h+='<div class="box" style="margin-bottom:10px">';
-    h+='<div class="bl">'+sec.cat+'</div>';
-    h+='<div class="spg" style="margin-top:8px">';
-    sec.rows.forEach(function(row){
-      h+='<div><div class="spk">'+row[0]+'</div><div class="spv" style="color:var(--t1);font-weight:500">'+row[1]+'</div></div>';
-    });
-    h+='</div></div>';
-  });
-  return h;
+function renderHowto(key){
+  const titles={
+    'howto-startengine':'Start Main Engine',
+    'howto-lash':'Set Lash Adjustments',
+    'howto-swapgen':'Swap Generators',
+    'howto-boilertochiller':'Boiler to Chiller',
+    'howto-chillertobboiler':'Chiller to Boiler',
+  };
+  const title=titles[key]||'How To';
+  return `<div class="pt"><i class="ti ti-school" style="margin-right:6px;font-size:15px"></i>${title}</div>
+  <div class="ps" style="margin-bottom:14px">Step-by-step procedure — coming soon</div>
+  <div style="display:flex;align-items:center;gap:12px;padding:18px;background:#f8fafc;border:.5px solid var(--bd);border-radius:10px;color:var(--t2)">
+    <i class="ti ti-tools" style="font-size:24px;color:var(--t3);flex-shrink:0"></i>
+    <div>
+      <div style="font-size:13px;font-weight:600;color:var(--t1);margin-bottom:4px">${title}</div>
+      <div style="font-size:11px;color:var(--t3);line-height:1.6">This procedure is being documented. Check back after the next update — step-by-step instructions with checkboxes will appear here.</div>
+    </div>
+  </div>`;
 }
+
 function renderPH4(sec){
   return `<div class="ph4"><i class="ti ti-tool"></i><h3>Section data loading next session</h3>
   <p>Full component details for <strong>${sec}</strong> are being added.</p></div>`;
@@ -5016,9 +4989,9 @@ document.addEventListener('click',e=>{
   if(drop&&!drop.contains(e.target)&&e.target.id!=='menu-btn'&&!document.getElementById('menu-btn').contains(e.target)){
     drop.classList.remove('open');
   }
-  const vdrop=document.getElementById('vessel-drop');
-  if(vdrop&&!vdrop.contains(e.target)&&e.target.id!=='vessel-btn'&&!document.getElementById('vessel-btn').contains(e.target)){
-    vdrop.classList.remove('open');
+  const htdrop=document.getElementById('howto-drop');
+  if(htdrop&&!htdrop.contains(e.target)&&e.target.id!=='howto-btn'&&!document.getElementById('howto-btn').contains(e.target)){
+    htdrop.classList.remove('open');
   }
 });
 render();
@@ -5057,7 +5030,7 @@ function startTowboatGame(){
   resize();_gameResize=resize;window.addEventListener('resize',resize);
   if(!CanvasRenderingContext2D.prototype.roundRect){CanvasRenderingContext2D.prototype.roundRect=function(x,y,w,h,r){r=Math.min(r,w/2,h/2);this.moveTo(x+r,y);this.lineTo(x+w-r,y);this.arcTo(x+w,y,x+w,y+h,r);this.lineTo(x+w,y+h-r);this.arcTo(x+w,y+h,x,y+h,r);this.lineTo(x+r,y+h);this.arcTo(x,y+h,x,y,r);this.lineTo(x,y+r);this.arcTo(x,y,x+w,y,r);this.closePath();};}
   const BW=36,BH=50,BG=4,COLS=3,ROWS=5;
-  const FW=COLS*(BW+BG)-BG,FH=ROWS*(BH+BG)-BG,TWW=46,TWH=68;
+  const FW=COLS*(BW+BG)-BG,FH=ROWS*(BH+BG)-BG,TWW=46,TWH=68,TOTAL=ROWS*COLS;
   const BRIDGE_GAP=FW+96,LOCK_GAP=FW+110;
   function rCX(wy){return W/2+16*Math.sin(wy*0.0026)+8*Math.sin(wy*0.0065+2.0);}
   function rHW(wy){return 365+8*Math.sin(wy*0.0045+0.9);}
@@ -5069,11 +5042,18 @@ function startTowboatGame(){
   const BTN={L:{x:10,y:H-105,w:92,h:80},R:{x:110,y:H-105,w:92,h:80},U:{x:W-102,y:H-105,w:92,h:80},D:{x:W-202,y:H-105,w:92,h:80}};
   (function setupTouch(){const held={};function getP(t){const r=C.getBoundingClientRect();return{x:(t.clientX-r.left)*(W/r.width),y:(t.clientY-r.top)*(H/r.height)};}function inB(b,mx,my){return mx>=b.x&&mx<=b.x+b.w&&my>=b.y&&my<=b.y+b.h;}function upd(){TOUCH.L=TOUCH.R=TOUCH.U=TOUCH.D=false;Object.values(held).forEach(p=>{if(inB(BTN.L,p.x,p.y))TOUCH.L=true;if(inB(BTN.R,p.x,p.y))TOUCH.R=true;if(inB(BTN.U,p.x,p.y))TOUCH.U=true;if(inB(BTN.D,p.x,p.y))TOUCH.D=true;});}C.addEventListener('touchstart',e=>{e.preventDefault();[...e.changedTouches].forEach(t=>{held[t.identifier]=getP(t);if(gameState!=='PLAY')handleBtn();});upd();},{passive:false});C.addEventListener('touchmove',e=>{e.preventDefault();[...e.changedTouches].forEach(t=>{held[t.identifier]=getP(t);});upd();},{passive:false});C.addEventListener('touchend',e=>{e.preventDefault();[...e.changedTouches].forEach(t=>{delete held[t.identifier];});upd();},{passive:false});C.addEventListener('click',()=>{if(gameState!=='PLAY')handleBtn();});})();
   const LEVELS=[{miles:0,baseSpd:1.60,spawnFloor:50,label:'LEVEL 1',col:'#5ab0cc'},{miles:75,baseSpd:2.05,spawnFloor:42,label:'LEVEL 2',col:'#58cc88'},{miles:200,baseSpd:2.55,spawnFloor:34,label:'LEVEL 3',col:'#ccb840'},{miles:320,baseSpd:3.05,spawnFloor:26,label:'LEVEL 4',col:'#cc6622'},{miles:450,baseSpd:3.55,spawnFloor:20,label:'LEVEL 5',col:'#cc2244'}];
-  let gameState,scroll,score,hull,lives,fr,spd,currentLevel,levelUpTimer;
-  let tow,obstacles,buoys,wakeP,sparks,structures,flashTimer,bankCooldown,nextObsFr,nextBuoyWY,nextStructureScore;
-  function handleBtn(){if(gameState==='START')gameState='PLAY';else if(gameState==='DEAD')respawn();else if(gameState==='OVER'||gameState==='WIN')init();}
-  function init(){gameState='START';scroll=0;score=0;hull=100;lives=3;fr=0;spd=1.6;currentLevel=0;levelUpTimer=0;tow={x:W/2,y:378,angle:0,vx:0,av:0};obstacles=[];buoys=[];wakeP=[];sparks=[];structures=[];flashTimer=0;bankCooldown=0;nextObsFr=90;nextBuoyWY=-600;nextStructureScore=20;}
-  function respawn(){hull=100;flashTimer=0;bankCooldown=0;tow={x:W/2,y:378,angle:0,vx:0,av:0};obstacles=[];wakeP=[];sparks=[];structures=[];gameState='PLAY';}
+  let gameState,scroll,score,barges,fr,spd,currentLevel,levelUpTimer;
+  let tow,obstacles,buoys,wakeP,sparks,structures,fleets,rings;
+  let flashTimer,bankCooldown,nextObsFr,nextBuoyWY,nextStructureScore,nextFleetScore,nextRingScore,healTimer;
+
+  function handleBtn(){if(gameState==='START')gameState='PLAY';else if(gameState==='OVER'||gameState==='WIN')init();}
+  function init(){gameState='START';scroll=0;score=0;barges=TOTAL;fr=0;spd=1.6;currentLevel=0;levelUpTimer=0;tow={x:W/2,y:378,angle:0,vx:0,av:0};obstacles=[];buoys=[];wakeP=[];sparks=[];structures=[];fleets=[];rings=[];flashTimer=0;bankCooldown=0;nextObsFr=90;nextBuoyWY=-600;nextStructureScore=20;nextFleetScore=30;nextRingScore=45;healTimer=0;}
+
+  function loseBarge(n){if(gameState!=='PLAY')return;barges-=(n||1);flashTimer=14;if(barges<=0){barges=0;gameState='OVER';}}
+  function bankHit(){if(bankCooldown>0)return;loseBarge(1);bankCooldown=28;}
+  function gainBarge(n){if(barges<TOTAL){barges=Math.min(TOTAL,barges+(n||1));healTimer=16;}}
+  function segDist(px,py,ax,ay,bx,by){const dx=bx-ax,dy=by-ay,L2=dx*dx+dy*dy||1;let t=((px-ax)*dx+(py-ay)*dy)/L2;t=Math.max(0,Math.min(1,t));const cx=ax+t*dx,cy=ay+t*dy;return Math.hypot(px-cx,py-cy);}
+
   function update(){
     if(gameState!=='PLAY')return;fr++;
     const newLvl=LEVELS.reduce((best,l,i)=>score>=l.miles?i:best,0);
@@ -5089,40 +5069,62 @@ function startTowboatGame(){
     if(steerR)tow.av=Math.min(tow.av+0.0015,0.022);
     tow.av*=0.91;tow.angle=Math.max(-0.52,Math.min(0.52,tow.angle+tow.av));
     const wy=scroll+tow.y,rcx=rCX(wy),hw=rHW(wy);
-    const effW=FW/2*Math.abs(Math.cos(tow.angle))+FH/2*Math.abs(Math.sin(tow.angle));
+    const firstRow=Math.floor((TOTAL-barges)/COLS);
+    const bargeTopLocal=-FH/2+firstRow*(BH+BG);
+    const bargeBotLocal=FH/2;
+    const unitBotLocal=FH/2+BG+TWH;
+    const hhUnit=(unitBotLocal-bargeTopLocal)/2;
+    const sinA=Math.sin(tow.angle),cosA=Math.cos(tow.angle);
+    const effW=FW/2*Math.abs(cosA)+hhUnit*Math.abs(sinA);
     tow.vx+=Math.sin(tow.angle)*spd*0.85;
     const SOFT_M=50,clrL=(tow.x-effW)-(rcx-hw),clrR=(rcx+hw)-(tow.x+effW);
     if(clrL<SOFT_M&&clrL>0)tow.vx+=(SOFT_M-clrL)*0.0050;
     if(clrR<SOFT_M&&clrR>0)tow.vx-=(SOFT_M-clrR)*0.0050;
     tow.vx*=0.87;tow.x+=tow.vx;tow.x=Math.max(55,Math.min(W-55,tow.x));
-    if(tow.x-effW<rcx-hw){tow.x=rcx-hw+effW+1;tow.vx=Math.abs(tow.vx)*0.28;doBank();}
-    else if(tow.x+effW>rcx+hw){tow.x=rcx+hw-effW-1;tow.vx=-Math.abs(tow.vx)*0.28;doBank();}
+    if(tow.x-effW<rcx-hw){tow.x=rcx-hw+effW+1;tow.vx=Math.abs(tow.vx)*0.35;bankHit();}
+    else if(tow.x+effW>rcx+hw){tow.x=rcx+hw-effW-1;tow.vx=-Math.abs(tow.vx)*0.35;bankHit();}
     if(fr>=nextObsFr){spawnObs();nextObsFr=fr+Math.max(lvl.spawnFloor,108-score*0.18)|0;}
     const towWY=scroll+tow.y;if(towWY-nextBuoyWY>375){spawnBuoy();nextBuoyWY=towWY;}
     if(score>=nextStructureScore&&structures.length===0){if(Math.random()<0.55)spawnBridge();else spawnLock();nextStructureScore+=20+(Math.random()*20)|0;}
-    updateStructures(effW);
-    for(let i=obstacles.length-1;i>=0;i--){const o=obstacles[i];o.y+=spd+o.drift;o.x+=o.vx;o.rot+=o.rspd;if(o.y>H+90){obstacles.splice(i,1);continue;}const dx=o.x-tow.x,dy=o.y-tow.y;if(dx*dx+dy*dy<(effW*0.82+o.r)**2){doHit(o.dmg);mkSparks(o.x,o.y);obstacles.splice(i,1);}}
+    updateStructures(effW,bargeTopLocal,unitBotLocal);
+    if(score>=nextFleetScore){spawnFleet();nextFleetScore+=45+(Math.random()*16-8)|0;}
+    updateFleets(effW,bargeTopLocal,unitBotLocal);
+    const ax=tow.x-bargeTopLocal*sinA,ay=tow.y+bargeTopLocal*cosA;
+    const bx2=tow.x-bargeBotLocal*sinA,by2=tow.y+bargeBotLocal*cosA;
+    for(let i=obstacles.length-1;i>=0;i--){const o=obstacles[i];o.y+=spd+o.drift;o.x+=o.vx;o.rot+=o.rspd;if(o.y>H+90){obstacles.splice(i,1);continue;}if(segDist(o.x,o.y,ax,ay,bx2,by2)<FW*0.45+o.r){loseBarge(1);mkSparks(o.x,o.y);obstacles.splice(i,1);if(gameState!=='PLAY')break;}}
+    if(score>=nextRingScore){spawnRing();nextRingScore+=80+(Math.random()*80)|0;}
+    for(let i=rings.length-1;i>=0;i--){const ring=rings[i];ring.y+=spd+ring.drift;ring.bob+=0.08;if(ring.y>H+40){rings.splice(i,1);continue;}if(segDist(ring.x,ring.y,ax,ay,bx2,by2)<FW*0.45+18){gainBarge(1);mkHealSparks(ring.x,ring.y);rings.splice(i,1);}}
     buoys.forEach(b=>b.y+=spd);buoys=buoys.filter(b=>b.y<H+45);
-    if(fr%4===0){const bRelY=FH/2+BG+TWH/2,bx=tow.x-Math.sin(tow.angle)*bRelY,by=tow.y+Math.cos(tow.angle)*bRelY;for(let i=0;i<2;i++)wakeP.push({x:bx+(Math.random()-0.5)*TWW,y:by,vx:(Math.random()-0.5)*0.8,vy:2.8+Math.random()*1.0,life:0.78,sz:3.5+Math.random()*3});}
+    if(fr%4===0){const bRelY=FH/2+BG+TWH/2,bxw=tow.x-Math.sin(tow.angle)*bRelY,byw=tow.y+Math.cos(tow.angle)*bRelY;for(let i=0;i<2;i++)wakeP.push({x:bxw+(Math.random()-0.5)*TWW,y:byw,vx:(Math.random()-0.5)*0.8,vy:2.8+Math.random()*1.0,life:0.78,sz:3.5+Math.random()*3});}
     for(let i=wakeP.length-1;i>=0;i--){const p=wakeP[i];p.x+=p.vx;p.y+=p.vy;p.life-=0.024;p.sz*=1.018;if(p.life<=0||p.y>H+25)wakeP.splice(i,1);}
     for(let i=sparks.length-1;i>=0;i--){const s=sparks[i];s.x+=s.vx;s.y+=s.vy+spd*0.45;s.life-=0.05;if(s.life<=0)sparks.splice(i,1);}
-    if(flashTimer>0)flashTimer--;if(bankCooldown>0)bankCooldown--;
+    if(flashTimer>0)flashTimer--;if(bankCooldown>0)bankCooldown--;if(healTimer>0)healTimer--;
   }
-  function doBank(){if(bankCooldown>0)return;doHit(3);bankCooldown=22;}
-  function doHit(amt){hull-=amt;flashTimer=14;if(hull<=0){hull=0;lives--;gameState=lives>0?'DEAD':'OVER';}}
+
   function spawnObs(){
     const count=currentLevel>=3?(Math.random()<0.40?2:1):currentLevel>=1?(Math.random()<0.25?2:1):1;
-    for(let c=0;c<count;c++){const sy=-80-Math.random()*60,wy=scroll+sy,cx=rCX(wy),hw=rHW(wy),x=cx+(Math.random()-0.5)*2*(hw-22);const boatChance=currentLevel>=1?0.08+currentLevel*0.06:0,roll=Math.random();if(roll<boatChance){const styles=[{r:14,dmg:20,drift:3.5+Math.random()*2.0,c1:'#e8e4d8',c2:'#c8c4b0',stripeCol:'#2255bb'},{r:12,dmg:22,drift:4.8+Math.random()*2.5,c1:'#f0eee4',c2:'#d0cec0',stripeCol:'#cc2222'},{r:11,dmg:18,drift:5.5+Math.random()*3.0,c1:'#e4f0e8',c2:'#c4d0c8',stripeCol:'#cc9922'}];const style=styles[Math.min(currentLevel-1,styles.length-1)];obstacles.push({x,y:sy,vx:(Math.random()-0.5)*0.3,drift:style.drift,r:style.r,dmg:style.dmg,c1:style.c1,c2:style.c2,nm:'boat',stripeCol:style.stripeCol,rot:0,rspd:0,pts:[]});}else{let nm,r,dmg,drift,c1,c2;const r2=roll-boatChance;if(r2<0.40){nm='log';r=15;dmg=10;drift=1.0+Math.random()*1.3;c1='#5a3018';c2='#7a4828';}else if(r2<0.64){nm='log2';r=22;dmg=14;drift=0.5+Math.random()*0.8;c1='#3e2010';c2='#5a3018';}else if(r2<0.82){nm='dbr';r=11;dmg=7;drift=1.5+Math.random()*1.6;c1='#2a2a28';c2='#484846';}else{nm='snag';r=28;dmg=22;drift=0.1+Math.random()*0.2;c1='#2e1a08';c2='#4a2a10';}const pts=[];if(nm==='dbr'){for(let i=0;i<7;i++){const a=(i/7)*Math.PI*2+(Math.random()-0.5)*0.8,ro=r*(0.42+Math.random()*0.52);pts.push([Math.cos(a)*ro,Math.sin(a)*ro,ro*0.38]);}}obstacles.push({x,y:sy,vx:(Math.random()-0.5)*0.55,drift,r,dmg,c1,c2,nm,rot:Math.random()*Math.PI*2,rspd:(Math.random()-0.5)*0.025,pts,stripeCol:null});}}
+    for(let c=0;c<count;c++){const sy=-80-Math.random()*60,wy=scroll+sy,cx=rCX(wy),hw=rHW(wy),x=cx+(Math.random()-0.5)*2*(hw-22);const boatChance=currentLevel>=1?0.08+currentLevel*0.06:0,roll=Math.random();if(roll<boatChance){const styles=[{r:14,drift:3.5+Math.random()*2.0,c1:'#e8e4d8',c2:'#c8c4b0',stripeCol:'#2255bb'},{r:12,drift:4.8+Math.random()*2.5,c1:'#f0eee4',c2:'#d0cec0',stripeCol:'#cc2222'},{r:11,drift:5.5+Math.random()*3.0,c1:'#e4f0e8',c2:'#c4d0c8',stripeCol:'#cc9922'}];const style=styles[Math.min(currentLevel-1,styles.length-1)];obstacles.push({x,y:sy,vx:(Math.random()-0.5)*0.3,drift:style.drift,r:style.r,c1:style.c1,c2:style.c2,nm:'boat',stripeCol:style.stripeCol,rot:0,rspd:0});}else{const nm=roll-boatChance<0.55?'log':'log2';const r=nm==='log'?15:22;const drift=nm==='log'?1.0+Math.random()*1.3:0.5+Math.random()*0.8;const c1=nm==='log'?'#5a3018':'#3e2010';const c2=nm==='log'?'#7a4828':'#5a3018';obstacles.push({x,y:sy,vx:(Math.random()-0.5)*0.55,drift,r,c1,c2,nm,rot:Math.random()*Math.PI*2,rspd:(Math.random()-0.5)*0.025,stripeCol:null});}}
   }
   function spawnBuoy(){const sy=-42,wy=scroll+sy,cx=rCX(wy),hw=rHW(wy);buoys.push({x:cx-hw+22,y:sy,col:'#228844',blink:(Math.random()*30)|0},{x:cx+hw-22,y:sy,col:'#cc2222',blink:(Math.random()*30)|0});}
   function spawnBridge(){const sy=-55,wy=scroll+sy,cx=rCX(wy),hw=rHW(wy),margin=28,gapW=BRIDGE_GAP,gapX=cx-hw+margin+Math.random()*(hw*2-margin*2-gapW);structures.push({type:'bridge',y:sy,deckH:30,gapX,gapW,cx,hw,hitCD:0});}
   function spawnLock(){const sy=-55,wy=scroll+sy,cx=rCX(wy),hw=rHW(wy),margin=28,gapW=LOCK_GAP,bias=[-0.25,0,0.25][Math.floor(Math.random()*3)],gapX=Math.max(cx-hw+margin,Math.min(cx-hw+hw*2-margin-gapW,cx-gapW/2+bias*hw));structures.push({type:'lock',y:sy,deckH:82,gapX,gapW,cx,hw,hitCD:0});}
-  function updateStructures(effW){
-    const towTop=tow.y-FH/2,towBot=tow.y+FH/2+BG+TWH;
-    for(let i=structures.length-1;i>=0;i--){const s=structures[i];s.y+=spd;if(s.hitCD>0)s.hitCD--;if(s.y>H+20){structures.splice(i,1);continue;}const sTop=s.y,sBot=s.y+s.deckH;if(sBot>towTop&&sTop<towBot){const towL=tow.x-effW,towR=tow.x+effW,inGap=(towL>=s.gapX-10)&&(towR<=s.gapX+s.gapW+10);if(!inGap&&s.hitCD===0){doHit(s.type==='bridge'?28:18);mkSparks(towL<s.gapX?s.gapX:s.gapX+s.gapW,sBot);const gapCX=s.gapX+s.gapW/2;tow.vx+=(gapCX-tow.x)*0.18;tow.angle*=0.6;tow.av*=0.4;s.hitCD=18;}}}
+  function spawnFleet(){const r=Math.random();let cols,rows;if(r<0.40){cols=1;rows=1;}else if(r<0.75){cols=1;rows=3;}else{cols=3;rows=5;}const fleetH=rows*(BH+BG)-BG;fleets.push({side:Math.random()<0.5?'L':'R',cols,rows,offset:4+Math.random()*10,y:-fleetH-30,h:fleetH,w:cols*(BW+BG)-BG,x:0,innerEdge:0,hitCD:0});}
+  function spawnRing(){const sy=-50,wy=scroll+sy,cx=rCX(wy),hw=rHW(wy),x=cx+(Math.random()-0.5)*2*(hw-90);rings.push({x,y:sy,drift:0.5+Math.random()*0.6,bob:Math.random()*Math.PI*2});}
+
+  function updateStructures(effW,towTopLocal,towBotLocal){
+    const towTop=tow.y+towTopLocal,towBot=tow.y+towBotLocal;
+    for(let i=structures.length-1;i>=0;i--){const s=structures[i];s.y+=spd;if(s.hitCD>0)s.hitCD--;if(s.y>H+20){structures.splice(i,1);continue;}const sTop=s.y,sBot=s.y+s.deckH;if(sBot>towTop&&sTop<towBot){const towL=tow.x-effW,towR=tow.x+effW,inGap=(towL>=s.gapX-10)&&(towR<=s.gapX+s.gapW+10);if(!inGap&&s.hitCD===0){loseBarge(1);mkSparks(towL<s.gapX?s.gapX:s.gapX+s.gapW,sBot);const gapCX=s.gapX+s.gapW/2;tow.vx+=(gapCX-tow.x)*0.18;tow.angle*=0.6;tow.av*=0.4;s.hitCD=18;if(gameState!=='PLAY')break;}}}
   }
+  function updateFleets(effW,towTopLocal,towBotLocal){
+    const towTop=tow.y+towTopLocal,towBot=tow.y+towBotLocal;
+    for(let i=fleets.length-1;i>=0;i--){const f=fleets[i];f.y+=spd;if(f.hitCD>0)f.hitCD--;if(f.y>H+20){fleets.splice(i,1);continue;}const cwy=scroll+f.y+f.h/2,bankL=rCX(cwy)-rHW(cwy),bankR=rCX(cwy)+rHW(cwy);f.x=f.side==='L'?bankL+f.offset:bankR-f.offset-f.w;f.innerEdge=f.side==='L'?f.x+f.w:f.x;const fTop=f.y,fBot=f.y+f.h;if(fBot>towTop&&fTop<towBot){if(f.side==='L'&&(tow.x-effW)<f.innerEdge){tow.x=f.innerEdge+effW+1;tow.vx=Math.abs(tow.vx)*0.35+0.4;if(f.hitCD===0){loseBarge(1);mkSparks(f.innerEdge,Math.max(fTop,towTop));f.hitCD=22;}}else if(f.side==='R'&&(tow.x+effW)>f.innerEdge){tow.x=f.innerEdge-effW-1;tow.vx=-Math.abs(tow.vx)*0.35-0.4;if(f.hitCD===0){loseBarge(1);mkSparks(f.innerEdge,Math.max(fTop,towTop));f.hitCD=22;}}if(gameState!=='PLAY')break;}}
+  }
+
   function mkSparks(sx,sy){for(let i=0;i<14;i++){const a=Math.random()*Math.PI*2,sp=1.5+Math.random()*3;sparks.push({x:sx,y:sy,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,life:1.0,col:Math.random()<0.5?'#ffaa44':'#ff4422'});}}
-  function draw(){ctx.fillStyle='#0c1a0c';ctx.fillRect(0,0,W,H);drawRiver();drawBuoys();drawStructures();drawWake();drawObstacles();drawTow();drawSparks();drawHUD();if(gameState!=='PLAY')drawOverlay();}
+  function mkHealSparks(sx,sy){for(let i=0;i<16;i++){const a=Math.random()*Math.PI*2,sp=1.2+Math.random()*2.6;sparks.push({x:sx,y:sy,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,life:1.0,col:Math.random()<0.5?'#3ce070':'#a6ffb0'});}}
+
+  function draw(){ctx.fillStyle='#0c1a0c';ctx.fillRect(0,0,W,H);drawRiver();drawFleets();drawBuoys();drawStructures();drawWake();drawObstacles();drawRings();drawTow();drawSparks();drawHUD();if(gameState!=='PLAY')drawOverlay();}
+
   function drawRiver(){
     const N=36,lp=[],rp=[];
     for(let i=0;i<=N;i++){const sy=(i/N)*H,wy=scroll+sy,cx=rCX(wy),hw=rHW(wy);lp.push([cx-hw,sy]);rp.push([cx+hw,sy]);}
@@ -5133,8 +5135,10 @@ function startTowboatGame(){
     ctx.fillStyle='#0f200f';for(let i=0;i<lp.length-1;i++){if(i%2!==0)continue;const[x,y]=lp[i],wy=scroll+y,th=30+12*Math.abs(Math.sin(wy*0.068));ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-5,y-th*.45);ctx.lineTo(x-9,y-th*.62);ctx.lineTo(x-3,y-th*.78);ctx.lineTo(x-7,y-th);ctx.lineTo(x,y-th*.86);ctx.lineTo(x+3,y-th);ctx.lineTo(x+1,y-th*.70);ctx.lineTo(x+7,y-th*.46);ctx.closePath();ctx.fill();}
     for(let i=0;i<rp.length-1;i++){if(i%2!==0)continue;const[x,y]=rp[i],wy=scroll+y,th=30+12*Math.abs(Math.sin(wy*0.068+1.4));ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+5,y-th*.45);ctx.lineTo(x+9,y-th*.62);ctx.lineTo(x+3,y-th*.78);ctx.lineTo(x+7,y-th);ctx.lineTo(x,y-th*.86);ctx.lineTo(x-3,y-th);ctx.lineTo(x-1,y-th*.70);ctx.lineTo(x-7,y-th*.46);ctx.closePath();ctx.fill();}
   }
+
   function drawBuoys(){buoys.forEach(b=>{const bob=Math.sin(fr*0.06+b.x*0.01)*2;ctx.save();ctx.translate(b.x,b.y+bob);ctx.strokeStyle='#3a3828';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(0,8);ctx.lineTo(0,17);ctx.stroke();ctx.fillStyle=b.col;ctx.beginPath();ctx.ellipse(0,0,7,11,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='rgba(255,255,255,0.22)';ctx.beginPath();ctx.ellipse(-2,-3,3,4.5,0,0,Math.PI*2);ctx.fill();if(((fr+b.blink)>>4)&1){ctx.shadowColor=b.col;ctx.shadowBlur=14;ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(0,-13,2.5,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;}ctx.restore();});}
   function drawStructures(){structures.forEach(s=>{if(s.type==='bridge')drawBridge(s);else drawLock(s);});}
+
   function drawBridge(s){
     const{y,deckH,gapX,gapW,cx,hw}=s,riverL=cx-hw,riverR=cx+hw,y2=y+deckH,warnY=y-200;
     if(warnY>-16&&warnY<H){const flash=(fr>>4)&1,absAngleDeg=Math.abs(Math.round(tow.angle*57.296)),needsStraight=absAngleDeg>17;ctx.fillStyle=needsStraight?(flash?'#ff8800':'#cc5500'):(flash?'#ffdd00':'#cc9900');ctx.font='bold 11px "Courier New"';ctx.textAlign='center';ctx.fillText(needsStraight?`\u26a0  BRIDGE \u2014 STRAIGHTEN HEADING  ${absAngleDeg}\u00b0\u21920\u00b0  \u26a0`:'\u26a0  RAILROAD BRIDGE \u2014 ALIGN WITH SPAN  \u26a0',W/2,warnY);ctx.strokeStyle=`rgba(255,220,0,${flash?0.35:0.15})`;ctx.lineWidth=1;ctx.setLineDash([6,6]);ctx.beginPath();ctx.moveTo(gapX,warnY+4);ctx.lineTo(gapX,y);ctx.stroke();ctx.beginPath();ctx.moveTo(gapX+gapW,warnY+4);ctx.lineTo(gapX+gapW,y);ctx.stroke();ctx.setLineDash([]);}
@@ -5146,6 +5150,7 @@ function startTowboatGame(){
     const lt=(fr>>3)&1;ctx.shadowBlur=10;ctx.fillStyle=lt?'#ff4444':'#880000';ctx.shadowColor='#ff0000';ctx.beginPath();ctx.arc(gapX-5,y2-4,4,0,Math.PI*2);ctx.fill();ctx.fillStyle=lt?'#880000':'#ff4444';ctx.beginPath();ctx.arc(gapX-5,y+4,4,0,Math.PI*2);ctx.fill();ctx.fillStyle=(1-lt)?'#44ff44':'#004400';ctx.shadowColor='#00ff00';ctx.beginPath();ctx.arc(gapX+gapW+5,y2-4,4,0,Math.PI*2);ctx.fill();ctx.fillStyle=(1-lt)?'#004400':'#44ff44';ctx.beginPath();ctx.arc(gapX+gapW+5,y+4,4,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
     ctx.fillStyle='rgba(20,60,90,0.35)';ctx.fillRect(gapX,y,gapW,deckH);ctx.strokeStyle='#303830';ctx.lineWidth=1;ctx.strokeRect(gapX,y,gapW,deckH);
   }
+
   function drawLock(s){
     const{y,deckH,gapX,gapW,cx,hw}=s,riverL=cx-hw,riverR=cx+hw,y2=y+deckH,lockL=gapX,lockR=gapX+gapW,warnY=y-220;
     if(warnY>-16&&warnY<H){const flash=(fr>>4)&1,absAngleDeg=Math.abs(Math.round(tow.angle*57.296)),needsStraight=absAngleDeg>22;ctx.fillStyle=needsStraight?(flash?'#ff8800':'#cc5500'):(flash?'#ffdd00':'#aa8800');ctx.font='bold 11px "Courier New"';ctx.textAlign='center';ctx.fillText(needsStraight?`\u26a0  LOCK \u2014 STRAIGHTEN HEADING  ${absAngleDeg}\u00b0\u21920\u00b0  \u26a0`:`\u26a0  LOCK & DAM \u2014 ENTER CHAMBER ON ${lockL<cx?'LEFT':'RIGHT'}  \u26a0`,W/2,warnY);ctx.strokeStyle=`rgba(255,220,0,${flash?0.35:0.15})`;ctx.lineWidth=1;ctx.setLineDash([6,6]);ctx.beginPath();ctx.moveTo(lockL,warnY+4);ctx.lineTo(lockL,y);ctx.stroke();ctx.beginPath();ctx.moveTo(lockR,warnY+4);ctx.lineTo(lockR,y);ctx.stroke();ctx.setLineDash([]);}
@@ -5159,16 +5164,63 @@ function startTowboatGame(){
     ctx.fillStyle='#c8c0a0';ctx.font='bold 9px "Courier New"';ctx.textAlign='center';const midY=y+deckH/2;ctx.fillText('LOCK',lockL+gapW/2,midY+3);if(lockL-riverL>40)ctx.fillText('DAM',riverL+(lockL-riverL)/2,midY+3);if(riverR-lockR>40)ctx.fillText('DAM',lockR+(riverR-lockR)/2,midY+3);
     ctx.strokeStyle='#606050';ctx.lineWidth=1.5;ctx.strokeRect(riverL,y,riverR-riverL,deckH);
   }
+
   function drawWake(){wakeP.forEach(p=>{ctx.save();ctx.globalAlpha=p.life*0.33;ctx.fillStyle='#88bcd4';ctx.beginPath();ctx.ellipse(p.x,p.y,p.sz,p.sz*0.46,0,0,Math.PI*2);ctx.fill();ctx.restore();});}
-  function drawObstacles(){obstacles.forEach(o=>{ctx.save();ctx.translate(o.x,o.y);ctx.rotate(o.rot);if(o.nm==='log'||o.nm==='log2'){const len=o.r*3.2,w=o.r*0.65,rx=w/2;ctx.fillStyle=o.c1;ctx.beginPath();ctx.moveTo(-len/2+rx,-w/2);ctx.lineTo(len/2-rx,-w/2);ctx.arcTo(len/2,-w/2,len/2,0,rx);ctx.lineTo(len/2,w/2-rx);ctx.arcTo(len/2,w/2,len/2-rx,w/2,rx);ctx.lineTo(-len/2+rx,w/2);ctx.arcTo(-len/2,w/2,-len/2,0,rx);ctx.lineTo(-len/2,-w/2+rx);ctx.arcTo(-len/2,-w/2,-len/2+rx,-w/2,rx);ctx.closePath();ctx.fill();ctx.strokeStyle=o.c2;ctx.lineWidth=0.85;for(let i=-len/2+8;i<len/2-4;i+=10){ctx.beginPath();ctx.moveTo(i,-w/2+1);ctx.lineTo(i+3,w/2-1);ctx.stroke();}}else if(o.nm==='dbr'){o.pts.forEach(([px,py,pr])=>{ctx.fillStyle=o.c1;ctx.beginPath();ctx.arc(px,py,pr,0,Math.PI*2);ctx.fill();});}else if(o.nm==='boat'){const len=o.r*4.2,bwid=o.r*1.55;ctx.fillStyle=o.c1;ctx.beginPath();ctx.moveTo(0,len/2);ctx.bezierCurveTo(bwid/2,len/4,bwid/2,-len/4,bwid/2,-len/2);ctx.lineTo(-bwid/2,-len/2);ctx.bezierCurveTo(-bwid/2,-len/4,-bwid/2,len/4,0,len/2);ctx.fill();ctx.strokeStyle=o.c2;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(0,len/2);ctx.bezierCurveTo(bwid/2,len/4,bwid/2,-len/4,bwid/2,-len/2);ctx.lineTo(-bwid/2,-len/2);ctx.bezierCurveTo(-bwid/2,-len/4,-bwid/2,len/4,0,len/2);ctx.stroke();ctx.strokeStyle=o.stripeCol;ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(bwid/2-2,-len/2+4);ctx.bezierCurveTo(bwid/2-2,0,bwid/2-2,len/4-4,bwid/2-6,len/2-8);ctx.stroke();ctx.beginPath();ctx.moveTo(-bwid/2+2,-len/2+4);ctx.bezierCurveTo(-bwid/2+2,0,-bwid/2+2,len/4-4,-bwid/2+6,len/2-8);ctx.stroke();const cabW=bwid*0.62,cabH=len*0.36,cabX=-cabW/2,cabY=-len/2;ctx.fillStyle=o.c2;ctx.fillRect(cabX,cabY,cabW,cabH);ctx.shadowBlur=7;ctx.fillStyle='#ff4444';ctx.shadowColor='#ff0000';ctx.beginPath();ctx.arc(-bwid/2+3,-len/2+4,2.5,0,Math.PI*2);ctx.fill();ctx.fillStyle='#44ff44';ctx.shadowColor='#00ff00';ctx.beginPath();ctx.arc(bwid/2-3,-len/2+4,2.5,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;}else{ctx.strokeStyle=o.c2;ctx.lineWidth=3.5;for(let i=0;i<5;i++){const a=(i/5)*Math.PI*2;ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(Math.cos(a)*o.r*1.7,Math.sin(a)*o.r*1.7);ctx.stroke();}ctx.fillStyle=o.c1;ctx.beginPath();ctx.arc(0,0,o.r*0.44,0,Math.PI*2);ctx.fill();}ctx.restore();});}
-  function drawTow(){ctx.save();ctx.translate(tow.x,tow.y);ctx.rotate(tow.angle);for(let row=0;row<ROWS;row++)for(let col=0;col<COLS;col++)drawBarge(-FW/2+col*(BW+BG),-FH/2+row*(BH+BG),row*COLS+col+1);drawBoat(-TWW/2,FH/2+BG);ctx.restore();if(flashTimer>0){ctx.save();ctx.translate(tow.x,tow.y);ctx.rotate(tow.angle);ctx.globalAlpha=(flashTimer/14)*0.40;ctx.fillStyle='#ff1800';ctx.fillRect(-FW/2-3,-FH/2-3,FW+6,FH+BG+TWH+6);ctx.restore();}}
+
+  function drawObstacles(){obstacles.forEach(o=>{ctx.save();ctx.translate(o.x,o.y);ctx.rotate(o.rot);if(o.nm==='log'||o.nm==='log2'){const len=o.r*3.2,w=o.r*0.65,rx=w/2;ctx.fillStyle=o.c1;ctx.beginPath();ctx.moveTo(-len/2+rx,-w/2);ctx.lineTo(len/2-rx,-w/2);ctx.arcTo(len/2,-w/2,len/2,0,rx);ctx.lineTo(len/2,w/2-rx);ctx.arcTo(len/2,w/2,len/2-rx,w/2,rx);ctx.lineTo(-len/2+rx,w/2);ctx.arcTo(-len/2,w/2,-len/2,0,rx);ctx.lineTo(-len/2,-w/2+rx);ctx.arcTo(-len/2,-w/2,-len/2+rx,-w/2,rx);ctx.closePath();ctx.fill();ctx.strokeStyle=o.c2;ctx.lineWidth=0.85;for(let i=-len/2+8;i<len/2-4;i+=10){ctx.beginPath();ctx.moveTo(i,-w/2+1);ctx.lineTo(i+3,w/2-1);ctx.stroke();}}else if(o.nm==='boat'){const len=o.r*4.2,bwid=o.r*1.55;ctx.fillStyle=o.c1;ctx.beginPath();ctx.moveTo(0,len/2);ctx.bezierCurveTo(bwid/2,len/4,bwid/2,-len/4,bwid/2,-len/2);ctx.lineTo(-bwid/2,-len/2);ctx.bezierCurveTo(-bwid/2,-len/4,-bwid/2,len/4,0,len/2);ctx.fill();ctx.strokeStyle=o.c2;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(0,len/2);ctx.bezierCurveTo(bwid/2,len/4,bwid/2,-len/4,bwid/2,-len/2);ctx.lineTo(-bwid/2,-len/2);ctx.bezierCurveTo(-bwid/2,-len/4,-bwid/2,len/4,0,len/2);ctx.stroke();ctx.strokeStyle=o.stripeCol;ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(bwid/2-2,-len/2+4);ctx.bezierCurveTo(bwid/2-2,0,bwid/2-2,len/4-4,bwid/2-6,len/2-8);ctx.stroke();ctx.beginPath();ctx.moveTo(-bwid/2+2,-len/2+4);ctx.bezierCurveTo(-bwid/2+2,0,-bwid/2+2,len/4-4,-bwid/2+6,len/2-8);ctx.stroke();const cabW=bwid*0.62,cabH=len*0.36,cabX=-cabW/2,cabY=-len/2;ctx.fillStyle=o.c2;ctx.fillRect(cabX,cabY,cabW,cabH);ctx.shadowBlur=7;ctx.fillStyle='#ff4444';ctx.shadowColor='#ff0000';ctx.beginPath();ctx.arc(-bwid/2+3,-len/2+4,2.5,0,Math.PI*2);ctx.fill();ctx.fillStyle='#44ff44';ctx.shadowColor='#00ff00';ctx.beginPath();ctx.arc(bwid/2-3,-len/2+4,2.5,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;}ctx.restore();});}
+
+  function drawFleets(){fleets.forEach(f=>{const cwy=scroll+f.y+f.h/2,bankX=f.side==='L'?rCX(cwy)-rHW(cwy):rCX(cwy)+rHW(cwy);ctx.strokeStyle='rgba(18,26,16,0.55)';ctx.lineWidth=1.5;const tieN=Math.max(2,f.rows),bx=f.side==='L'?f.x:f.x+f.w;for(let t=0;t<tieN;t++){const ly=f.y+(t+0.5)/tieN*f.h;ctx.beginPath();ctx.moveTo(bx,ly);ctx.lineTo(bankX,ly);ctx.stroke();}ctx.fillStyle='#2a2218';[f.y+3,f.y+f.h-3].forEach(py=>{ctx.beginPath();ctx.arc(f.innerEdge,py,3,0,Math.PI*2);ctx.fill();});for(let row=0;row<f.rows;row++)for(let col=0;col<f.cols;col++)drawMooredBarge(f.x+col*(BW+BG),f.y+row*(BH+BG));});}
+
+  function drawMooredBarge(x,y){ctx.fillStyle='#5e5448';ctx.fillRect(x,y,BW,BH);ctx.fillStyle='#6a6052';ctx.fillRect(x+2,y+5,BW-4,BH-10);ctx.fillStyle='#3b3630';ctx.beginPath();ctx.ellipse(x+BW/2,y+BH/2,BW*0.34,BH*0.36,0,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#4a4238';ctx.lineWidth=1;ctx.strokeRect(x+2,y+5,BW-4,BH-10);ctx.strokeStyle='#34302a';ctx.lineWidth=1;ctx.strokeRect(x,y,BW,BH);ctx.fillStyle='#26221c';[[2,3],[BW-7,3],[2,BH-8],[BW-7,BH-8]].forEach(([ox,oy])=>ctx.fillRect(x+ox,y+oy,5,5));}
+
+  function drawRings(){rings.forEach(ring=>{const bob=Math.sin(ring.bob)*2.5,cx=ring.x,cy=ring.y+bob,R=16,thick=7;ctx.save();ctx.globalAlpha=0.22;ctx.fillStyle='#06121c';ctx.beginPath();ctx.ellipse(cx,ring.y+13,18,6,0,0,Math.PI*2);ctx.fill();ctx.restore();const pulse=0.5+0.5*Math.sin(fr*0.12);ctx.save();ctx.shadowColor='#37e070';ctx.shadowBlur=9+pulse*9;ctx.strokeStyle='#ff7a1a';ctx.lineWidth=thick;ctx.beginPath();ctx.arc(cx,cy,R-thick/2,0,Math.PI*2);ctx.stroke();ctx.shadowBlur=0;ctx.strokeStyle='rgba(150,66,10,0.55)';ctx.lineWidth=1;ctx.beginPath();ctx.arc(cx,cy,R,0,Math.PI*2);ctx.stroke();ctx.beginPath();ctx.arc(cx,cy,R-thick,0,Math.PI*2);ctx.stroke();ctx.strokeStyle='rgba(245,245,235,0.92)';ctx.lineWidth=thick-2;[0,Math.PI/2,Math.PI,3*Math.PI/2].forEach(a=>{ctx.beginPath();ctx.arc(cx,cy,R-thick/2,a-0.27,a+0.27);ctx.stroke();});const arm=R-thick-1,pw=3.2;ctx.shadowColor='#2ecc4a';ctx.shadowBlur=6;ctx.fillStyle='#2ecc4a';ctx.fillRect(cx-pw,cy-arm,pw*2,arm*2);ctx.fillRect(cx-arm,cy-pw,arm*2,pw*2);ctx.restore();});}
+
+  function drawTow(){
+    const firstRow=Math.floor((TOTAL-barges)/COLS);
+    const unitTopLocal=-FH/2+firstRow*(BH+BG);
+    const boatBotLocal=FH/2+BG+TWH;
+    ctx.save();ctx.translate(tow.x,tow.y);ctx.rotate(tow.angle);
+    for(let row=0;row<ROWS;row++)for(let col=0;col<COLS;col++){const n=row*COLS+col+1;if(n<=TOTAL-barges)continue;drawBarge(-FW/2+col*(BW+BG),-FH/2+row*(BH+BG),n);}
+    drawBoat(-TWW/2,FH/2+BG);ctx.restore();
+    if(flashTimer>0){ctx.save();ctx.translate(tow.x,tow.y);ctx.rotate(tow.angle);ctx.globalAlpha=(flashTimer/14)*0.40;ctx.fillStyle='#ff1800';ctx.fillRect(-FW/2-3,unitTopLocal-3,FW+6,(boatBotLocal-unitTopLocal)+6);ctx.restore();}
+    if(healTimer>0){ctx.save();ctx.translate(tow.x,tow.y);ctx.rotate(tow.angle);ctx.globalAlpha=(healTimer/16)*0.35;ctx.fillStyle='#22ff66';ctx.fillRect(-FW/2-3,unitTopLocal-3,FW+6,(boatBotLocal-unitTopLocal)+6);ctx.restore();}
+  }
+
   function drawBarge(x,y,n){ctx.fillStyle='#6a7878';ctx.fillRect(x,y,BW,BH);ctx.fillStyle='#788a8c';ctx.fillRect(x+2,y+6,BW-4,BH-12);ctx.strokeStyle='#4a5858';ctx.lineWidth=1.5;[0.28,0.72].forEach(t=>{ctx.beginPath();ctx.moveTo(x,y+BH*t);ctx.lineTo(x+BW,y+BH*t);ctx.stroke();});ctx.strokeStyle='#3a4848';ctx.lineWidth=1;ctx.strokeRect(x,y,BW,BH);ctx.fillStyle='#2a3838';[[2,3],[BW-7,3],[2,BH-8],[BW-7,BH-8]].forEach(([ox,oy])=>ctx.fillRect(x+ox,y+oy,5,5));ctx.fillStyle='#4e6272';ctx.font='7px monospace';ctx.textAlign='center';ctx.fillText(n,x+BW/2,y+BH/2+2.5);}
+
   function drawBoat(x,y){const hg=ctx.createLinearGradient(x,0,x+TWW,0);hg.addColorStop(0,'#182838');hg.addColorStop(0.5,'#263a4e');hg.addColorStop(1,'#182838');ctx.fillStyle=hg;ctx.fillRect(x,y,TWW,TWH);ctx.fillStyle='#bb2020';ctx.fillRect(x,y+TWH-16,TWW,8);ctx.strokeStyle='#0a1420';ctx.lineWidth=1.5;ctx.strokeRect(x,y,TWW,TWH);const wx=x+5,wy=y+7,ww=TWW-10,wh=(TWH*0.48)|0;ctx.fillStyle='#e0d8c8';ctx.fillRect(wx,wy,ww,wh);ctx.strokeStyle='#c0b0a0';ctx.lineWidth=1;ctx.strokeRect(wx,wy,ww,wh);ctx.fillStyle='#5aa8c4';[[wx+3],[wx+ww/2-4.5],[wx+ww-13]].forEach(([wx2])=>ctx.fillRect(wx2,wy+5,9,8));ctx.shadowBlur=8;ctx.fillStyle='#ff5555';ctx.shadowColor='#ff0000';ctx.beginPath();ctx.arc(x+3,y+4,3,0,Math.PI*2);ctx.fill();ctx.fillStyle='#55ff55';ctx.shadowColor='#00ff00';ctx.beginPath();ctx.arc(x+TWW-3,y+4,3,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;if((fr&3)<2){ctx.fillStyle='rgba(88,168,224,0.55)';[8,23,38].forEach(bx2=>{const r2=3+Math.sin(fr*0.3+bx2)*1.2;ctx.beginPath();ctx.arc(x+bx2,y+TWH-4,r2,0,Math.PI*2);ctx.fill();});}}
+
   function drawSparks(){sparks.forEach(s=>{ctx.save();ctx.globalAlpha=s.life;ctx.fillStyle=s.col;ctx.beginPath();ctx.arc(s.x,s.y,3*s.life,0,Math.PI*2);ctx.fill();ctx.restore();});}
-  function drawHUD(){ctx.fillStyle='rgba(4,10,18,0.88)';ctx.fillRect(0,0,W,42);ctx.textAlign='left';ctx.font='bold 14px "Courier New",monospace';ctx.fillStyle='#5ab0cc';ctx.fillText(`DIST: ${score} MI`,12,28);ctx.fillText('HULL',158,28);const bx=205,by=14,bw=128,bh=15;ctx.fillStyle='#0c1c2e';ctx.fillRect(bx,by,bw,bh);ctx.fillStyle=hull>65?'#22bb55':hull>30?'#bbbb22':'#cc2222';ctx.fillRect(bx,by,bw*hull/100,bh);ctx.strokeStyle='#0c1c2e';ctx.lineWidth=1.5;[0.25,0.5,0.75].forEach(t=>{ctx.beginPath();ctx.moveTo(bx+bw*t,by);ctx.lineTo(bx+bw*t,by+bh);ctx.stroke();});ctx.strokeStyle='#2a4860';ctx.lineWidth=1;ctx.strokeRect(bx,by,bw,bh);ctx.fillStyle='#5ab0cc';ctx.fillText('LIVES',352,28);for(let i=0;i<3;i++){ctx.fillStyle=i<lives?'#22cc55':'#1a3040';ctx.fillText('\u2666',414+i*22,29);}const hdg=Math.round(tow.angle*(180/Math.PI)),lvlD=LEVELS[currentLevel];ctx.textAlign='right';ctx.fillStyle=lvlD.col;ctx.font='bold 14px "Courier New",monospace';ctx.fillText(lvlD.label,W-200,28);ctx.fillStyle='#5ab0cc';ctx.fillText(`HDG ${hdg>=0?'+':''}${hdg}\u00b0  SPD ${(spd*2.55).toFixed(1)} kt`,W-12,28);const pbar=(score/500);ctx.fillStyle='rgba(4,10,18,0.70)';ctx.fillRect(0,H-20,W,20);ctx.fillStyle='#0f2535';ctx.fillRect(8,H-13,W-16,7);ctx.fillStyle='#1a6e9a';ctx.fillRect(8,H-13,(W-16)*Math.min(pbar,1),7);LEVELS.slice(1).forEach(l=>{const tx=8+(W-16)*(l.miles/500);ctx.fillStyle=l.col;ctx.fillRect(tx-1,H-15,2,11);ctx.font='7px "Courier New"';ctx.textAlign='center';ctx.fillStyle=l.col;ctx.fillText(l.miles,tx,H-17);});ctx.fillStyle='#3ab0d0';ctx.font='9px "Courier New"';ctx.textAlign='left';ctx.fillText('START',8,H-5);ctx.textAlign='right';ctx.fillText('PORT (500 MI)',W-8,H-5);if(gameState==='PLAY')drawBtns();if(levelUpTimer>0)drawLevelBanner();}
+
+  function drawHUD(){
+    ctx.fillStyle='rgba(4,10,18,0.88)';ctx.fillRect(0,0,W,42);
+    ctx.textAlign='left';ctx.font='bold 14px "Courier New",monospace';ctx.fillStyle='#5ab0cc';
+    ctx.fillText(`DIST: ${score} MI`,12,28);
+    ctx.fillStyle='#5ab0cc';ctx.fillText('TOW',150,28);
+    const ratio=barges/TOTAL,fillCol=ratio>0.6?'#22bb55':ratio>0.3?'#bbbb22':'#cc2222';
+    const segX=192,segY=15,segW=7,segH=14,segGap=2;
+    for(let i=0;i<TOTAL;i++){ctx.beginPath();ctx.roundRect(segX+i*(segW+segGap),segY,segW,segH,2);ctx.fillStyle=i<barges?fillCol:'#152535';ctx.fill();}
+    ctx.fillStyle=fillCol;ctx.font='bold 13px "Courier New",monospace';ctx.fillText(`${barges}/${TOTAL}`,segX+TOTAL*(segW+segGap)+6,27);
+    const hdg=Math.round(tow.angle*(180/Math.PI)),lvlD=LEVELS[currentLevel];
+    ctx.textAlign='right';ctx.fillStyle=lvlD.col;ctx.font='bold 14px "Courier New",monospace';
+    ctx.fillText(lvlD.label,W-200,28);ctx.fillStyle='#5ab0cc';
+    ctx.fillText(`HDG ${hdg>=0?'+':''}${hdg}\u00b0  SPD ${(spd*2.55).toFixed(1)} kt`,W-12,28);
+    const pbar=(score/500);ctx.fillStyle='rgba(4,10,18,0.70)';ctx.fillRect(0,H-20,W,20);ctx.fillStyle='#0f2535';ctx.fillRect(8,H-13,W-16,7);ctx.fillStyle='#1a6e9a';ctx.fillRect(8,H-13,(W-16)*Math.min(pbar,1),7);
+    LEVELS.slice(1).forEach(l=>{const tx=8+(W-16)*(l.miles/500);ctx.fillStyle=l.col;ctx.fillRect(tx-1,H-15,2,11);ctx.font='7px "Courier New"';ctx.textAlign='center';ctx.fillStyle=l.col;ctx.fillText(l.miles,tx,H-17);});
+    ctx.fillStyle='#3ab0d0';ctx.font='9px "Courier New"';ctx.textAlign='left';ctx.fillText('START',8,H-5);ctx.textAlign='right';ctx.fillText('PORT (500 MI)',W-8,H-5);
+    if(gameState==='PLAY')drawBtns();if(levelUpTimer>0)drawLevelBanner();
+  }
+
   function drawLevelBanner(){const lvl=LEVELS[currentLevel],fade=Math.min(1,levelUpTimer/40),slideIn=Math.max(0,1-(levelUpTimer-170)/40),bannerY=60+slideIn*(-80);ctx.save();ctx.globalAlpha=fade;ctx.fillStyle='rgba(4,10,20,0.88)';ctx.beginPath();ctx.roundRect(W/2-200,bannerY,400,56,10);ctx.fill();ctx.strokeStyle=lvl.col;ctx.lineWidth=2;ctx.beginPath();ctx.roundRect(W/2-200,bannerY,400,56,10);ctx.stroke();ctx.shadowColor=lvl.col;ctx.shadowBlur=18*Math.abs(Math.sin(fr*0.08));ctx.fillStyle=lvl.col;ctx.textAlign='center';ctx.font='bold 22px "Courier New",monospace';ctx.fillText(`\u2b06  ${lvl.label} REACHED  \u2b06`,W/2,bannerY+24);ctx.shadowBlur=0;const msgs=['','CURRENT STRONGER \u2014 WATCH YOUR SPEED','DRIFT INCREASING \u2014 BARGES ARE RESTLESS','VESSELS AHEAD \u2014 STAND ON YOUR WHISTLE','MAXIMUM CURRENT \u2014 DON\'T LOSE HEADWAY'];ctx.fillStyle='rgba(180,220,240,0.85)';ctx.font='11px "Courier New",monospace';ctx.fillText(msgs[currentLevel]||'',W/2,bannerY+44);ctx.restore();}
+
   function drawBtns(){const labels={L:'\u25c4',R:'\u25ba',U:'\u25b2',D:'\u25bc'},pressed={L:KEY.ArrowLeft||KEY.KeyA||TOUCH.L,R:KEY.ArrowRight||KEY.KeyD||TOUCH.R,U:KEY.ArrowUp||KEY.KeyW||TOUCH.U,D:KEY.ArrowDown||KEY.KeyS||TOUCH.D};Object.entries(BTN).forEach(([k,b])=>{const pr=pressed[k];ctx.fillStyle=pr?'rgba(28,80,130,0.88)':'rgba(8,20,36,0.72)';ctx.strokeStyle=pr?'#38a0cc':'#1e4e66';ctx.lineWidth=2;ctx.beginPath();ctx.roundRect(b.x,b.y,b.w,b.h,9);ctx.fill();ctx.stroke();ctx.fillStyle=pr?'#78ccee':'#386880';ctx.font='bold 34px monospace';ctx.textAlign='center';ctx.fillText(labels[k],b.x+b.w/2,b.y+b.h/2+11);});}
-  function drawOverlay(){ctx.fillStyle='rgba(3,8,16,0.90)';ctx.fillRect(0,0,W,H);ctx.textAlign='center';if(gameState==='START'){ctx.fillStyle='#48b0d0';ctx.font='bold 54px "Courier New"';ctx.fillText('RIVER PUSH',W/2,H/2-138);ctx.fillStyle='#2a6082';ctx.font='14px "Courier New"';ctx.fillText('TOWBOAT NAVIGATION SIMULATOR',W/2,H/2-96);const lines=['Push a 15-barge tow 500 miles upriver.','Dodge drift logs, snags, and debris.',"Don't run aground \u2014 the current never stops.",'','A D / \u25c4 \u25ba   Steer','W S / \u25b2 \u25bc   Throttle'];ctx.fillStyle='#78bac8';ctx.font='13px "Courier New"';lines.forEach((l,i)=>ctx.fillText(l,W/2,H/2-47+i*22));ctx.fillStyle='#0c2e48';ctx.fillRect(W/2-110,H/2+98,220,48);ctx.strokeStyle='#3a88aa';ctx.lineWidth=2;ctx.strokeRect(W/2-110,H/2+98,220,48);ctx.fillStyle='#78bac8';ctx.font='bold 16px "Courier New"';ctx.fillText('ALL AHEAD FULL',W/2,H/2+128);}else if(gameState==='DEAD'){ctx.fillStyle='#cc3322';ctx.font='bold 42px "Courier New"';ctx.fillText('COLLISION!',W/2,H/2-78);ctx.fillStyle='#78bac8';ctx.font='15px "Courier New"';ctx.fillText(`Miles: ${score}  Lives: ${lives}`,W/2,H/2+2);ctx.fillStyle='#3a7890';ctx.font='13px "Courier New"';ctx.fillText('SPACE or CLICK to continue',W/2,H/2+46);}else if(gameState==='OVER'){ctx.fillStyle='#cc3322';ctx.font='bold 48px "Courier New"';ctx.fillText('AGROUND',W/2,H/2-92);ctx.fillStyle='#5ab8d8';ctx.font='15px "Courier New"';ctx.fillText('FINAL DISTANCE',W/2,H/2-25);ctx.fillStyle='#48b0d0';ctx.font='bold 44px "Courier New"';ctx.fillText(`${score} MILES`,W/2,H/2+28);ctx.fillStyle='#3a7890';ctx.font='13px "Courier New"';ctx.fillText('SPACE or CLICK to try again',W/2,H/2+76);}else if(gameState==='WIN'){ctx.fillStyle='#22cc55';ctx.font='bold 44px "Courier New"';ctx.fillText('DELIVERED!',W/2,H/2-90);ctx.fillStyle='#78bac8';ctx.font='15px "Courier New"';ctx.fillText('All 15 barges arrived safely.',W/2,H/2-28);ctx.fillStyle='#48b0d0';ctx.font='bold 28px "Courier New"';ctx.fillText('MISSION COMPLETE',W/2,H/2+48);ctx.fillStyle='#3a7890';ctx.font='13px "Courier New"';ctx.fillText('SPACE or CLICK to run again',W/2,H/2+88);}}
+
+  function drawOverlay(){ctx.fillStyle='rgba(3,8,16,0.90)';ctx.fillRect(0,0,W,H);ctx.textAlign='center';
+    if(gameState==='START'){ctx.fillStyle='#48b0d0';ctx.font='bold 54px "Courier New"';ctx.fillText('RIVER PUSH',W/2,H/2-138);ctx.fillStyle='#2a6082';ctx.font='14px "Courier New"';ctx.fillText('TOWBOAT NAVIGATION SIMULATOR',W/2,H/2-96);ctx.strokeStyle='#265a78';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(W/2-205,H/2-76);ctx.lineTo(W/2+205,H/2-76);ctx.stroke();const lines=['Push a 15-barge tow 500 miles upriver.','Every collision tears a barge loose \u2014','lose the whole tow and the run is over.','','A D / \u25c4 \u25ba   Steer','W S / \u25b2 \u25bc   Throttle'];ctx.fillStyle='#78bac8';ctx.font='13px "Courier New"';lines.forEach((l,i)=>ctx.fillText(l,W/2,H/2-47+i*22));ctx.fillStyle='#0c2e48';ctx.fillRect(W/2-110,H/2+98,220,48);ctx.strokeStyle='#3a88aa';ctx.lineWidth=2;ctx.strokeRect(W/2-110,H/2+98,220,48);ctx.fillStyle='#78bac8';ctx.font='bold 16px "Courier New"';ctx.fillText('ALL AHEAD FULL',W/2,H/2+128);}
+    else if(gameState==='OVER'){ctx.fillStyle='#cc3322';ctx.font='bold 48px "Courier New"';ctx.fillText('TOW LOST',W/2,H/2-92);ctx.strokeStyle='#5a2020';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(W/2-185,H/2-70);ctx.lineTo(W/2+185,H/2-70);ctx.stroke();ctx.fillStyle='#5ab8d8';ctx.font='15px "Courier New"';ctx.fillText('All 15 barges torn away.',W/2,H/2-30);ctx.fillText('FINAL DISTANCE',W/2,H/2+2);ctx.fillStyle='#48b0d0';ctx.font='bold 40px "Courier New"';ctx.fillText(`${score} MILES`,W/2,H/2+44);ctx.fillStyle='#3a7890';ctx.font='13px "Courier New"';ctx.fillText('SPACE or CLICK to try again',W/2,H/2+88);}
+    else if(gameState==='WIN'){ctx.fillStyle='#22cc55';ctx.font='bold 44px "Courier New"';ctx.fillText('DELIVERED!',W/2,H/2-90);ctx.strokeStyle='#205a30';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(W/2-185,H/2-68);ctx.lineTo(W/2+185,H/2-68);ctx.stroke();ctx.fillStyle='#78bac8';ctx.font='15px "Courier New"';ctx.fillText(`${barges} of ${TOTAL} barges delivered to port.`,W/2,H/2-28);ctx.fillText('500 miles upriver \u2014 well done, Captain.',W/2,H/2+2);ctx.fillStyle='#48b0d0';ctx.font='bold 28px "Courier New"';ctx.fillText('MISSION COMPLETE',W/2,H/2+48);ctx.fillStyle='#3a7890';ctx.font='13px "Courier New"';ctx.fillText('SPACE or CLICK to run again',W/2,H/2+88);}
+  }
+
   function loop(){if(!_gameRunning)return;update();draw();_gameRAF=requestAnimationFrame(loop);}
   init();loop();
 }
