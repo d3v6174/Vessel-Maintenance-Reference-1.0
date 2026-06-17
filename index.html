@@ -215,6 +215,7 @@ body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:v
   <div class="mitem" onclick="goHowto('howto-swapgen')"><i class="ti ti-bolt"></i>Swap Generators</div>
   <div class="mitem" onclick="goHowto('howto-boilertochiller')"><i class="ti ti-temperature-minus"></i>Boiler to Chiller</div>
   <div class="mitem" onclick="goHowto('howto-chillertobboiler')"><i class="ti ti-temperature-plus"></i>Chiller to Boiler</div>
+  <div class="mitem" onclick="goHowto('howto-groundfault')"><i class="ti ti-bolt-off"></i>Locate &amp; Fix a Ground Fault</div>
 </div>
 <div id="sb-overlay" onclick="closeSidebar()"></div>
 <div id="menu-drop">
@@ -250,6 +251,10 @@ function closeSidebar(){
 function toggleMenu(){
   document.getElementById('menu-drop').classList.toggle('open');
 }
+function navTo(sec){
+  document.getElementById('menu-drop').classList.remove('open');
+  go(sec);
+}
 function toggleHowto(){
   document.getElementById('howto-drop').classList.toggle('open');
 }
@@ -284,6 +289,8 @@ const NAV=[
     {k:'rexroth',i:'adjustments-horizontal',l:'Rexroth Controls'}]},
   {g:'Systems',items:[
     {k:'cooling',i:'thermometer',l:'Cooling Systems'},
+    {k:'chiller',i:'snowflake',l:'Chiller System'},
+    {k:'boiler',i:'flame',l:'Boiler System'},
     {k:'generators',i:'bolt',l:'Generators'},
     {k:'steering',i:'steering-wheel',l:'Steering'},
     {k:'electronics',i:'cpu',l:'Electronics Room'},
@@ -295,6 +302,7 @@ const NAV=[
     {k:'safety',i:'flame',l:'Safety Systems'}]},
   {g:'Procedures',items:[
     {k:'proc-fueltransfer',i:'droplet-filled',l:'Fuel Transfer'},
+    {k:'proc-paintcodes',i:'palette',l:'Engine Room Paint Codes'},
   ]},
   {g:'Emergency Scenarios',items:[
     {k:'emg-air',i:'air-balloon-off',l:'Loss of Air'},
@@ -420,6 +428,13 @@ const SEC={
     ['gra','camera','CCTV System','Engine room, deck, stern · 4-ch DVR',['4-Camera','DVR'],'ok','elec-cctv'],
     ['blue','cpu','Engine Monitor System','Data logging, trending, electronic monitoring',['Data Logger','Trending'],'ok','elec-monitor'],
    ]},
+   {l:'Allen-Bradley Control System',cards:[
+    ['pur','cpu','PLC — ControlLogix / CompactLogix','Allen-Bradley PLC · Vessel alarm & control logic',['ControlLogix','Ladder Logic'],'ok','ab-plc'],
+    ['blue','device-desktop','PanelView HMI','Touchscreen operator interface · Alarm display & control',['PanelView','HMI'],'ok','ab-hmi'],
+    ['red','bell','855P Panel Alarm Units','Audio/visual alarm beacons · 22.5mm panel mount',['855P Beacon','Buzzer'],'ok','ab-855p'],
+    ['ora','stack-2','Stack Lights / Beacons','Bulletin 855T/E tower lights · Engine room visual alarm',['855T Stack','Tower Light'],'ok','ab-stacklight'],
+    ['gra','circuit-board','I/O Modules — Input/Output','Field I/O modules · Sensor wiring, LED fault indicators',['I/O Module','Field Wiring'],'ok','ab-io'],
+   ]},
   ]},
  fuel:{title:'Fuel & Lube Oil Systems',sub:'Fuel storage, day tanks, transfer pumps, lube oil systems',
   groups:[
@@ -437,6 +452,55 @@ const SEC={
     ['ora','flask','Oil Analysis Ports','Scheduled sampling ports · Lab analysis',['Oil Sample','Lab'],'ok','fuel-oilanalysis'],
    ]},
   ]},
+ chiller:{title:'Chiller System',sub:'Vapor-compression refrigeration · Crew quarters & pilothouse cooling',
+  groups:[
+   {l:'Refrigeration Circuit',cards:[
+    ['blue','snowflake','Chiller Unit','Vapor-compression chiller · Compressor, condenser, evaporator',['Compressor','Refrigerant'],'ok','chill-unit'],
+    ['cyan','wind','Compressor','Refrigerant compressor · Scroll or reciprocating',['Compressor','HP/LP'],'ok','chill-comp'],
+    ['gra','arrows-exchange','Condenser / Heat Rejection','Refrigerant condenser · Sea water or keel cooler cooled',['Condenser','Heat Reject'],'ok','chill-cond'],
+    ['tel','temperature-minus','Evaporator / Chiller Barrel','Chilled water heat exchanger · Refrigerant to chilled water',['Evaporator','Chiller Barrel'],'ok','chill-evap'],
+    ['yel','filter','Expansion Valve / TXV','Thermostatic expansion valve · Refrigerant metering',['TXV','Expansion'],'ok','chill-txv'],
+   ]},
+   {l:'Chilled Water Circuit',cards:[
+    ['blue','rotate','Chilled Water Pump','Circulating pump · Chilled water distribution',['CHW Pump','Circulation'],'ok','chill-chwpump'],
+    ['gra','droplet','Chilled Water Expansion Tank','System expansion tank · Pressure and volume control',['Exp Tank','CHW'],'ok','chill-chwtank'],
+    ['pur','filter','Chilled Water Strainer','Inline strainer · Protects pump and coils from debris',['Strainer','Y-Strainer'],'ok','chill-chwstrainer'],
+   ]},
+   {l:'Air Distribution',cards:[
+    ['ora','wind','Air Handling Unit (AHU)','Central air handler · Coil, fan, filter',['AHU','Central Fan'],'ok','chill-ahu'],
+    ['gra','propeller','Fan Coil Units','Room-level fan coil units · Individual zone control',['Fan Coil','FCU'],'ok','chill-fcu'],
+    ['tel','filter','Air Filters','AHU and FCU air filtration elements',['Air Filter','Media'],'ok','chill-airfilter'],
+   ]},
+   {l:'Controls & Safety',cards:[
+    ['red','alert-triangle','High/Low Pressure Switches','Refrigerant HP/LP cutouts · Compressor protection',['HP Switch','LP Switch'],'ok','chill-pressure'],
+    ['gra','adjustments','Thermostat & Controls','Zone thermostats and chiller controller',['Thermostat','Controls'],'ok','chill-controls'],
+   ]},
+  ]},
+
+ boiler:{title:'Boiler System',sub:'Hot water heating · Crew quarters & pilothouse heat',
+  groups:[
+   {l:'Boiler Unit',cards:[
+    ['red','flame','Boiler — Hot Water',  'Hydronic boiler · Diesel-fired hot water heat',['Hydronic','Diesel Fired'],'ok','boil-unit'],
+    ['ora','flame','Burner Assembly','Diesel burner · Fuel pump, nozzle, igniter',['Burner','Nozzle'],'ok','boil-burner'],
+    ['gra','gauge','Aquastat / Controls','Boiler temperature controller · Hi-limit cutout',['Aquastat','Hi-Limit'],'ok','boil-controls'],
+    ['red','shield-lock','Safety Relief Valve','Pressure relief · Boiler overpressure protection',['Relief Valve','Safety'],'ok','boil-relief'],
+   ]},
+   {l:'Hot Water Circuit',cards:[
+    ['blue','rotate','Boiler Circulating Pump','Hot water distribution pump · Zone or primary loop',['Circ Pump','HW Loop'],'ok','boil-pump'],
+    ['gra','droplet','Expansion Tank','Hydronic expansion tank · Bladder type',['Exp Tank','Bladder'],'ok','boil-exptank'],
+    ['tel','filter','System Strainer','Inline strainer · Protects pump from debris',['Strainer','Y-Strainer'],'ok','boil-strainer'],
+    ['yel','temperature','System Thermometers & Gauges','Supply and return temp gauges · Pressure gauge',['Supply Temp','Return Temp'],'ok','boil-gauges'],
+   ]},
+   {l:'Fuel Supply',cards:[
+    ['yel','droplet-half','Boiler Fuel Supply Line','Diesel supply to burner · Shutoff valve, filter',['Fuel Supply','Shutoff'],'ok','boil-fuel'],
+    ['gra','filter','Boiler Fuel Filter','Fine-micron diesel filter · Protects burner nozzle',['Fuel Filter','Nozzle Prot.'],'ok','boil-fuelfilt'],
+   ]},
+   {l:'Heat Distribution',cards:[
+    ['ora','wind','Fan Coil Units','Room-level fan coils · Hot water heating coil with fan',['Fan Coil','FCU'],'ok','boil-fcu'],
+    ['gra','minus','Baseboard / Radiators','Passive hot water heat · Baseboard or panel radiators',['Baseboard','Radiator'],'ok','boil-radiator'],
+   ]},
+  ]},
+
  deck:{title:'Deck Equipment',sub:'Mooring, towing, anchoring, capstans, navigation lights & signals',
   groups:[
    {l:'Mooring & Towing',cards:[
@@ -477,6 +541,8 @@ const SEC={
    {l:'Navigation & Instruments',cards:[
     ['blue','map','Chart Table / Plotter','Chart plotter display, paper backup charts',['Chart Plotter','NOAA Charts'],'ok','elec-gps'],
     ['tel','compass','Compass','Magnetic compass, gyrocompass, deviation card',['Magnetic','Gyrocompass'],'ok','ph-compass'],
+    ['pur','rotate-360','Gyroscope / Gyrocompass','True north heading · Heading feed to autopilot & radar',['Gyrocompass','True North'],'ok','ph-gyro'],
+    ['red','rotate-clockwise','Swing Meter — Rate of Turn','Rate of turn indicator · Degrees per minute',['Swing Meter','Rate of Turn'],'ok','ph-swing'],
     ['cyan','radar','Radar Repeater','Repeater, range rings, EBL, VRM',['Radar Repeater','EBL/VRM'],'ok','ph-radarrep'],
     ['ora','radio','VHF / Hailer','VHF, PA hailer, intercom, PA system',['VHF Radio','PA Hailer'],'ok','elec-vhf'],
     ['red','bell','Alarm Annunciator','Engine, bilge, fire, nav alarms',['Engine Alarm','Fire Alarm'],'ok','ph-annunciator'],
@@ -2396,6 +2462,120 @@ const DET={
     c:['Genuine low oil pressure — see Lube Oil System section','Faulty oil pressure sender or wiring fault'],
     s:['TREAT AS GENUINE UNTIL PROVEN OTHERWISE — check oil level immediately','Check oil pressure gauge reading independently — if gauge also shows low, reduce load immediately','Low oil pressure is a CRITICAL alarm — do not continue at rated load while investigating']},
   ]},
+ 'ab-plc':{t:'Allen-Bradley PLC — ControlLogix / CompactLogix / SLC 500',sys:'Electronics Room',st:'ok',
+  desc:'The Allen-Bradley Programmable Logic Controller (PLC) is the brain of the vessel\'s alarm and control system. It continuously monitors digital and analog inputs from sensors throughout the vessel — engine oil pressure switches, jacket water temperature sensors, bilge level floats, fire detectors, and dozens of others — and executes a Ladder Logic program that evaluates each input against setpoints, generates alarm outputs, and can command protective shutdowns. On this vessel the PLC platform may be a ControlLogix (larger installations), CompactLogix (mid-size), or older SLC 500/MicroLogix system. The programming software is RSLogix 5000 (Studio 5000) for ControlLogix/CompactLogix or RSLogix 500 for SLC 500/MicroLogix. The PLC runs its program scan continuously — typically every 5–20 milliseconds — so alarm response is effectively instantaneous.',
+  loc:'Main control panel in the engine room or electronics room — the PLC chassis is visible as a DIN-rail or rack-mounted assembly with individual module cards snapped in. The processor module (CPU) is typically in the leftmost slot and has a green RUN LED when operating normally. I/O modules occupy the remaining slots. A status indicator panel on the CPU shows Run/Fault/Program mode.',
+  specs:[['Platform','ControlLogix, CompactLogix, SLC 500, or MicroLogix — verify on CPU module label'],['Programming software','Studio 5000 (ControlLogix/CompactLogix) or RSLogix 500 (SLC 500/MicroLogix)'],['Scan time','Typically 5–20 ms — alarm inputs are evaluated every scan'],['CPU status LEDs','RUN (green) = normal; FAULT (red) = program fault or hardware fault; PROG (yellow) = in program mode, not scanning'],['Alarm latch rule','All alarms must latch in PLC logic — a momentary fault cannot self-clear; requires manual operator reset'],['Battery','CPU module has a lithium backup battery for program and memory retention; replace per manufacturer schedule (typically every 3–5 years)'],['Comms','Ethernet/IP, DH+ (SLC), or DeviceNet to HMI and remote I/O']],
+  parts:[
+   ['CPU Module Battery','(Allen-Bradley — by CPU model; typically 1756-BA1 or 1747-BA)','Replace per schedule or when BAT LED illuminates on CPU — program memory may be lost without battery during power outage','1/CPU'],
+   ['CPU Module','(by PLC platform and part number on module label)','Replace if CPU is in permanent fault state and program reload does not clear fault','1/chassis'],
+   ['Power Supply Module','(by chassis and power draw — e.g., 1756-PA72)','Replace if PLC drops out unexpectedly or power supply output LED is off','1/chassis'],
+   ['Ethernet/IP Cable / Connector','(Cat5e or Cat6 — by run length)','Replace if HMI or programming terminal loses communication while other network devices are online','Per connection'],
+  ],
+  maint:[
+   {t:'Check CPU status LEDs at engine room rounds',n:'Verify the RUN LED on the PLC CPU is solid green during every engine room round; a FAULT LED (red) or loss of the RUN LED means the PLC has stopped scanning and no alarms are being processed; investigate immediately — the vessel is operating without alarm protection',i:'Every 2–4 hour round',b:'d'},
+   {t:'Check CPU battery LED — replace before failure',n:'Most Allen-Bradley CPUs have a BAT LED that illuminates when the battery is approaching end of life; replace the battery before this LED comes on if on a maintenance schedule, or immediately when the LED appears; do not wait for the battery to fail — a failed battery during a power outage loses the PLC program',i:'Annually or when BAT LED illuminates',b:'ann'},
+   {t:'Verify communication link between PLC and HMI is active',n:'Confirm the PanelView HMI is displaying live data (not a "communications error" or "path not found" screen); a communications fault between PLC and HMI means alarm status is not being displayed to the operator even if the PLC is detecting faults',i:'Daily',b:'d'},
+   {t:'Archive / backup the PLC program — after any program changes',n:'Any time a change is made to the PLC program, immediately save a backup copy of the project file to a dedicated laptop or USB drive stored aboard; if the CPU fails and must be replaced, the program backup is the only way to restore the system without calling the programmer back aboard',i:'After any program modification',b:'ann'},
+  ],
+  probs:[
+   {p:'CPU FAULT LED is illuminated — PLC in fault state',
+    c:['Program fault — illegal instruction, divide by zero, or I/O module removed while scanning','Hardware fault — failed I/O module or power supply'],
+    s:['Connect a programming laptop with Studio 5000 or RSLogix 500 and go online with the CPU; the fault description will appear in the controller properties fault log','Clear the fault and return to RUN mode — if the fault immediately returns, identify the specific fault code and look up in the Allen-Bradley Knowledgebase or call the system integrator','If a specific I/O module fault is identified: check that module\'s status LED and wiring before replacing the module'],},
+   {p:'PLC running normally but no alarms are triggering when known faults exist',
+    c:['Alarm output wiring fault — output module not driving the alarm hardware','Program issue — alarm logic inhibited or reset logic overriding alarm generation','I/O module input not registering the sensor signal'],
+    s:['Go online with a programming laptop; observe the alarm bit in the B-file (older systems) or alarm tag (newer systems) while the fault condition exists; if the bit is set in the PLC but no physical alarm sounds, the fault is in the output wiring or signaling hardware','If the bit is not setting despite the fault condition: check the input status for that sensor in the I/O module — the sensor signal may not be reaching the PLC input']},
+  ]},
+
+ 'ab-hmi':{t:'PanelView HMI — Touchscreen Operator Interface',sys:'Electronics Room',st:'ok',
+  desc:'The Allen-Bradley PanelView is the operator\'s primary window into the PLC alarm system. It displays real-time system status, active alarms with unique Alarm ID numbers, historical alarm logs, and allows authorized operators to acknowledge and reset alarms. When an alarm triggers in the PLC, the PanelView flashes the faulted screen, displays the Alarm ID and a plain-language description, and changes the alarm status indicator color (red for critical faults, yellow/amber for warnings). The Alarm ID on the PanelView screen directly corresponds to a specific rung of code in the PLC program — this is the fastest way to trace a fault back to its source sensor or switch. The PanelView communicates with the PLC over Ethernet/IP or DH+ and must remain in communication to display current alarm status.',
+  loc:'Flush-mounted on the engine room control panel or on a stand-mounted enclosure at the operator station. The PanelView is a touchscreen display with a sealed face (IP65 or better) rated for the marine environment. Status indicators and navigation buttons are on the screen; a physical acknowledge/reset button may be adjacent to the unit on the panel.',
+  specs:[['Display','Color touchscreen — red = critical fault/shutdown, yellow/amber = warning, green = normal'],['Alarm ID','Each alarm has a unique ID number visible on screen — trace to PLC program rung by this number'],['Alarm log','Historical alarm list stored in PanelView or PLC — review to see sequence of events before a casualty'],['Communication','Ethernet/IP or DH+ to PLC — "Comms Error" screen means PLC link is lost'],['Acknowledge vs Reset','Acknowledge silences the horn but leaves alarm active; Reset clears the latched alarm (only if fault is gone)'],['Screen saver','PanelView may go to screen saver — touch to wake; an active alarm will override screen saver on most setups']],
+  parts:[
+   ['PanelView Backlight / Display Assembly','(by PanelView model — check part on back of unit)','Replace if screen is dim or dead with power confirmed at unit','1/unit'],
+   ['PanelView Application (program)','(stored on CompactFlash card or internal memory — by PanelView model)','Reload from backup if application is corrupt or lost after power failure','1/unit'],
+   ['Ethernet Patch Cable to PLC','(Cat5e or Cat6)','Replace if PanelView shows "Communications Error" and PLC is confirmed running','1/connection'],
+  ],
+  maint:[
+   {t:'Clean touchscreen — weekly',n:'Wipe the PanelView touchscreen with a clean damp cloth; oil, grease, and soot from the engine room build up on the screen and cause false touches or make the screen difficult to read; do not use solvents on the screen face',i:'Weekly',b:'ann'},
+   {t:'Verify PanelView shows live data and no comms error — daily',n:'At the start of every watch, glance at the PanelView and confirm it is showing live system data; a "Communications Error," "Path Not Found," or frozen/dark screen means the HMI is not connected to the PLC and active alarms would not be displayed to the operator',i:'Daily',b:'d'},
+   {t:'Review alarm history log periodically',n:'Access the alarm history log on the PanelView to review any alarms that triggered and cleared during the previous watch; patterns in the alarm log (e.g., repeated momentary oil pressure low alarms that auto-cleared) can reveal developing problems before they become casualties',i:'Daily or at watch change',b:'d'},
+  ],
+  probs:[
+   {p:'PanelView shows "Communications Error" or "Path Not Found"',
+    c:['Ethernet cable disconnected or failed between PanelView and PLC','PLC is in FAULT or PROGRAM mode — not running and not responding','PanelView application has incorrect PLC IP address configured'],
+    s:['Check Ethernet cable at both ends — PanelView port and PLC Ethernet module port; verify link LEDs are lit on both ends','Go to the PLC and confirm CPU is in RUN mode with green LED; if the PLC is in FAULT, the PanelView cannot connect','If link LEDs are on and PLC is running: check PanelView comms configuration for correct PLC IP address — an IP address mismatch causes this error after program reloads or CPU replacement'],},
+   {p:'Alarm displays on PanelView but acknowledge/reset button does not clear it',
+    c:['Fault condition still exists — alarm is latched by PLC logic and will not clear while fault is present','Reset button configured to require fault clearance before reset is accepted — this is by design'],
+    s:['The Allen-Bradley alarm latch rule is intentional: if the fault still exists (sensor still reading fault condition), the PLC will re-latch the alarm on the next scan even if you press Reset; the fault condition in the field must be resolved before the reset will hold','Identify the Alarm ID, trace to the sensor, verify the physical condition has cleared, then press Reset']},
+  ]},
+
+ 'ab-855p':{t:'855P Panel Alarm Units — Audio/Visual Beacons',sys:'Electronics Room',st:'ok',
+  desc:'The Allen-Bradley 855P series are 22.5 mm panel-mount alarm units that combine an audible buzzer/horn with a colored LED beacon in a single compact housing. They are driven by PLC output signals and mount directly into standard 22.5 mm cutouts on the switchboard or control panel face. The LED color indicates alarm severity: red indicates a critical fault (equipment shutdown condition), amber/yellow indicates a warning (abnormal condition, machinery still running), and green indicates normal operation. When the PLC detects a critical fault, it simultaneously energizes the 855P buzzer for audible notification and flashes the LED, ensuring the watch stander cannot miss the alarm even in a noisy engine room.',
+  loc:'Mounted on the face of the engine room control panel or main switchboard in standard 22.5 mm cutouts. Wired to PLC digital output terminals. Each 855P unit covers a specific alarm or alarm group. The buzzer element and LED element may be independently wired to separate PLC outputs, allowing the horn to be silenced (acknowledged) while the LED continues to flash until the fault is resolved.',
+  specs:[['Mounting','22.5 mm panel cutout — standard DIN size'],['Voltage','24VDC typical — verify on unit body label; some installations use 120VAC'],['Outputs driven by','Allen-Bradley PLC digital output module'],['LED colors','Red = critical fault/shutdown; Amber/Yellow = warning; Green = normal/running'],['Buzzer','Audible horn — typically 85 dB at 1 meter; silenced by alarm acknowledge, LED remains until fault clears'],['Dual circuit','Buzzer and LED driven by separate outputs — allows acknowledge-without-clear operation']],
+  parts:[
+   ['855P Complete Unit','(Allen-Bradley 855P — by LED color and voltage)','Replace complete unit if LED is dead or buzzer does not sound with PLC output confirmed energized','1/alarm point'],
+   ['855P LED Module','(by 855P model — modular construction)','Replace LED module only if buzzer is functional but LED is dead','Per unit'],
+   ['855P Buzzer Module','(by 855P model)','Replace buzzer module if LED is functional but no audible alarm sounds','Per unit'],
+  ],
+  maint:[
+   {t:'Lamp/buzzer test at weekly panel check',n:'Initiate the system lamp test function from the PanelView or panel test button (if equipped); every 855P unit should illuminate its LED and sound its buzzer during the test; any unit that does not respond during lamp test has a failed LED or buzzer module — replace before it is needed in an actual alarm condition',i:'Weekly',b:'ann'},
+   {t:'Inspect 855P units for cracked or discolored lenses',n:'Inspect the LED lens covers on all 855P units for cracks, yellowing, or heavy soot buildup that reduces light output; a discolored or cracked lens makes the alarm hard to see in the engine room; clean with a damp cloth or replace the lens assembly',i:'Monthly',b:'ann'},
+  ],
+  probs:[
+   {p:'855P buzzer sounds but LED is dark — or LED is lit but no buzzer',
+    c:['Dual-circuit design — buzzer and LED driven by separate PLC outputs; one output may be de-energized','LED module or buzzer module has failed — modular 855P units allow individual replacement'],
+    s:['Check PLC output status for both the buzzer output and the LED output for this alarm point — if one output is energized and the other is not, the issue may be in the PLC program logic (acknowledge silenced the buzzer output but not the LED, which is normal)','If both PLC outputs are confirmed energized but one element is still dark/silent: replace the failed module'],},
+   {p:'855P unit not responding at all — no LED, no buzzer during confirmed alarm',
+    c:['Power supply to the 855P panel circuit is off — check 24VDC bus','PLC output module for that point has failed','Wiring from PLC output to 855P terminal is broken'],
+    s:['Verify 24VDC supply voltage at the 855P terminals with a multimeter','Check the PLC output module for that point — the output LED on the module face should illuminate when the output is energized','If module LED is on but 855P does not respond: trace the wiring from module terminal to 855P terminal for a broken or loose connection']},
+  ]},
+
+ 'ab-stacklight':{t:'Stack Lights / Beacons — Bulletin 855T/855E Tower Lights',sys:'Electronics Room',st:'ok',
+  desc:'Allen-Bradley Bulletin 855T and 855E stack lights are heavy-duty multi-color tower lights installed at a high, visible point in the engine room — typically on a wall mount or pedestal above head height — to provide visual alarm indication that is visible throughout the entire engine room even when the operator is not at the control panel. The tower light stacks up to five colored modules (red, amber, green, blue, white) that can be independently controlled by PLC outputs. In a marine alarm system, red indicates a critical fault requiring immediate attention, amber indicates a warning condition, and green indicates all systems normal. The 855E series adds audible horns or buzzers as part of the stack. Because the engine room is a high-noise environment, the visual beacon provides a backup to the audible alarm that is visible from any point in the space.',
+  loc:'Mounted high on the engine room wall or on a pedestal where it is visible from all areas of the engine room. Wired back to Allen-Bradley PLC digital output terminals. The stack light is the most visible alarm indicator in the engine room — it should be visible from the engine room entrance, from beside each main engine, and from the bilge access areas.',
+  specs:[['Series','855T (standard duty) or 855E (with audible horn) — verify on unit label'],['Module colors','Red = critical fault; Amber/Yellow = warning; Green = all clear/running normal'],['Mounting','Wall mount, pipe mount, or pedestal — high visibility location required'],['Voltage','24VDC or 120VAC — verify on unit label'],['Driven by','Allen-Bradley PLC digital output modules — one output per stack segment'],['IP rating','IP65 minimum — sealed against engine room moisture and cleaning water']],
+  parts:[
+   ['Stack Light Module — Red','(855T or 855E — by series and voltage)','Replace if module does not illuminate when PLC output confirmed energized','1/stack'],
+   ['Stack Light Module — Amber','(855T or 855E — by series and voltage)','Replace individual modules — stack is modular','1/stack'],
+   ['Stack Light Module — Green','(855T or 855E — by series and voltage)','Replace individual modules','1/stack'],
+   ['855E Horn/Buzzer Module','(855E series only)','Replace if audible alarm does not sound on critical fault with PLC output confirmed','1/stack'],
+  ],
+  maint:[
+   {t:'Verify all stack light segments illuminate during lamp test',n:'During the weekly lamp test: verify each colored module (red, amber, green) on the tower light illuminates; a dark module means the LED stack segment has failed; replace before it is needed in an alarm condition — a failed red module means a critical fault may go unnoticed by someone working at the far end of the engine room',i:'Weekly',b:'ann'},
+   {t:'Clean tower light lens modules',n:'Wipe down the colored plastic lens modules on the tower light; soot and oil film from the engine room builds up on the lenses and significantly reduces light output; clean monthly with a damp cloth',i:'Monthly',b:'ann'},
+  ],
+  probs:[
+   {p:'Stack light red module not illuminating during a critical fault condition',
+    c:['LED module has burned out','PLC output for the red stack segment is not energized — program or output module fault','Wiring from PLC to stack light has broken'],
+    s:['Verify PLC output for red stack segment is energized (check output module LED for that point)','If PLC output is confirmed on: test voltage at the stack light terminals; if voltage present but module dark, module has failed','If no voltage at stack terminal: trace wiring from output module terminal to stack light for break or loose connection'],},
+  ]},
+
+ 'ab-io':{t:'I/O Modules — Allen-Bradley Input/Output',sys:'Electronics Room',st:'ok',
+  desc:'I/O (Input/Output) modules are the interface between the PLC processor and the physical world of sensors, switches, and actuators aboard the vessel. Input modules receive signals from sensors — oil pressure switches, temperature sensors, bilge level floats, fire detectors, run/stop status contacts — and present them to the PLC program as digital (on/off) or analog (variable, such as 4–20 mA temperature or pressure signals) data. Output modules receive commands from the PLC program and switch power to alarm hardware (855P beacons, stack lights, shutdown relays, horn contacts). Each I/O module has a row of status LEDs on its face — one per channel — that show the current state of each input or output. These LEDs are the fastest diagnostic tool on the entire PLC system: a sensor that should be showing "normal" but has a dark or faulted input LED tells you immediately that the sensor, its wiring, or its power supply has a problem.',
+  loc:'In the PLC chassis, occupying slots adjacent to the CPU. Input modules are typically in the leftmost positions after the power supply and CPU; output modules follow. Each module is labeled with its slot number and I/O type. Field wiring from sensors and alarm devices connects to the screw terminals or push-in connectors on each module\'s removable wiring block.',
+  specs:[['Input types','Digital input (24VDC, 120VAC) — on/off switches and contacts; Analog input (4–20 mA, 0–10V) — sensors with variable output like temperature and pressure transmitters'],['Output types','Digital output (24VDC, 120VAC, relay) — drives alarm hardware and shutdown relays; Analog output (4–20 mA) — drives positioners and variable devices'],['Status LEDs','One green LED per channel — lit = signal present (input) or output energized; dark = no signal; amber/red on some modules = module fault'],['Module fault','Red or amber module status LED means the module itself has a hardware fault — not a field wiring issue'],['Channel fault (analog)','A blinking or amber channel LED on an analog input module means the 4–20 mA signal is out of range — open sensor, broken wire, or failed transmitter'],['Wiring block','Removable — can be unplugged from module for bench testing without disconnecting all field wiring']],
+  parts:[
+   ['Digital Input Module','(Allen-Bradley — by chassis type and voltage; e.g., 1756-IB16 or 1747-IB16)','Replace if module fault LED is illuminated and field wiring and power are confirmed correct','Per slot'],
+   ['Digital Output Module','(e.g., 1756-OB16 or 1747-OB16)','Replace if PLC output is commanded ON in software but output LED is dark and module fault LED is on','Per slot'],
+   ['Analog Input Module','(e.g., 1756-IF8 or 1747-NI4)','Replace if multiple analog channels show out-of-range faults with confirmed good sensors','Per slot'],
+   ['Removable Wiring Block / Terminal Block','(by module model)','Replace if terminal screws are stripped or block is cracked — wiring block is a separate part from the module itself','Per module'],
+  ],
+  maint:[
+   {t:'Read I/O module LEDs at every engine room round',n:'Walk the PLC chassis at each 2–4 hour round and glance at the I/O module channel LEDs; every channel that has an active sensor should show a lit or appropriate LED state; a channel LED that should be lit but is dark — or is blinking amber on an analog module — indicates a sensor, wiring, or power supply problem on that input; investigate before the alarm condition gets worse',i:'Every 2–4 hour round',b:'d'},
+   {t:'Clean PLC enclosure and check module seating — annually',n:'At annual service: open the PLC enclosure and inspect for moisture, corrosion, or insect intrusion; verify all I/O modules are firmly seated in their chassis slots (a partially unseated module causes intermittent communication faults); verify wiring block screws are tight; do not use compressed air to blow out the chassis — blown debris can lodge in module connectors',i:'Annually',b:'ann'},
+   {t:'Check wiring terminal torque on high-vibration circuits',n:'Engine room vibration can back out wiring terminal screws over time; at annual service, gently re-torque the wiring block terminal screws on all I/O modules (do not overtighten — strip threads); a loose terminal on a critical sensor input (oil pressure, overspeed, fire detector) can cause false alarms or a missed real alarm',i:'Annually',b:'ann'},
+  ],
+  probs:[
+   {p:'One input channel LED is dark but the sensor should be active',
+    c:['Sensor has failed or is de-energized — most common cause','Broken or disconnected wire from sensor to I/O module terminal','24VDC power supply to the sensor circuit has failed or fuse is blown'],
+    s:['Check the sensor itself — verify it is powered (24VDC at the sensor power terminals) and that the sensor is not mechanically damaged','Test continuity of the wire from sensor output terminal to I/O module input terminal','If sensor is confirmed good and wiring is intact: measure voltage at the I/O module terminal — if voltage is present but LED is dark, the module input channel may have failed (less common); substitute a spare channel if available'],},
+   {p:'Analog input channel blinking amber — "out of range" indication',
+    c:['4–20 mA signal from sensor is below 4 mA or above 20 mA — open circuit (wire break) or failed transmitter','Sensor is at the physical extreme of its range (over-temperature, over-pressure) — reading above 20 mA is a saturated signal'],
+    s:['Measure the 4–20 mA signal at the I/O module terminals with a clamp meter or loop calibrator; a reading of 0 mA means an open circuit (broken wire or failed transmitter); a reading of >20 mA means the sensor is at or beyond its maximum range — check the physical process value','If 4–20 mA signal is confirmed in the normal range but module still shows fault: the analog module may need calibration or has failed']},
+  ]},
+
  'fuel-tank':{t:'Fuel Storage Tanks — Wing Tanks',sys:'Fuel & Lube Oil',st:'ok',
   desc:'The port and starboard wing tanks are the primary diesel fuel storage for both main engines and generators. Tank capacity and fuel quality directly determine range and operational reliability. Water accumulation at the tank bottom is the most common fuel system problem on river vessels — condensation forms inside partially-filled tanks and settles below the diesel. Microbial growth (diesel bug) thrives at the fuel-water interface and can clog filters, damage injectors, and contaminate an entire fuel system rapidly.',
   loc:'Port and starboard hull sides — wing tanks integrated into hull structure. Fill deck plates on main deck. Vent pipes terminate above deck. Sounding tubes allow depth measurement. Suction and return lines run to day tank and engine fuel systems.',
@@ -2624,6 +2804,375 @@ const DET={
     s:['Pre-fill procedure: with new element installed, slowly crack the vent on the new housing to let oil fill it before transferring','Transfer valve must be moved smoothly and deliberately — not jerked','If pressure drop occurs: hold at current position until pressure stabilizes']},
   ]},
 
+ 'chill-unit':{t:'Chiller Unit — Vapor-Compression Refrigeration',sys:'Chiller System',st:'ok',
+  desc:'The chiller unit is the central refrigeration machine that cools the vessel\'s chilled water loop for crew quarters and pilothouse air conditioning. It operates on the vapor-compression refrigeration cycle: the compressor raises refrigerant pressure and temperature; the condenser rejects heat to sea water or the keel cooler circuit; the expansion valve drops refrigerant pressure and temperature; and the evaporator (chiller barrel) absorbs heat from the chilled water circuit. The chilled water is then pumped through fan coil units throughout the vessel where it cools the air. Most marine chillers on towboats use R-410A or R-134a refrigerant and are packaged units with controls, safeties, and the full refrigerant circuit in one housing.',
+  loc:'Engine room or dedicated HVAC mechanical space. The chiller unit is typically the largest component in the HVAC system — a packaged housing containing the compressor, condenser (or condenser water connections), evaporator barrel, expansion valve, and controls. Chilled water supply and return connections run to the pilothouse and crew quarters. Condenser water connections tie into the sea water system or keel cooler circuit.',
+  specs:[['Type','Vapor-compression packaged chiller — water-cooled condenser'],['Refrigerant','R-410A or R-134a — verify on unit nameplate; do not mix refrigerants'],['Chilled water supply temp','Typically 44–48°F leaving the evaporator — verify on unit spec'],['Condenser cooling','Sea water or keel cooler circuit — verify on installation drawing'],['Compressor type','Scroll or reciprocating — verify on unit nameplate'],['Safety controls','High pressure cutout, low pressure cutout, low chilled water temp cutout, freeze protection'],['EPA 608','Refrigerant handling requires EPA Section 608 certification — no unauthorized refrigerant work']],
+  parts:[
+   ['Refrigerant Charge','(by refrigerant type — R-410A or R-134a, per unit nameplate)','Verify refrigerant type on nameplate before adding charge; do not add refrigerant without identifying and repairing leak first','Per unit'],
+   ['Refrigerant Filter/Drier','(by chiller model)','Replace filter/drier any time the refrigerant circuit is opened or when moisture is suspected in the system','1/circuit'],
+   ['Sight Glass','(by refrigerant line size)','Replace if cracked or discolored — sight glass bubbling indicates low charge; yellow moisture indicator on drier sight glass means moisture in the system','1/unit'],
+   ['Condenser Water Strainer','(by pipe size)','Clean at monthly service — a clogged condenser water strainer reduces heat rejection and raises compressor discharge pressure','1/unit'],
+  ],
+  maint:[
+   {t:'Check chiller operation daily — supply temp and compressor status',n:'Note the chilled water supply temperature leaving the evaporator and compare to setpoint; verify compressor is running and not short-cycling (starting and stopping rapidly — indicates a control or refrigerant issue); check for any alarm indicators on the controller',i:'Daily (when chiller is in service)',b:'d'},
+   {t:'Clean condenser water strainer — monthly',n:'Isolate and clean the strainer on the condenser water supply line; a clogged strainer reduces flow, raises condensing temperature, and causes the high-pressure cutout to trip',i:'Monthly',b:'ann'},
+   {t:'Check refrigerant sight glass and moisture indicator',n:'Observe the sight glass in the liquid line — clear steady flow is normal; bubbles indicate low charge; the moisture indicator dot should be green (dry); yellow or pink indicates moisture in the circuit — moisture destroys compressor valves and causes acid formation in the oil',i:'Monthly',b:'ann'},
+   {t:'Inspect condenser water tubes for fouling — annually',n:'At annual service: inspect condenser water-side tubes for scale, biological fouling, or corrosion; a fouled condenser raises condensing pressure and reduces efficiency; clean with approved descaler if scale is present',i:'Annually',b:'ann'},
+   {t:'Check compressor oil level',n:'Check crankcase oil level on reciprocating compressors per the manufacturer\'s procedure (scroll compressors are typically oil-flooded and do not have a separate level check); oil level dropping over time indicates oil carryover into the refrigerant circuit',i:'Monthly',b:'ann'},
+  ],
+  probs:[
+   {p:'Chiller not cooling — compressor running but chilled water temp not reaching setpoint',
+    c:['Low refrigerant charge — system is undercharged from a leak','Condenser fouled or condenser water flow inadequate — cannot reject heat','Expansion valve stuck or failed — incorrect refrigerant flow to evaporator'],
+    s:['Check sight glass — bubbles indicate low charge; have a certified technician check charge and find the leak before adding refrigerant','Check condenser water flow and temperature — if condenser water is too warm or restricted, the high side pressure will be elevated; clean condenser strainer','If charge and condenser are normal: check TXV operation — a TXV that is stuck closed produces low suction pressure; one stuck open produces low superheat and liquid slugging'],},
+   {p:'High pressure cutout tripping — compressor shutting down on high side pressure',
+    c:['Condenser water flow low or temperature too high — heat rejection inadequate','Refrigerant overcharged — too much refrigerant in the system','Non-condensables (air) in the refrigerant circuit — trapped air raises high side pressure'],
+    s:['Check condenser water supply temperature and flow — the condenser must see cool water at adequate flow','If condenser water is normal: check for overcharge by checking subcooling at the condenser outlet — excessive subcooling indicates overcharge','Non-condensables require a certified technician to purge the circuit']},
+  ]},
+
+ 'chill-comp':{t:'Refrigerant Compressor — Scroll or Reciprocating',sys:'Chiller System',st:'ok',
+  desc:'The compressor is the heart of the refrigeration system. It draws low-pressure refrigerant vapor from the evaporator and compresses it to high pressure and high temperature, driving it to the condenser. Scroll compressors (most common on modern marine chillers) use two interlocking spiral scrolls — one fixed, one orbiting — to progressively compress refrigerant. They are quieter, more efficient, and have fewer moving parts than reciprocating compressors. Reciprocating (piston) compressors use pistons in cylinders with suction and discharge valves, similar to a small engine. Both types require proper lubrication and must not be started with liquid refrigerant in the suction line (liquid slugging destroys compressor valves or scroll plates instantly).',
+  loc:'Inside the packaged chiller unit housing. The compressor is identifiable as the largest motor-driven component on the chiller — typically has refrigerant suction and discharge lines connected to it. A sight glass on the crankcase (reciprocating type) allows oil level inspection. Scroll compressors may have a crankcase heater (band heater around the base) that must be energized when the compressor is idle to prevent refrigerant migration into the oil.',
+  specs:[['Type','Scroll (most common on packaged chillers) or reciprocating'],['Refrigerant','Per unit nameplate — R-410A or R-134a'],['Voltage','480VAC 3-phase or 208VAC 3-phase — verify on compressor nameplate'],['Oil type','Polyolester (POE) oil — required for HFC refrigerants; do not use mineral oil'],['Crankcase heater','Must be energized when compressor is idle — prevents refrigerant migration into oil'],['Liquid slugging','Never allow liquid refrigerant into compressor suction — destroys scroll plates or valves instantly']],
+  parts:[
+   ['Compressor Assembly','(by chiller model and refrigerant type)','Replace complete compressor if scroll plates or valves are damaged — field repair is not practical','1/chiller'],
+   ['Crankcase Heater','(by compressor model — band heater)','Replace if resistance reads open (infinite ohms) — a failed crankcase heater allows refrigerant to migrate into oil during shutdown','1/compressor'],
+   ['Contactor / Starter','(by compressor motor amperage)','Replace if contacts are pitted or burned','1/compressor'],
+   ['POE Compressor Oil','(by compressor model — ounce quantity on nameplate)','Use only POE oil of the correct viscosity — do not mix oil types','Per oil change'],
+  ],
+  maint:[
+   {t:'Verify crankcase heater is energized during shutdown periods',n:'When the chiller is off for the season or extended shutdown: confirm the crankcase heater circuit is energized and the heater is warm to the touch; a cold crankcase heater means the heater has failed — replace before starting the compressor or refrigerant migration into the oil will cause slugging on startup',i:'Before every startup after extended shutdown',b:'ann'},
+   {t:'Check compressor amperage during operation',n:'With the chiller running at normal load: check the compressor motor amperage on all three phases and compare to the nameplate RLA (rated load amps); unbalanced phase current indicates motor winding issues; amperage above RLA indicates overload or refrigerant problem',i:'Monthly',b:'ann'},
+   {t:'Listen for abnormal compressor noise',n:'Normal scroll compressors are relatively quiet with a steady hum; knocking, rattling, or a liquid slugging sound (like gravel in a can) indicates a serious problem — liquid refrigerant entering the compressor or internal mechanical damage; shut down immediately and investigate',i:'Daily when in service',b:'d'},
+  ],
+  probs:[
+   {p:'Compressor will not start — no hum, trips breaker, or trips overload',
+    c:['Electrical fault — check breaker, contactor, overload relay','High or low pressure cutout has tripped — must be manually reset on some units','Motor winding failure — open or shorted winding'],
+    s:['Check breaker and contactor first; reset tripped safety switches and observe if compressor starts','If safety switch trips repeatedly: do not reset without identifying the cause — repeated trips damage the compressor','Measure compressor motor winding resistance — open or shorted winding requires compressor replacement'],},
+   {p:'Compressor makes knocking or liquid slugging sound',
+    c:['Liquid refrigerant reaching compressor suction — TXV failed open, crankcase heater failed, or system overcharged','Broken scroll plate or valve — internal mechanical damage'],
+    s:['SHUT DOWN IMMEDIATELY — continued operation with liquid slugging destroys the compressor','If crankcase heater failed and compressor was started cold after long shutdown: liquid refrigerant migration is the likely cause; allow heater to warm the compressor for 24 hours before attempting restart','If slugging continues after confirming heater function: TXV may be stuck open; call a certified technician']},
+  ]},
+
+ 'chill-cond':{t:'Condenser / Heat Rejection',sys:'Chiller System',st:'ok',
+  desc:'The condenser rejects the heat absorbed by the refrigerant circuit to the cooling medium — either sea water or the vessel\'s keel cooler circuit. Hot, high-pressure refrigerant vapor from the compressor enters the condenser and gives up its heat to the cooling water, condensing from vapor to liquid. The effectiveness of the condenser directly determines how hard the compressor must work — a fouled condenser with poor heat transfer forces the compressor to run at elevated discharge pressure, reducing efficiency and eventually tripping the high-pressure cutout.',
+  loc:'Inside the packaged chiller unit or as a separate shell-and-tube or plate heat exchanger adjacent to the chiller. Condenser water supply and return connections are visible — sea water supply comes from the sea chest system or a dedicated cooling water pump; keel cooler installations have the condenser water tied into the hull cooling circuit.',
+  specs:[['Type','Shell-and-tube or plate HX — refrigerant on one side, cooling water on the other'],['Cooling medium','Sea water or keel cooler circuit — verify on installation drawing'],['Fouling','Scale on cooling water side reduces heat transfer and raises condensing pressure'],['Zinc anodes','Install in sea water cooled condensers — inspect and replace at annual service'],['Approach temperature','Difference between condensing temp and leaving cooling water temp — rising approach indicates fouling']],
+  parts:[
+   ['Condenser Zinc Anodes','(by condenser model — sea water cooled only)','Replace when more than 50% wasted; inspect at every annual service','Per condenser'],
+   ['Condenser Water Gasket Set','(by condenser model)','Replace at any condenser opening','1/condenser'],
+   ['Condenser Water Strainer','(by pipe size)','Clean monthly; replace screen if torn or corroded','1/condenser'],
+  ],
+  maint:[
+   {t:'Clean condenser water tubes — annually or when head pressure is elevated',n:'At annual service: open condenser water heads and inspect tubes for scale, biological fouling, or corrosion; clean with an approved descaler; a clean condenser runs at lower head pressure and the compressor runs more efficiently',i:'Annually',b:'ann'},
+   {t:'Inspect and replace zinc anodes — sea water cooled condensers only',n:'Zinc anodes in sea water cooled condensers protect the condenser shell from galvanic corrosion; inspect at each annual service; replace if more than 50% consumed',i:'Annually',b:'ann'},
+  ],
+  probs:[
+   {p:'High condensing pressure / high-pressure cutout tripping',
+    c:['Condenser water flow inadequate — strainer clogged or pump underperforming','Condenser tubes fouled — scale reducing heat transfer','Condenser water temperature too high — ambient sea water or keel cooler overloaded'],
+    s:['Clean condenser water strainer first','If flow is adequate: measure condenser water temperature in and out — a small differential with high discharge pressure confirms fouling; clean condenser','If condenser is clean and flow is good: the cooling water supply is too warm for the load']},
+  ]},
+
+ 'chill-evap':{t:'Evaporator / Chiller Barrel',sys:'Chiller System',st:'ok',
+  desc:'The evaporator (chiller barrel) is the heat exchanger where refrigerant absorbs heat from the chilled water circuit. Low-pressure, low-temperature liquid refrigerant enters the evaporator, absorbs heat from the chilled water, and evaporates into vapor. The chilled water exits at the setpoint temperature (typically 44–48°F) and is pumped to the fan coil units throughout the vessel. The evaporator must be protected from freezing — if chilled water flow stops while the compressor is running, the evaporator can freeze solid and crack the shell.',
+  loc:'Inside the packaged chiller unit — the chiller barrel is the heat exchanger connected to the chilled water supply and return piping. A freeze protection thermostat or flow switch is typically installed on or near the evaporator to shut the compressor if chilled water flow is lost.',
+  specs:[['Chilled water leaving temp','Typically 44–48°F — verify on unit controls setpoint'],['Freeze protection','Low chilled water temp cutout — shuts compressor if CHW approaches 32°F'],['Flow switch','Some units require minimum CHW flow to permit compressor operation'],['Fouling','Chilled water side may scale if water treatment is not maintained']],
+  parts:[
+   ['Evaporator Freeze Stat','(by chiller model)','Replace if the compressor shuts down on freeze protection with normal CHW flow — stat may be out of calibration','1/evaporator'],
+   ['Flow Switch','(by pipe size)','Replace if compressor will not start with CHW pump running — flow switch may be failed open','1/CHW circuit'],
+  ],
+  maint:[
+   {t:'Verify evaporator freeze protection is functional',n:'Test the freeze protection cutout annually per the manufacturer\'s procedure — a failed freeze stat allows the evaporator to ice up and crack the shell, which is a major repair',i:'Annually',b:'ann'},
+   {t:'Monitor chilled water temperature differential across evaporator',n:'Measure CHW temperature in and out of the evaporator during normal operation — a reducing temperature differential with the same load indicates either reduced CHW flow or evaporator fouling on the water side',i:'Monthly',b:'ann'},
+  ],
+  probs:[
+   {p:'Evaporator iced up — chiller not cooling, frost on barrel',
+    c:['Chilled water flow stopped while compressor ran — pump failure or valve closed','Low refrigerant charge — evaporator temperature dropped below setpoint without enough heat absorption'],
+    s:['Shut down compressor immediately — do not run a frozen evaporator','Allow barrel to thaw completely before restarting — do not use heat guns or open flame','Identify why flow stopped or why evaporator temperature was too low before restarting']},
+  ]},
+
+ 'chill-txv':{t:'Thermostatic Expansion Valve (TXV)',sys:'Chiller System',st:'ok',
+  desc:'The TXV meters liquid refrigerant into the evaporator at the precise rate needed to fully evaporate all the liquid before the suction line reaches the compressor. It senses the suction line temperature via a sensing bulb and adjusts opening to maintain a target superheat (typically 8–12°F). Too little opening: refrigerant starves the evaporator, low capacity. Too much opening: liquid refrigerant reaches the compressor — liquid slugging destroys scroll plates or piston valves.',
+  loc:'In the liquid refrigerant line entering the evaporator. The TXV body is a small valve with inlet, outlet, and an external equalizer connection (on balanced-port valves). The sensing bulb is clamped to the suction line leaving the evaporator and must have good thermal contact.',
+  specs:[['Function','Meters refrigerant into evaporator — maintains 8–12°F superheat at evaporator outlet'],['Sensing bulb','Must be firmly clamped to suction line and insulated — loose bulb causes hunting'],['Failure modes','Stuck closed (starves evaporator) or stuck open (liquid slugging to compressor)'],['EPA 608','Any TXV replacement that opens the refrigerant circuit requires EPA Section 608 certification']],
+  parts:[
+   ['TXV Assembly','(by refrigerant type and capacity — verify on chiller data plate)','Replace if stuck open or closed and system is correctly charged','1/circuit'],
+   ['TXV Sensing Bulb Clamp','(by suction line size)','Replace if corroded — bulb must have solid contact with suction line','1/TXV'],
+  ],
+  maint:[
+   {t:'Verify sensing bulb is firmly clamped and insulated',n:'At annual service: check that the TXV sensing bulb is tightly clamped to the suction line, positioned correctly (at 4 or 8 o\'clock on the suction line, not at the top or bottom), and wrapped with insulation tape to prevent ambient temperature from affecting the reading',i:'Annually',b:'ann'},
+  ],
+  probs:[
+   {p:'Low suction pressure, low capacity, evaporator starved',
+    c:['TXV stuck closed or underfeeding — insufficient refrigerant to evaporator','Low refrigerant charge — TXV cannot feed evaporator even fully open','Sensing bulb has lost charge or is poorly mounted'],
+    s:['Check system charge via sight glass first — bubbles indicate low charge','If charge is correct: check superheat at evaporator outlet — high superheat (>15°F) with normal charge confirms TXV is underfeeding','Check sensing bulb mounting and insulation — a warm bulb reading falsely causes TXV to close']},
+  ]},
+
+ 'chill-chwpump':{t:'Chilled Water Pump — Distribution',sys:'Chiller System',st:'ok',
+  desc:'The chilled water pump circulates the chilled water loop between the evaporator and the fan coil units throughout the vessel. It must run continuously whenever the chiller is operating — the evaporator freeze protection system depends on chilled water flow to prevent the barrel from freezing solid. The pump is typically a small inline centrifugal pump sized for the chilled water loop pressure drop.',
+  loc:'In the chilled water piping circuit, typically close to the chiller unit. The pump is visible as an inline motor-driven centrifugal pump with flanged or threaded connections. Isolation valves on either side allow pump removal without draining the entire system.',
+  specs:[['Type','Inline centrifugal pump — motor-direct-coupled'],['Must run whenever compressor runs','Chiller freeze protection depends on CHW flow'],['Voltage','120VAC or 208/240VAC single phase typical — verify on motor nameplate'],['Direction of flow','Verify arrow on pump body — pump installed backward produces almost no flow']],
+  parts:[
+   ['Chilled Water Pump Cartridge / Impeller','(by pump model)','Replace if pump produces no flow with motor running — impeller may be worn or shaft seal failed','1/pump'],
+   ['Pump Shaft Seal','(by pump model)','Replace if dripping at pump body — shaft seal weeping is normal in small amounts; steady drip or stream requires immediate replacement','1/pump'],
+   ['Pump Motor','(by motor nameplate specs)','Replace if motor fails to start with voltage confirmed at terminals','1/pump'],
+  ],
+  maint:[
+   {t:'Verify CHW pump is running when chiller is operating',n:'Confirm the chilled water pump is running whenever the compressor is on — feel the piping for flow (warm return, cool supply), or observe the pressure differential across the pump; no flow with compressor running will freeze the evaporator',i:'Daily when chiller is in service',b:'d'},
+   {t:'Check pump for leaks at shaft seal',n:'Inspect the pump shaft seal area for water leakage; a small amount of dripping may be acceptable (some seal types require a small amount of leakage for lubrication) but a steady stream indicates seal replacement is needed',i:'Monthly',b:'ann'},
+  ],
+  probs:[
+   {p:'No chilled water flow — evaporator freezing or freeze protection tripping',
+    c:['Pump motor failed or not energized','Air lock in chilled water circuit — air preventing pump from priming','Flow switch or valve in circuit is closed'],
+    s:['Verify motor is energized and running','If motor runs but no flow: check for air lock — open the air vent on the highest point of the system','Check isolation valves are fully open','If all are correct: impeller may be worn or pump is cavitating']},
+  ]},
+
+ 'chill-ahu':{t:'Air Handling Unit (AHU)',sys:'Chiller System',st:'ok',
+  desc:'The air handling unit is the central air distribution component — it draws return air from the vessel, passes it over the chilled water coil (where heat is removed), filters it, and distributes conditioned air through ductwork to the spaces. On towboats, the AHU typically serves the pilothouse and crew quarters together or as separate zones. The AHU contains the fan, chilled water coil, condensate drain pan, and air filters.',
+  loc:'Typically in a centrally located mechanical space or in the overhead of the engine room — wherever ductwork runs to the served spaces. The AHU has ductwork supply and return connections, a chilled water coil with supply and return piping connections, a condensate drain pan connection, and an electrical supply for the fan motor.',
+  specs:[['Components','Fan motor, chilled water coil, condensate drain pan, air filter frame'],['Condensate','AHU must have an unobstructed condensate drain — a blocked drain floods the drain pan and eventually the space below'],['Filter type','Media type varies — verify on AHU nameplate or existing filter label'],['Fan direction','Verify fan rotation at startup — backward rotation significantly reduces airflow']],
+  parts:[
+   ['AHU Air Filter','(by AHU model and filter size — measure existing filter)','Replace on schedule or when pressure drop across filter rises; a loaded filter restricts airflow','Per schedule'],
+   ['Chilled Water Coil','(by AHU model)','Replace if coil is leaking or physically damaged — fin damage reduces capacity','1/AHU'],
+   ['Fan Motor','(by motor nameplate specs)','Replace if motor fails to start with voltage at terminals','1/AHU'],
+   ['Condensate Drain Pan','(by AHU model)','Replace if pan is corroded or cracked — a leaking pan causes water damage below','1/AHU'],
+  ],
+  maint:[
+   {t:'Replace or clean air filters — monthly or on condition',n:'Replace AHU filter elements on schedule. A loaded filter reduces airflow and causes the chilled water coil to ice up in extreme cases. Check filter condition monthly; replace when dirty regardless of schedule.',i:'Monthly',b:'ann'},
+   {t:'Inspect and clear condensate drain — monthly',n:'Verify the condensate drain from the AHU drain pan is clear and draining; pour a small amount of water into the pan to confirm it drains freely; a blocked condensate drain will overflow the pan and flood the space below or cause the unit to shut down on a high-water float switch',i:'Monthly',b:'ann'},
+   {t:'Clean chilled water coil fins — annually',n:'At annual service: inspect the chilled water coil fins for dirt buildup, corrosion, or physical damage; clean with coil cleaner and a gentle rinse; bent fins can be straightened with a fin comb to restore airflow',i:'Annually',b:'ann'},
+  ],
+  probs:[
+   {p:'AHU not cooling adequately — air coming out warm',
+    c:['Filter loaded — insufficient airflow over the coil','Chilled water not reaching the AHU coil — pump or valve issue','Chiller not producing setpoint temperature'],
+    s:['Check filter and replace if dirty','Verify chilled water supply and return temperatures at the AHU coil connections — if supply temp at the coil is warm, the issue is upstream in the chilled water circuit','If CHW is cold at the coil but air is still warm: check airflow — fan may be running backward or filter is severely restricted']},
+  ]},
+
+ 'chill-fcu':{t:'Fan Coil Units (FCU)',sys:'Chiller System',st:'ok',
+  desc:'Fan coil units are room-level air conditioning terminal devices — a small coil (chilled water for cooling or hot water for heating on a 4-pipe system) combined with a fan and filter in a compact housing. Each FCU serves one space and has an individual thermostat. The FCU draws room air through its filter, over the coil, and returns conditioned air to the space. On towboats, FCUs are typically installed in each crew cabin, the galley, and the pilothouse.',
+  loc:'Mounted in each air-conditioned space — typically in the overhead (ceiling-mounted) or high on the wall. Chilled water supply and return piping connects to each FCU. A condensate drain from each FCU drain pan must route to a drain or overboard.',
+  specs:[['Function','Room-level cooling (and heating on 4-pipe systems)'],['Controls','Individual room thermostat — may be manual valve or electronic BMS'],['Condensate','Each FCU has its own drain pan — must drain freely'],['Filter','Small foam or media filter in each FCU — clean or replace regularly']],
+  parts:[
+   ['FCU Filter','(by FCU model — typically foam or mesh)','Clean monthly; replace when deteriorated','Per FCU'],
+   ['FCU Fan Motor','(by FCU model)','Replace if fan will not run with voltage at motor','Per FCU'],
+   ['FCU Control Valve','(by pipe size and valve model)','Replace if valve will not close (room overcools) or will not open (no cooling)','Per FCU'],
+  ],
+  maint:[
+   {t:'Clean FCU filters — monthly',n:'Remove and clean (or replace) the small filter in each fan coil unit monthly; a dirty FCU filter restricts airflow and reduces cooling to that room',i:'Monthly',b:'ann'},
+   {t:'Check FCU condensate drains — monthly',n:'Verify each FCU drain pan is draining; a blocked FCU drain overflows the pan and drips into the space below — typically onto crew bedding or electronics',i:'Monthly',b:'ann'},
+  ],
+  probs:[
+   {p:'One cabin not cooling — other cabins cool fine',
+    c:['FCU filter clogged in that cabin','Control valve closed or stuck for that FCU','Fan motor failed in that FCU'],
+    s:['Check FCU filter first — a dirty filter is the most common cause','Verify control valve is opening — feel for flow in the chilled water coil by touching the coil connections; if connections are room temperature, no CHW is reaching the coil','If CHW flow is confirmed at the coil: check fan motor']},
+  ]},
+
+ 'chill-pressure':{t:'High / Low Pressure Switches — Compressor Protection',sys:'Chiller System',st:'ok',
+  desc:'The high-pressure (HP) and low-pressure (LP) cutout switches protect the compressor from operating outside its safe pressure range. The HP switch trips if discharge pressure exceeds the maximum — protecting against condenser fouling, loss of condenser water flow, or overcharge. The LP switch trips if suction pressure drops too low — protecting against refrigerant loss, evaporator freeze-up, or TXV blockage. Both switches are wired in series with the compressor contactor circuit — if either trips, the compressor shuts down and must typically be manually reset.',
+  loc:'On the refrigerant circuit — the HP switch is on the high-pressure side (discharge line or liquid line); the LP switch is on the suction line. Both are small pressure-actuated switches with a reset button. The HP switch typically has a manual reset; the LP switch may auto-reset after pressure recovers.',
+  specs:[['HP setpoint','Verify on chiller dataplate — typically 400–600 PSIG for R-410A; 250–350 PSIG for R-134a'],['LP setpoint','Verify on chiller dataplate — system-specific'],['Reset','HP switch: manual reset required after trip; LP switch: may auto-reset'],['Do not bypass','Never bypass or jumper pressure switches — the switch is preventing compressor destruction']],
+  parts:[
+   ['High Pressure Switch','(by chiller model and refrigerant setpoint)','Replace if switch trips at normal operating pressure — verify with gauge before condemning switch','1/circuit'],
+   ['Low Pressure Switch','(by chiller model and refrigerant setpoint)','Replace if switch does not trip at low pressure or trips at normal pressure','1/circuit'],
+  ],
+  maint:[
+   {t:'Test HP and LP switch operation — annually',n:'With a certified technician: test HP switch by reducing condenser water flow until discharge pressure rises to trip point; test LP switch by closing refrigerant suction service valve slowly; verify switch trips at correct setpoint and compressor shuts down; document setpoints',i:'Annually',b:'ann'},
+  ],
+  probs:[
+   {p:'Compressor repeatedly tripping on HP switch',
+    c:['Condenser water flow inadequate or temperature too high','Refrigerant overcharged','HP switch setpoint has drifted low'],
+    s:['Check condenser water immediately — clean strainer, verify pump running','If condenser water is normal: have a certified technician check refrigerant charge and high-side pressure with gauges before resetting the switch again']},
+  ]},
+
+ 'chill-controls':{t:'Chiller Controls & Thermostats',sys:'Chiller System',st:'ok',
+  desc:'The chiller controller manages compressor operation, setpoints, safety cutouts, and alarm outputs. It monitors chilled water supply temperature and cycles the compressor to maintain the setpoint. Individual room thermostats control the fan coil unit valves and fan speed in each space. On modern packaged chillers, the controller also monitors refrigerant pressures, compressor discharge temperature, and motor current, providing fault codes for diagnostics.',
+  loc:'Control panel mounted on the chiller unit housing. Individual room thermostats are mounted on the wall in each served space. The chiller control panel typically has a display showing CHW supply temp, setpoint, operating mode, and any active fault codes.',
+  specs:[['CHW setpoint','Typically 44–48°F — adjustable on controller'],['Fault display','Active faults display as codes — consult chiller service manual for code interpretation'],['Room thermostats','Individual setpoints per space — valve-type or electronic FCU controller'],['Power','Control circuit typically 24VAC — verify on control transformer label']],
+  parts:[
+   ['Room Thermostat','(by FCU model)','Replace if thermostat does not respond or holds valve open/closed regardless of setpoint','Per room'],
+   ['Control Transformer','(24VAC — by VA rating)','Replace if 24VAC control circuit has no power with line voltage confirmed at primary','1/unit'],
+  ],
+  maint:[
+   {t:'Verify chiller setpoint and confirm no active fault codes — monthly',n:'Check the chiller controller display monthly; note the CHW supply temperature and confirm it is at setpoint; review any stored fault codes and investigate before the next service',i:'Monthly',b:'ann'},
+  ],
+  probs:[
+   {p:'Chiller controller showing fault code — compressor will not start',
+    c:['Active safety trip stored in controller — HP, LP, freeze stat, or motor overload'],
+    s:['Note the fault code before resetting — the code identifies which safety tripped and directs diagnosis','Do not simply reset and restart without investigating the cause — repeated trips damage the compressor','Consult chiller service manual for fault code definitions']},
+  ]},
+
+ 'boil-unit':{t:'Boiler — Diesel-Fired Hot Water (Hydronic)',sys:'Boiler System',st:'ok',
+  desc:'The boiler is a diesel-fired hydronic (hot water) heating unit that provides heat to crew quarters and the pilothouse during cold weather operations. Unlike steam boilers, a hydronic boiler heats water to a high temperature (typically 160–180°F) and circulates it through the distribution system without converting it to steam — the system remains under pressure to prevent boiling. The diesel burner fires into a combustion chamber surrounded by a water jacket; heat is transferred from the combustion gases to the water jacket as the gases pass through heat exchanger tubes before exhausting through the flue. A thermostat (aquastat) senses boiler water temperature and cycles the burner on and off to maintain setpoint.',
+  loc:'Engine room or dedicated mechanical space — the boiler unit is recognizable as an insulated vessel with a burner assembly on the front face, flue outlet on the top or rear, and hot water supply and return connections. The aquastat/control box is mounted on or adjacent to the boiler. A fuel supply line from the diesel day tank connects to the burner.',
+  specs:[['Type','Diesel-fired hot water (hydronic) boiler'],['Supply water temp','Typically 160–180°F — verify on aquastat setpoint'],['System pressure','Typically 12–25 PSIG — verify on pressure gauge and relief valve rating'],['Fuel','No. 2 diesel (ULSD) — same fuel as main engines'],['Flue','Exhaust flue must be routed overboard — check for blockage or restricted draft'],['Annual inspection','Hydronic boilers require annual inspection and cleaning of heat exchanger tubes']],
+  parts:[
+   ['Aquastat Control','(by boiler model)','Replace if boiler water temp runs above or below setpoint with no other explanation — aquastat may have drifted out of calibration','1/boiler'],
+   ['Safety Relief Valve','(by pressure rating and BTU output — match to boiler nameplate)','Replace at 5-year intervals or if valve has opened; a relief valve that has opened may not reseat properly','1/boiler'],
+   ['Boiler Water Temperature/Pressure Gauge','(by gauge range)','Replace if reading is erratic or cannot be zeroed','1/boiler'],
+  ],
+  maint:[
+   {t:'Inspect and clean heat exchanger tubes — annually',n:'At annual service: inspect flue passages and heat exchanger tubes for soot and scale buildup; clean with a flue brush set; a sooty or scaled heat exchanger reduces efficiency and increases fuel consumption; inspect the flue outlet for blockage from bird nests or debris (especially after summer layup)',i:'Annually — before heating season',b:'ann'},
+   {t:'Check system pressure and expansion tank pre-charge — annually',n:'With the system cold (no pressure from heat): check the boiler system pressure gauge — system should show minimal pressure; check the expansion tank air pre-charge with a tire gauge (Schrader valve on tank); correct pre-charge is typically 12 PSI cold; a waterlogged expansion tank cannot absorb system expansion and causes the relief valve to open repeatedly',i:'Annually',b:'ann'},
+   {t:'Test safety relief valve — annually',n:'Briefly lift the relief valve test lever to verify it opens and reseats; if the valve does not reseat cleanly (continues to drip after releasing lever), replace the valve — a weeping relief valve indicates the seat is damaged; document the test',i:'Annually',b:'ann'},
+   {t:'Check fuel supply and burner operation — monthly during heating season',n:'Verify the day tank fuel level, fuel supply valve is open, and the burner cycles on and off normally with the aquastat; listen for clean ignition (a brief ignition click followed by steady flame sound, not repeated ignition attempts with flameouts); repeated ignition failure indicates a fuel, igniter, or cad cell issue',i:'Monthly (heating season)',b:'ann'},
+  ],
+  probs:[
+   {p:'Boiler not heating — burner not firing',
+    c:['No call for heat — thermostat setpoint below room temperature','Fuel supply interrupted — day tank empty or supply valve closed','Igniter failed or cad cell (flame sensor) dirty — burner lockout after failed ignition attempts','Aquastat satisfied — boiler at setpoint already'],
+    s:['Verify room thermostats are calling for heat (set above current room temperature)','Check day tank fuel level and supply valve position','If burner attempts to fire but locks out: look for a red reset button on the burner control — press once to reset; if it locks out again, the burner has a flame failure (igniter, nozzle, or cad cell issue)','Do not reset the burner more than twice without investigating — repeated resets can flood the combustion chamber with fuel'],},
+   {p:'Relief valve opening repeatedly — water discharging from relief valve',
+    c:['System over-pressurizing — expansion tank waterlogged (no air cushion to absorb expansion)','Aquastat failed — boiler overheating above normal setpoint','Relief valve setpoint too low for operating pressure'],
+    s:['Check expansion tank pre-charge when system is cold — a waterlogged tank shows full water pressure even when cold; drain the tank, recharge the bladder, and refill','Check aquastat setpoint and verify boiler temperature is not exceeding setpoint','If tank and aquastat are correct: measure boiler operating pressure — relief valve may be opening at its correct setpoint because something else is wrong']},
+  ]},
+
+ 'boil-burner':{t:'Burner Assembly — Diesel Fuel Burner',sys:'Boiler System',st:'ok',
+  desc:'The burner assembly atomizes and ignites diesel fuel to produce a controlled flame inside the boiler combustion chamber. It consists of a fuel pump (draws fuel from the supply line and pressurizes it to atomization pressure), a nozzle (atomizes fuel into a fine mist), an igniter (high-voltage spark electrode that ignites the fuel mist on startup), a combustion air fan (supplies combustion air to the burner head), and a cad cell (flame sensor that confirms ignition and shuts down the burner if flame is not detected within the ignition trial period). The burner control (primary control) sequences these components: open fuel valve → spark → confirm flame → run; if flame is not confirmed within the trial time, the primary control goes to lockout.',
+  loc:'Mounted on the front face of the boiler, projecting into the combustion chamber. The fuel supply line connects to the burner fuel pump. A high-voltage igniter cable runs from the primary control to the electrode. The cad cell faces into the combustion chamber through the burner tube.',
+  specs:[['Fuel','No. 2 diesel (ULSD) — same fuel as main engines and generators'],['Nozzle','Rated in GPH (gallons per hour) and spray angle — must match boiler BTU rating exactly'],['Fuel pump pressure','Typically 100–150 PSI — verify on pump label or service data'],['Igniter','High-voltage spark — 10,000+ volts; do not touch electrode during operation'],['Cad cell','Flame sensor — must have unobstructed view of flame; clean with dry cloth if dirty'],['Lockout reset','Red button on primary control — do not reset more than twice without investigating']],
+  parts:[
+   ['Burner Nozzle','(by GPH rating and spray angle — verify on boiler BTU rating and nozzle data)','Replace annually — nozzle wear causes poor atomization and sooty combustion; never attempt to clean a nozzle','1/burner'],
+   ['Igniter Electrode Assembly','(by burner model)','Replace if tip is cracked, heavily carbonized, or if spark gap is incorrect','1/burner'],
+   ['Cad Cell (Flame Sensor)','(by burner model)','Replace if burner goes to lockout on first ignition attempt but flame is visible — dirty or failed cad cell','1/burner'],
+   ['Burner Fuel Filter','(fine-micron, inline)','Replace annually — a clogged burner fuel filter drops fuel pressure at the nozzle and causes poor atomization','1/burner'],
+   ['Primary Control / Burner Controller','(by burner model)','Replace if burner sequencing is incorrect and electrodes, cad cell, and fuel supply are confirmed good','1/burner'],
+  ],
+  maint:[
+   {t:'Replace nozzle annually — before heating season',n:'Replace the burner nozzle every year regardless of condition; the nozzle orifice wears gradually from fuel flow and produces increasingly poor atomization before it is obviously failed; a new nozzle at the start of each heating season ensures clean efficient combustion',i:'Annually — before heating season',b:'ann'},
+   {t:'Clean cad cell — annually or on any lockout',n:'Remove the cad cell from its holder and wipe the lens face with a clean dry cloth; a dirty cad cell does not see the flame well and causes nuisance lockouts; do not use solvents on the cad cell lens',i:'Annually and after any lockout',b:'ann'},
+   {t:'Inspect and gap igniter electrodes — annually',n:'Inspect electrode tips for cracks or heavy carbon deposits; check the spark gap against the burner manufacturer\'s specification (typically 5/32 to 3/16 inch); a gap that is too wide or too narrow causes poor or no ignition',i:'Annually',b:'ann'},
+   {t:'Replace burner fuel filter — annually',n:'Replace the fine-micron fuel filter in the burner fuel supply line at each annual service; this filter protects the nozzle and fuel pump from debris; a clogged filter reduces fuel pressure and causes flameouts',i:'Annually',b:'ann'},
+  ],
+  probs:[
+   {p:'Burner goes to lockout — red reset button lit on primary control',
+    c:['No ignition — electrode gap wrong, cracked electrode, or no fuel at nozzle','Flame not detected — cad cell dirty or failed','Fuel supply interrupted — filter clogged or day tank empty'],
+    s:['Press reset once — observe through sight glass (if equipped) whether a flame appears; if flame appears briefly but cad cell does not see it, the cad cell needs cleaning or replacement','If no flame: check fuel supply pressure at burner pump; verify nozzle is not clogged (replace, do not clean)','If fuel and ignition are confirmed: check cad cell — cover it while burner is running; if burner continues to run (unlikely), cad cell is not in circuit; uncovering and burner shutting down confirms cad cell circuit is working'],},
+   {p:'Sooty combustion — black smoke from flue',
+    c:['Worn nozzle producing poor atomization — overdue for annual replacement','Insufficient combustion air — air shutter too closed or combustion air blower underperforming','Fuel pressure too low at nozzle — clogged filter or failing fuel pump'],
+    s:['Replace nozzle first — worn nozzle is the most common cause of sooty combustion','Check air shutter setting — open slightly and observe if combustion improves','Measure fuel pressure at burner — compare to spec; a low reading points to clogged filter or failing pump']},
+  ]},
+
+ 'boil-controls':{t:'Aquastat & Boiler Controls',sys:'Boiler System',st:'ok',
+  desc:'The aquastat is the primary boiler temperature controller — it senses boiler water temperature and switches the burner on when temperature drops below the low limit and off when it reaches the high setpoint. Most residential/light commercial aquastats also include a high-limit function: if boiler water temperature exceeds the high-limit setpoint (typically 20–30°F above the operating setpoint), the burner is shut down and must be manually reset. The room thermostats call for heat from the boiler — when any thermostat is calling, the circulating pump runs and the aquastat allows the burner to fire if boiler temperature is below the operating setpoint.',
+  loc:'Aquastat mounted on or adjacent to the boiler — a probe extends into the boiler water. The control box is typically a gray or cream colored housing with setpoint dials. Room thermostats are mounted on the walls of each heated space.',
+  specs:[['Operating setpoint','Typically 160–180°F — verify on aquastat dials'],['High limit setpoint','Typically 180–200°F — burner shuts down and must be reset if exceeded'],['Differential','Typically 10–20°F — burner fires at setpoint minus differential, shuts off at setpoint'],['Room thermostat','Controls zone valves or circulating pump relays — must be calling for heat before burner will fire']],
+  parts:[
+   ['Aquastat','(by boiler model — Honeywell L8148, Beckett, or equivalent)','Replace if boiler temp does not match setpoint dial consistently','1/boiler'],
+   ['Room Thermostat','(by thermostat type)','Replace if space does not respond to setpoint changes','Per room'],
+   ['Zone Valve','(by pipe size — 3/4 or 1 inch)','Replace if zone does not open (no heat) or does not close (room overheats)','Per zone'],
+  ],
+  maint:[
+   {t:'Verify aquastat setpoints are correct — before heating season',n:'Check that aquastat operating setpoint and high-limit setpoint are correctly set per the boiler specification; a high-limit setpoint that has been accidentally set too low will cause repeated nuisance shutdowns',i:'Annually — before heating season',b:'ann'},
+   {t:'Test high-limit function — annually',n:'With a qualified technician: temporarily lower the high-limit setpoint to slightly above the current boiler temperature to confirm it shuts down the burner; reset to correct setpoint; document the test',i:'Annually',b:'ann'},
+  ],
+  probs:[
+   {p:'Boiler overheating — high limit tripped',
+    c:['Circulating pump not running — no water flow, heat building up in boiler','Aquastat high-limit setpoint drifted low or failed','Zone valves all closed — no flow path through system'],
+    s:['Check circulating pump — if pump is not running, boiler water temperature can rise rapidly; verify pump is energized','Verify at least one zone valve is open','If pump is running and zones are open: check aquastat high-limit setpoint; if boiler temp is below the setpoint and high-limit tripped, the aquastat is out of calibration']},
+  ]},
+
+ 'boil-relief':{t:'Safety Relief Valve — Boiler Overpressure Protection',sys:'Boiler System',st:'ok',
+  desc:'The safety relief valve is a spring-loaded pressure relief device that opens automatically if boiler system pressure exceeds its rated setpoint, protecting the boiler and piping from catastrophic overpressure failure. It is the last line of defense against a boiler explosion. On hydronic heating systems, the relief valve is typically rated for 30 PSI — if system pressure reaches 30 PSI, the valve opens and discharges hot water until pressure drops below setpoint. The relief valve discharge must be piped to a safe location. A relief valve that has opened may not reseat perfectly afterward and may drip continuously — any valve that has opened should be replaced.',
+  loc:'Mounted directly on the boiler or on the supply piping close to the boiler — never downstream of any isolation valve. The discharge pipe from the relief valve must terminate within 6 inches of the floor or in a drain to prevent scalding from a hot water discharge.',
+  specs:[['Rated pressure','Verify on valve body — must match or be below boiler maximum allowable working pressure (MAWP)',''],['Test lever','Pull test lever annually to verify valve opens and reseats'],['Replace interval','Replace every 5 years regardless of condition, or any time the valve has opened'],['Do not cap','Never cap, plug, or restrict the relief valve discharge — this is illegal and causes boiler explosion risk'],['Codes','ASME Section IV, USCG 46 CFR Part 61 — boiler safety devices must be maintained']],
+  parts:[
+   ['Safety Relief Valve','(by pressure rating and BTU output — must match boiler MAWP)','Replace every 5 years and any time the valve has opened','1/boiler'],
+  ],
+  maint:[
+   {t:'Test relief valve — lift test lever annually',n:'Briefly lift the test lever on the relief valve — hot water should discharge from the outlet while the lever is held; release the lever and confirm the valve reseats cleanly with no continued dripping; if the valve continues to drip after releasing: replace the valve; document the test date',i:'Annually',b:'ann'},
+   {t:'Replace relief valve on 5-year schedule',n:'Replace the safety relief valve every 5 years regardless of condition; springs fatigue over time and the valve may not open at its rated setpoint after years of thermal cycling; the cost of a new valve is negligible compared to the risk of an overpressure event on a boiler',i:'Every 5 years',b:'dd'},
+  ],
+  probs:[
+   {p:'Relief valve dripping continuously after operating or test',
+    c:['Valve seat damaged from debris caught on seating surface when valve opened','Valve body fatigued from repeated thermal cycling — spring set'],
+    s:['Do not attempt to seat the valve by lifting and releasing the lever repeatedly — this wears the seat further','Replace the valve — a valve that has opened even once may not reseat cleanly','Before replacing: ensure system pressure is not above setpoint (waterlogged expansion tank can cause continuous high pressure)']},
+  ]},
+
+ 'boil-pump':{t:'Boiler Circulating Pump',sys:'Boiler System',st:'ok',
+  desc:'The circulating pump moves hot water from the boiler through the distribution system to the fan coil units, baseboards, or radiators, and returns cooled water back to the boiler. It must run whenever heat is being delivered to any space — without flow, the boiler overheats quickly and the high-limit aquastat trips. The pump is typically a small inline wet-rotor circulator (no separate shaft seal — the rotor runs in the system water) which makes it quiet and extremely reliable, but means it must run in clean water (no debris in the system).',
+  loc:'In the boiler supply or return piping close to the boiler. Inline circulator pumps have no shaft seal to leak — the motor rotor is immersed in system water. Unions on either side allow pump removal without draining the system. An isolation valve on each side allows servicing without full system drain.',
+  specs:[['Type','Inline wet-rotor circulator (most common) — motor rotor runs in system water'],['Flow direction','Arrow on pump body — confirm flow direction matches system diagram'],['Voltage','120VAC single phase (most small circulators) — verify on pump label'],['Auto or manual','Some systems have a circulator relay that runs the pump whenever any thermostat calls for heat']],
+  parts:[
+   ['Circulating Pump Cartridge','(by pump model — Taco, Grundfos, Bell & Gossett common brands)','Replace cartridge if pump does not move water with motor confirmed running — impeller or bearing failure','1/pump'],
+   ['Pump Flange Gasket Set','(by pump model)','Replace at any pump removal','1/pump'],
+  ],
+  maint:[
+   {t:'Verify circulating pump runs when heat is called',n:'Turn up a room thermostat and confirm the circulating pump starts and runs; feel the supply and return pipes — supply should feel hot, return slightly cooler; a pump that does not start when called for heat will cause the boiler to overheat and trip the high limit',i:'Monthly during heating season',b:'ann'},
+   {t:'Listen for pump noise — bearings or air lock',n:'A circulating pump should run nearly silently; a whirring or grinding noise indicates bearing wear; a gurgling sound indicates air in the pump — bleed air from the system at the pump air vent',i:'Monthly',b:'ann'},
+  ],
+  probs:[
+   {p:'Pump not running — no heat, boiler overheating',
+    c:['Pump motor failed — no continuity or open winding','Circulator relay not energizing pump when thermostat calls','Air lock in pump — impeller spinning in air instead of water'],
+    s:['Verify 120VAC at pump terminals when thermostat is calling — if voltage present and pump not running, pump is failed','If no voltage: check relay or control board','If pump hums but no flow: air lock is likely — locate and open the pump air vent or system air bleeder']},
+  ]},
+
+ 'boil-exptank':{t:'Hydronic Expansion Tank — Bladder Type',sys:'Boiler System',st:'ok',
+  desc:'The expansion tank accommodates the volume change of the hot water as it heats and cools. Water expands significantly when heated — without the expansion tank, system pressure would spike every time the boiler fires and the relief valve would open on every heating cycle. The bladder-type expansion tank has a rubber bladder that separates the system water from an air cushion pre-charged to a specific pressure. As water expands, it compresses the air cushion through the bladder. When the system cools, the air cushion pushes the water back into the system. A waterlogged tank (bladder failed — water fills the tank with no air cushion) causes the relief valve to open on every heating cycle.',
+  loc:'Connected to the boiler supply or return piping close to the boiler. The expansion tank is identifiable as a sealed tank (no opening other than the system connection and a Schrader valve for air pre-charge check). It may be floor-mounted or hung from the piping.',
+  specs:[['Type','Bladder expansion tank — pre-charged air cushion separated from system water by rubber bladder'],['Air pre-charge','Typically 12 PSI cold (no system pressure) — verify on tank label'],['Check pre-charge','Use a tire gauge on the Schrader valve with system pressure at zero (cold, no heat)'],['Waterlogged','Tank feels very heavy and full of water — bladder has failed; tank must be replaced'],['Size','Must be correctly sized for system volume — undersized tank causes relief valve to open on every heat cycle']],
+  parts:[
+   ['Expansion Tank','(by system volume and operating pressure — verify sizing on existing tank label)','Replace when bladder fails (tank is waterlogged) — bladders cannot be replaced separately','1/system'],
+  ],
+  maint:[
+   {t:'Check expansion tank pre-charge pressure — annually',n:'With the system cold and cold water pressure at zero or minimal: press the Schrader valve core on the expansion tank with a tire gauge; the reading should match the tank\'s pre-charge specification (typically 12 PSI); if it reads zero or very low with no water discharge, the bladder may have failed; if water comes out of the Schrader valve, the bladder has failed and the tank must be replaced',i:'Annually',b:'ann'},
+  ],
+  probs:[
+   {p:'Relief valve opening frequently — system overpressurizing on every heat cycle',
+    c:['Expansion tank bladder failed — waterlogged, no air cushion to absorb expansion','Expansion tank undersized for system volume','Expansion tank isolation valve closed (if equipped)'],
+    s:['Check expansion tank pre-charge when system is cold and at low pressure — a correct tank reads pre-charge pressure on the Schrader valve; a waterlogged tank lets water out of the Schrader valve','If tank is waterlogged: replace the expansion tank; do not attempt to drain and recharge a bladder-type tank through the Schrader valve — the bladder is ruptured','Verify expansion tank isolation valve is fully open if one is installed']},
+  ]},
+
+ 'boil-fuel':{t:'Boiler Fuel Supply Line',sys:'Boiler System',st:'ok',
+  desc:'The boiler fuel supply draws diesel from the vessel\'s diesel day tank — the same fuel system that serves the main engines and generators. A dedicated supply line runs from the day tank (or a branch from the main fuel system) to the boiler burner fuel pump. A shutoff valve allows the fuel to be isolated for burner service or emergency shutdown. A fine-micron filter protects the burner nozzle from diesel debris. The fuel return line returns unused fuel from the burner pump back to the day tank or supply.',
+  loc:'Fuel supply piping runs from the day tank supply header to the boiler burner fuel pump inlet. The shutoff valve is typically located close to the boiler for easy access. The fuel filter is in the supply line between the shutoff valve and the burner pump.',
+  specs:[['Fuel','No. 2 diesel (ULSD) — same as main engines'],['Shutoff valve','Manual shutoff — must be accessible for emergency fuel isolation'],['Filter','Fine-micron inline filter — protects burner nozzle'],['Return line','Unused fuel returns to day tank — verify return line is not blocked']],
+  parts:[
+   ['Boiler Fuel Filter','(fine-micron, by connection size)','Replace annually — a clogged filter drops burner fuel pressure and causes flameouts and lockouts','1/boiler'],
+   ['Fuel Shutoff Valve','(by pipe size)','Replace if valve leaks past seat when closed or handle is broken','1/boiler'],
+  ],
+  maint:[
+   {t:'Replace boiler fuel filter — annually before heating season',n:'Replace the fine-micron fuel filter in the boiler supply line at the start of each heating season; a partially clogged filter reduces fuel pressure at the burner nozzle and causes inconsistent combustion, flameouts, and burner lockouts',i:'Annually',b:'ann'},
+   {t:'Check fuel supply valve operation',n:'Exercise the fuel shutoff valve through full open to full closed to confirm it operates freely; a valve that has been in one position for years may seize; verify it returns to fully open after exercise',i:'Annually',b:'ann'},
+  ],
+  probs:[
+   {p:'Burner fires briefly then flames out — repeating lockout',
+    c:['Fuel filter clogged — fuel pressure drops after initial prime is used up','Day tank nearly empty — air entering the fuel supply line','Fuel return line blocked — back-pressure reducing flow to nozzle'],
+    s:['Replace fuel filter first — most common cause of this symptom','Check day tank level','If filter and tank are good: check fuel supply pressure at burner pump inlet; compare to spec; low pressure points to a restriction in the supply line']},
+  ]},
+
+ 'boil-fcu':{t:'Fan Coil Units — Hot Water Heating',sys:'Boiler System',st:'ok',
+  desc:'Fan coil units in the heating system operate identically to those in the chiller system but use hot water from the boiler circuit instead of chilled water. Each FCU has a hot water coil, a fan, and a thermostat-controlled valve that opens when heat is called. On a 4-pipe system (separate chilled and hot water piping), the same FCU housing serves both heating and cooling by switching between the two coil circuits. On a 2-pipe system, the entire vessel is either in heating or cooling mode — the piping is either connected to the chiller or the boiler, but not both simultaneously.',
+  loc:'Same locations as cooling FCUs — mounted in each crew cabin, galley, and pilothouse. Hot water supply and return piping connects to each FCU. The thermostat in each room controls the hot water valve for that FCU.',
+  specs:[['2-pipe system','Piping switches seasonally between chiller and boiler — either in heating or cooling mode, not both'],['4-pipe system','Separate CHW and HW piping — heating and cooling available simultaneously in any zone'],['Zone valve','Controls hot water flow to each FCU — may be motorized zone valve or manual balancing valve'],['Bleed valve','Each FCU typically has a small air bleed valve at the top of the coil — bleed air at start of heating season']],
+  parts:[
+   ['FCU Hot Water Valve','(by valve size and type)','Replace if zone does not heat (valve stuck closed) or overheats (valve stuck open)','Per FCU'],
+   ['FCU Filter','(by FCU model)','Clean monthly during heating season','Per FCU'],
+  ],
+  maint:[
+   {t:'Bleed air from FCU coils at start of heating season',n:'At the beginning of each heating season when switching to hot water, bleed air from each FCU coil using the small bleed valve at the top of the coil; air in the coil prevents hot water circulation to that zone; do this for every FCU before calling the system operational',i:'Annually — start of heating season',b:'ann'},
+  ],
+  probs:[
+   {p:'One or more zones not heating — other zones warm',
+    c:['Air lock in FCU coil — not bled at season start','Zone valve stuck closed','Hot water not reaching that zone — balancing valve too far closed'],
+    s:['Bleed air from the non-heating FCU first — this is almost always the cause at the start of the season','If still not heating: check zone valve; a motorized zone valve that is failed closed will not pass hot water','Check balancing valve — some systems have manual balance valves that may have been adjusted'],},
+  ]},
+
+ 'boil-radiator':{t:'Baseboard Radiators / Panel Radiators',sys:'Boiler System',st:'ok',
+  desc:'Baseboard and panel radiators are passive heat distribution devices — hot water flows through them and heat transfers to the room air by convection and radiation without any fan. Baseboard radiators are low-profile units installed along the base of walls; panel radiators are flat wall-mounted heating panels. Both are simple, quiet, and reliable since they have no moving parts. They are less common on modern towboats but may be found in older vessels or in spaces where fan noise is unacceptable.',
+  loc:'Along the base of exterior walls (baseboard type) or wall-mounted (panel type) in the heated spaces. Hot water supply and return piping connects at each end. A small manual air bleed valve is typically at the highest point of each radiator.',
+  specs:[['Type','Baseboard (finned tube) or panel radiator — passive convection and radiation heat'],['No moving parts','Reliable and quiet — requires only hot water flow'],['Air bleeds','Must be bled at start of each heating season to remove air'],['Bleed valve','Typically a small slotted screw or Schrader valve at the top of the radiator']],
+  parts:[
+   ['Radiator Air Bleed Valve / Vent','(by valve type — automatic or manual)','Replace if valve cannot be operated or leaks when closed','Per radiator'],
+   ['Radiator Supply Valve','(by pipe size)','Replace if valve cannot be closed (for radiator isolation) or leaks','Per radiator'],
+  ],
+  maint:[
+   {t:'Bleed air from all radiators — start of heating season',n:'At the beginning of each heating season: open the air bleed valve on each radiator until a steady stream of water (no bubbles) emerges; close the valve; air in the radiator prevents circulation and the radiator will not heat; this is required every season when the system has been off and cooled',i:'Annually — start of heating season',b:'ann'},
+  ],
+  probs:[
+   {p:'Radiator not heating — hot pipes at supply but cold radiator',
+    c:['Air lock in radiator — air preventing water circulation','Supply valve partially or fully closed'],
+    s:['Bleed the radiator air bleed valve — a shot of air followed by water confirms air lock was the issue; once water runs steady, close the valve','Check supply valve is fully open'],},
+  ]},
+
  'deck-capstan':{t:'Bow Capstan — Electric Mooring Capstan',sys:'Deck Equipment',st:'ok',
   desc:'The bow and stern electric capstans provide powered line-handling for mooring operations. Each capstan has a rotating drum head that grips a mooring line when it is wrapped around it — the crew maintains tension by holding the bitter end while the capstan does the hauling work. Capstans must never be left unattended with a line under tension — a capstan cannot release a line automatically if someone is pulled in.',
   loc:'Bow capstan: foredeck near the bow. Stern capstan: stern deck near mooring cleats. Power cables run below deck to the DC or AC distribution panel. Each capstan has a foot switch or remote control.',
@@ -2823,6 +3372,56 @@ const DET={
    {p:'Bell rings in pilothouse but not in engine room (or vice versa)',
     c:['Broken wire in signal cable — one direction of signal lost','Bell mechanism failed at one station','Loose terminal connection at one head'],
     s:['Test continuity of signal cable conductors with multimeter — identify open conductor','Inspect terminal connections inside both EOT heads — tighten any loose wires','Test bell mechanism directly by applying power to bell terminals — if bell does not ring, bell mechanism is failed']},
+  ]},
+
+ 'ph-gyro':{t:'Gyroscope / Gyrocompass — True North Heading',sys:'Pilothouse & Controls',st:'ok',
+  desc:'The gyrocompass uses a spinning gyroscope to find and maintain true north — unlike a magnetic compass, it is not affected by the vessel\'s own magnetic field, local magnetic anomalies, or the proximity of steel structures. On a towboat where the pilothouse is surrounded by steel barges and the hull, a gyrocompass is the primary reliable heading reference. The gyrocompass outputs heading data electronically to the autopilot, radar overlay, AIS, chart plotter, and swing meter — all of these instruments depend on an accurate and stable heading feed. On startup, the gyrocompass requires a settling period (typically 15–45 minutes on a fiber-optic or ring laser gyro, up to several hours on older mechanical gyros) before it acquires an accurate heading. Never trust a gyrocompass that has not completed its settling/alignment sequence.',
+  loc:'Pilothouse instrument panel or mounted in a dedicated binnacle. The gyrocompass sensor unit may be separate from the display — the sensing unit (gyro or fiber-optic sensor) is mounted in a stable, vibration-isolated location; the heading repeater display is at the helm. The heading output connects to the autopilot, radar, and AIS via NMEA 0183 or NMEA 2000 data bus.',
+  specs:[['Type','Fiber-optic gyro (FOG), ring laser gyro (RLG), or mechanical spinning gyro — verify on unit nameplate'],['True vs Magnetic','Outputs TRUE heading — not magnetic; autopilot and radar must be configured for true heading input'],['Settling time','FOG/RLG: 15–45 minutes from cold start; mechanical gyro: up to 4 hours — do not navigate on gyro heading until settled'],['Latitude correction','Gyrocompass must be set to the correct latitude for the operating area — error increases with latitude offset'],['Heading output','NMEA 0183 (HDT or HDG sentence) or NMEA 2000 to autopilot, radar, AIS, chart plotter, and swing meter'],['Warm-up indicator','Unit will indicate when heading is reliable — do not use heading data before this indication'],['Power','12VDC, 24VDC, or 120VAC — verify on unit nameplate; power interruption requires full settling cycle to repeat']],
+  parts:[
+   ['Gyrocompass Unit / Sensor','(by manufacturer and model)','Replace complete unit if heading is unstable or drifts consistently after settling — internal sensor failure','1/vessel'],
+   ['Heading Repeater Display','(by gyrocompass manufacturer)','Replace if display is blank or unresponsive with signal confirmed at input terminals','1/vessel'],
+   ['NMEA Data Cable / Terminator','(by connector type on unit)','Replace if one or more instruments lose heading data while others retain it — cable or terminator fault in the NMEA network','Per connection'],
+   ['Power Supply Fuse / Breaker','(by circuit amperage)','Check fuse/breaker before condemning gyro unit','1/circuit'],
+  ],
+  maint:[
+   {t:'Allow full settling period after every cold start',n:'After any power interruption or initial startup: do not use the gyrocompass heading for navigation until the unit has completed its settling sequence and indicated that heading is reliable; using an unsettled gyrocompass for autopilot input causes the vessel to steer to a false heading',i:'Every cold start',b:'d'},
+   {t:'Verify heading against known reference monthly',n:'Compare the gyrocompass heading to a GPS COG (course over ground) while proceeding in a straight line with no current — they should agree within 1–2 degrees; a consistent offset indicates gyro error or latitude calibration is incorrect; document the comparison',i:'Monthly',b:'ann'},
+   {t:'Verify latitude setting matches operating area',n:'Check that the gyrocompass latitude setting matches the current operating latitude — the Mississippi River system operates roughly between 29°N and 47°N; an incorrect latitude setting introduces systematic heading error that increases the farther you operate from the calibrated latitude',i:'Annually or when operating in a significantly different latitude',b:'ann'},
+   {t:'Inspect NMEA output connections',n:'Verify all instruments that depend on gyro heading (autopilot, radar, AIS, swing meter) are receiving heading data; a loose NMEA connection causes intermittent loss of heading to one or more instruments while others continue to function correctly',i:'Annually',b:'ann'},
+  ],
+  probs:[
+   {p:'Gyrocompass heading drifting or unstable',
+    c:['Unit has not completed settling period after cold start or power interruption','Vibration or shock to the gyro sensor — towboat bank collisions or impact','Internal sensor degradation — FOG or RLG unit reaching end of life'],
+    s:['Allow full settling time with the vessel stopped or on a steady course — movement during settling slows the alignment process','If drift continues after settling: verify latitude setting; compare to GPS COG on a straight steady course','Persistent drift after correct setup indicates internal sensor failure — contact manufacturer service'],},
+   {p:'Autopilot or radar losing heading reference — "heading sensor lost" alarm',
+    c:['NMEA cable fault between gyrocompass and instrument','Gyrocompass has lost power — power outage or blown fuse','NMEA termination fault in the network'],
+    s:['Check gyrocompass power and that the heading display is showing a valid heading','If gyro is working: inspect NMEA cables at the gyrocompass output and at the affected instrument\'s input — a damaged connector or frayed cable at either end breaks the data link','On an NMEA 2000 network: check backbone terminators — a missing or failed terminator drops all instruments on the backbone']},
+  ]},
+
+ 'ph-swing':{t:'Swing Meter — Rate of Turn Indicator',sys:'Pilothouse & Controls',st:'ok',
+  desc:'The swing meter (rate-of-turn indicator or ROT indicator) is one of the most important maneuvering instruments on an inland towboat. It displays the vessel\'s rate of angular rotation in degrees per minute — not just which way the vessel is turning, but how fast. A 1,200-foot tow string has enormous rotational inertia; by the time a heading change is visible on the compass, the swing has already built up considerable momentum that takes significant rudder and engine input to stop. The swing meter shows the captain if the tow is beginning to swing before the compass needle has moved appreciably. On a river bend, the captain wants to see the swing meter move in the direction of the turn and then come back to zero (stopped swinging) as the tow straightens on the new heading — a swing that continues increasing means the tow is overswinging and corrective action is needed. A zero swing meter reading on a straight stretch means the tow is tracking straight with no slow rotation building.',
+  loc:'Prominent position in the pilothouse — typically centered on the instrument panel at eye level from the helm chair. The display shows a center-zero scale (typically ±30 or ±60 degrees per minute) with a needle or digital bar that moves left for port swing and right for starboard swing. The rate-of-turn sensor may be a dedicated gyro sensor, a MEMS angular rate sensor, or derived from the vessel\'s gyrocompass heading rate. Most modern units receive rate-of-turn data from the gyrocompass over NMEA or have a dedicated ROT sensor.',
+  specs:[['Display range','Typically ±30°/min or ±60°/min — center zero, left = port turn, right = starboard turn'],['Sensitivity','A well-functioning tow on a river should show near-zero on a straight reach; any reading indicates active rotation'],['Signal source','Dedicated ROT gyro sensor, MEMS angular rate sensor, or computed from gyrocompass heading rate (NMEA ROT sentence)'],['USCG requirement','46 CFR 164.011 — rate of turn indicators required on certain vessels; verify COI requirements for this vessel'],['Critical use','Locks, bends, meeting/passing situations, and docking — any situation where tow momentum must be managed'],['Response time','Display should respond nearly instantaneously to the start of a swing — lag in the swing meter defeats its purpose']],
+  parts:[
+   ['Swing Meter Display Unit','(by manufacturer and model)','Replace if display is blank, frozen, or shows incorrect direction of turn','1/vessel'],
+   ['ROT Sensor / Gyro Unit','(by swing meter manufacturer)','Replace if swing meter reads non-zero consistently while vessel is stationary and stable','1/vessel'],
+   ['NMEA Signal Cable','(by connector type)','Replace if swing meter loses signal while gyrocompass continues to function','Per cable'],
+   ['Power Fuse','(by circuit amperage)','Check fuse before condemning display unit','1/circuit'],
+  ],
+  maint:[
+   {t:'Verify zero reading when stationary — monthly',n:'With the vessel stopped, tied to a bank or dock, and completely still: the swing meter should read exactly zero; any persistent non-zero reading indicates sensor drift, a calibration issue, or the sensor is picking up vibration from machinery; note the baseline deviation and compare month to month',i:'Monthly',b:'ann'},
+   {t:'Verify correct direction of swing indication',n:'On a maneuvering approach or known turn: confirm that a starboard (right) turn produces a right deflection on the swing meter and a port (left) turn produces a left deflection; a swing meter indicating the wrong direction of turn is more dangerous than a failed swing meter — it gives the captain incorrect information at the most critical moments',i:'After any installation, wiring change, or sensor replacement',b:'ann'},
+   {t:'Test response time at the start of a turn',n:'Observe the swing meter as the captain initiates a deliberate turn on a clear stretch of river — the meter should begin to deflect within 2–3 seconds of rudder input; a delayed or sluggish response indicates signal lag, a failing sensor, or a display averaging setting that is set too high (over-damped)',i:'Periodically when underway in clear water',b:'ann'},
+   {t:'Inspect NMEA/signal connections at annual service',n:'Inspect signal cable connections at the ROT sensor and at the display; connectors exposed to engine room environment may corrode; a degraded connection causes intermittent signal loss that may only appear during vibration',i:'Annually',b:'ann'},
+  ],
+  probs:[
+   {p:'Swing meter pegged to one side — will not return to zero',
+    c:['Sensor has failed or saturated — outputting maximum signal continuously','Signal cable shorted — holding one voltage level at input','ROT sensor misaligned — installed at an angle relative to vessel centerline'],
+    s:['Verify the vessel is stationary; if meter is still pegged with vessel stopped, the issue is the sensor or its wiring, not actual rotation','Check NMEA ROT sentence if signal is from gyrocompass — verify ROT sentence value in the data stream','Inspect sensor mounting — sensor must be aligned with the vessel longitudinal axis; a tilted sensor introduces constant offset'],},
+   {p:'Swing meter shows no response — needle stays at zero during confirmed turns',
+    c:['Power lost to display','Signal cable disconnected or broken','ROT sensor has failed — no output during rotation','Gyrocompass ROT output is disabled or not configured'],
+    s:['Verify power at display','Confirm signal cable is connected and has continuity','If signal source is gyrocompass: check gyrocompass output configuration — ROT output may need to be enabled in gyro settings','Substitute a known-good sensor if available to isolate display vs sensor fault']},
   ]},
 
  'ph-compass':{t:'Magnetic Compass & Gyrocompass',sys:'Pilothouse & Controls',st:'ok',
@@ -4570,7 +5169,98 @@ const PROC={
   ]},
 };
 
+// ── Paint / Pipe Color System ─────────────────────────
+const PAINT_CODES=[
+  {sys:'Main Engines, Clutch Covers, Gearboxes, Generators, Air Compressors', name:'Silver Gray',              bg:'#9ea3a8', fg:'#fff', stripe:null},
+  {sys:'Bulkheads, Pumps, Motors',                                             name:'White Gloss',             bg:'#f8f9fa', fg:'#333', stripe:null, border:true},
+  {sys:'Decks and Stairs',                                                     name:'Navy Gray',               bg:'#4a5568', fg:'#fff', stripe:null},
+  {sys:'Hand Rails',                                                            name:'Royal Blue',              bg:'#2c5aa0', fg:'#fff', stripe:null},
+  {sys:'Fire Lines, CO2 Equipment',                                             name:'Fire Hydrant Red',        bg:'#cc2222', fg:'#fff', stripe:null},
+  {sys:'Diesel Fuel',                                                           name:'Safety Yellow',           bg:'#f5c518', fg:'#1a1a1a', stripe:null},
+  {sys:'Dirty Oil',                                                             name:'High Gloss Black',        bg:'#111111', fg:'#fff', stripe:null},
+  {sys:'Clean Lube Oil',                                                        name:'High Gloss Black / Safety Yellow Stripe', bg:'#111111', fg:'#fff', stripe:'#f5c518'},
+  {sys:'Compressed Air',                                                        name:'Navy Gray',               bg:'#4a5568', fg:'#fff', stripe:null},
+  {sys:'Hydraulic Oil',                                                         name:'Safety Orange',           bg:'#e85d04', fg:'#fff', stripe:null},
+  {sys:'Gear Oil',                                                              name:'Safety Orange / Royal Blue Stripe', bg:'#e85d04', fg:'#fff', stripe:'#2c5aa0'},
+  {sys:'Potable Water',                                                         name:'Royal Blue',              bg:'#2c5aa0', fg:'#fff', stripe:null},
+  {sys:'Wash Water',                                                            name:'Marlin Blue',             bg:'#4a90d9', fg:'#fff', stripe:null},
+  {sys:'Sewage',                                                                name:'Chestnut Brown',          bg:'#7b4a2d', fg:'#fff', stripe:null},
+  {sys:'Raw Water, Ballast Water',                                              name:'Safety Green',            bg:'#2e7d32', fg:'#fff', stripe:null},
+  {sys:'Bilge System',                                                          name:'High Gloss Black / Marlin Blue Stripe', bg:'#111111', fg:'#fff', stripe:'#4a90d9'},
+  {sys:'Exhaust System',                                                        name:'High Heat Gray',          bg:'#6b7280', fg:'#fff', stripe:null},
+];
+
+function getPipeColors(dk){
+  if(!dk) return [];
+  const r=[];
+  const add=sys=>{ const p=PAINT_CODES.find(x=>x.sys===sys); if(p&&!r.includes(p)) r.push(p); };
+  // Fuel
+  if(/fuel/.test(dk)&&!/(gearcooler|dt-lube)/.test(dk)) add('Diesel Fuel');
+  // Dirty oil (suction/inlet side)
+  if(/(losump|oilstrainer|scavpump)/.test(dk)) add('Dirty Oil');
+  // Clean lube oil
+  if(/(eng-lube|oilspinner|moatti|bapump|oilstrainer)/.test(dk)) add('Clean Lube Oil');
+  // Gear oil
+  if(/(dt-lube|dt-gearcooler)/.test(dk)) add('Gear Oil');
+  // Hydraulic oil
+  if(/^rx-/.test(dk)||/(steer-hpu|steer-reservoir|steer-filter|steer-manifold|steer-lines|steer-rams|steer-auxpump|steer-flanking)/.test(dk)) add('Hydraulic Oil');
+  // Compressed air
+  if(/(eng-start|eng-overspeed|eng-aftercool|eng-educator|eng-scavpump)/.test(dk)) add('Compressed Air');
+  // Fire lines
+  if(/hull-fbpump/.test(dk)) add('Fire Lines, CO2 Equipment');
+  // Bilge
+  if(/(hull-bilge|hull-eductor|hull-fast|hull-fbpump)/.test(dk)) add('Bilge System');
+  // Raw water / ballast
+  if(/(hull-ballast|hull-seachest|hull-zincs|dt-packing|dt-stern)/.test(dk)) add('Raw Water, Ballast Water');
+  // Exhaust / high heat
+  if(/(eng-turbo|eng-aftercool)/.test(dk)) add('Exhaust System');
+  // Sewage
+  if(/hull-fast/.test(dk)) add('Sewage');
+  return r;
+}
+// Keep single-result alias for detail view
+function getPipeColor(dk){ return getPipeColors(dk)[0]||null; }
+
+function pipeSwatch(pc, style){
+  if(!pc) return '';
+  const s=style||'display:inline-flex;align-items:center;gap:6px;';
+  const bar=`<div style="width:38px;height:14px;border-radius:3px;background:${pc.bg};position:relative;overflow:hidden;flex-shrink:0;${pc.border?'border:1px solid #ccc':''}">
+    ${pc.stripe?`<div style="position:absolute;top:4px;left:0;right:0;height:6px;background:${pc.stripe}"></div>`:''}
+  </div>`;
+  return `<div style="${s}">${bar}<span style="font-size:10px;font-weight:600;color:#334155">${pc.name}</span></div>`;
+}
+function pipeSwatchList(pcs){
+  if(!pcs||!pcs.length) return '';
+  return pcs.map(pc=>pipeSwatch(pc)).join('');
+}
+
+function renderPaintCodes(){
+  let h=`<div class="pt"><i class="ti ti-palette" style="margin-right:6px;font-size:14px"></i>Engine Room Paint Codes</div>
+  <div class="ps" style="margin-bottom:14px">Ingram Barge Company standard — pipe and equipment color identification</div>
+  <div style="background:#eff6ff;border:.5px solid #2563eb;border-radius:10px;padding:10px 13px;margin-bottom:12px;display:flex;gap:8px;align-items:flex-start">
+    <i class="ti ti-info-circle" style="color:#2563eb;font-size:13px;flex-shrink:0;margin-top:1px"></i>
+    <span style="font-size:11px;color:#1e3a8a;line-height:1.6">These color codes appear on component detail pages throughout the app. Match the pipe or equipment color in the engine room to identify the system.</span>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:3px">`;
+
+  PAINT_CODES.forEach(function(pc){
+    const bar=`<div style="width:46px;height:20px;border-radius:4px;background:${pc.bg};position:relative;overflow:hidden;flex-shrink:0;${pc.border?'border:1px solid #ccc':''}">
+      ${pc.stripe?`<div style="position:absolute;top:6px;left:0;right:0;height:8px;background:${pc.stripe}"></div>`:''}
+    </div>`;
+    h+=`<div style="display:flex;align-items:center;gap:10px;background:#fff;border:.5px solid #e2e8f0;border-radius:8px;padding:8px 12px">
+      ${bar}
+      <div style="flex:1">
+        <div style="font-size:11px;font-weight:700;color:#1e293b">${pc.name}</div>
+        <div style="font-size:10px;color:#64748b;margin-top:1px">${pc.sys}</div>
+      </div>
+    </div>`;
+  });
+  h+=`</div>`;
+  return h;
+}
+
 function renderProcedure(key){
+  if(key==='proc-paintcodes') return renderPaintCodes();
   const p=PROC[key];
   if(!p) return renderPH4(key);
   let h='<div class="pt" style="color:#2563eb"><i class="ti ti-clipboard-list" style="margin-right:6px;font-size:14px"></i>'+p.title+'</div>';
@@ -4619,6 +5309,8 @@ function renderSidebar(){
 }
 // Icon color map
 const IC={red:'#ef4444',blue:'#3b82f6',cyan:'#06b6d4',yel:'#eab308',pur:'#a855f7',ora:'#f97316',gra:'#6b7280',tel:'#14b8a6',grn:'#22c55e',ind:'#6366f1'};
+// Status labels
+const SL={ok:'✓ Active',warn:'⚠ Monitor',crit:'✗ Critical',na:'— N/A'};
 
 function getIntervalBadge(dk){
   if(!dk) return '';
@@ -4691,8 +5383,28 @@ function renderMain(){
       const btnCls=hasDet?'y':'n';
       const btnTxt=hasDet?'View Details ›':'Coming Next Session';
       const badge=getIntervalBadge(dk);
+      const pcs=getPipeColors(dk);
+      // Build icon box style — pipe colors fill the whole box when present
+      let ciStyle='';
+      let iconColor=IC[col];
+      if(pcs.length){
+        if(pcs.length===1){
+          const pc=pcs[0];
+          ciStyle=pc.stripe
+            ?`background:linear-gradient(to bottom,${pc.bg} 38%,${pc.stripe} 38%,${pc.stripe} 62%,${pc.bg} 62%)`
+            :`background:${pc.bg}`;
+        } else {
+          // Split box equally left→right, each with its own stripe if applicable
+          const pct=100/pcs.length;
+          const stops=pcs.flatMap((pc,i)=>[`${pc.bg} ${(i*pct).toFixed(1)}%`,`${pc.bg} ${((i+1)*pct).toFixed(1)}%`]);
+          ciStyle=`background:linear-gradient(to right,${stops.join(',')})`;
+        }
+        // Light backgrounds (yellow, white) get dark icon; all others get white
+        const lightBgs=['#f5c518','#f8f9fa'];
+        iconColor=lightBgs.includes(pcs[0].bg)?'#1a1a1a':'#ffffff';
+      }
       h+=`<div class="card ${locked}" data-dk="${dk||''}">
-        <div class="ctop"><div class="ci ${col}"><i class="ti ti-${ico}" style="color:${IC[col]}"></i></div>${badge}</div>
+        <div class="ctop"><div class="ci ${pcs.length?'':col}" style="${ciStyle}"><i class="ti ti-${ico}" style="color:${iconColor}"></i></div>${badge}</div>
         <div class="ct">${title}</div><div class="cs">${sub}</div>
         <div class="ctags">${tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
         <div class="cbtn ${btnCls}">${btnTxt}</div>
@@ -4709,6 +5421,7 @@ function renderDetail(key){
     <div style="margin-top:12px"><button class="bbtn" onclick="back()"><i class="ti ti-arrow-left"></i> Back</button></div>`;
   }
   const TABS=['overview','parts','maintenance','troubleshooting'];
+  const pcs=getPipeColors(key);
   let h=`<div class="brow">
     <button class="bbtn" onclick="back()"><i class="ti ti-arrow-left"></i> Back</button>
     <span class="bc">›</span><span class="bcl">${d.sys}</span>
@@ -4722,6 +5435,15 @@ function renderDetail(key){
         <span style="font-size:9px;font-weight:600;color:#dc2626;background:#fef2f2;border:.5px solid #fecaca;border-radius:6px;padding:2px 8px;white-space:nowrap"><i class="ti ti-alert-triangle" style="font-size:9px;margin-right:3px"></i>${d.probs?d.probs.length:0} Troubleshooting</span>
       </div>
     </div>
+    ${pcs.length?`<div style="margin-top:7px;padding:6px 10px;background:#f8fafc;border:.5px solid #e2e8f0;border-radius:7px">
+      <div style="font-size:9px;font-weight:700;color:#64748b;letter-spacing:.06em;text-transform:uppercase;margin-bottom:5px">Pipe Color${pcs.length>1?'s':''}</div>
+      <div style="display:flex;flex-direction:column;gap:4px">${pcs.map(pc=>{
+        const bar=`<div style="width:42px;height:16px;border-radius:3px;background:${pc.bg};position:relative;overflow:hidden;flex-shrink:0;${pc.border?'border:1px solid #ccc':''}">
+          ${pc.stripe?`<div style="position:absolute;top:5px;left:0;right:0;height:6px;background:${pc.stripe}"></div>`:''}
+        </div>`;
+        return `<div style="display:inline-flex;align-items:center;gap:7px">${bar}<span style="font-size:10px;font-weight:600;color:#334155">${pc.name}</span></div>`;
+      }).join('')}</div>
+    </div>`:''}
     <div class="dloc"><i class="ti ti-map-pin"></i><span>${d.loc}</span></div>
   </div>
   <div class="tbar">`;
@@ -4867,26 +5589,6 @@ function renderFeedback(){
   return `<div class="pt">Submit Input</div>
   <div class="ps">Help make this reference better — your field experience matters</div>
 
-  <div style="background:#1e2538;border-radius:12px;padding:20px;margin-bottom:14px">
-    <div style="display:flex;align-items:center;justify-content:center;gap:9px;margin-bottom:14px">
-      <i class="ti ti-ship" style="font-size:20px;color:var(--r)"></i>
-      <span style="font-size:14px;font-weight:700;color:#fff;letter-spacing:.02em">Vessel Maintenance Reference</span>
-    </div>
-    <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.5);letter-spacing:.1em;text-transform:uppercase;text-align:center;margin-bottom:12px">Before You Proceed</div>
-    <div style="display:flex;flex-direction:column;gap:8px">
-      ${[
-        ['ti-info-circle','#60a5fa','Reference tool only.','Information is based on manufacturer service manuals, industry best practices, and general marine engineering guidelines. It is not a substitute for official manufacturer documentation.'],
-        ['ti-box','#fbbf24','Always verify part numbers','against the current manufacturer parts catalog and the specific vessel\'s equipment serial numbers before ordering. Part numbers may vary by engine arrangement, model year, or vessel configuration.'],
-        ['ti-shield-check','#34d399','All work must be performed safely','and in accordance with applicable U.S. Coast Guard regulations, company policies and procedures, and any governing federal, state, or local requirements.'],
-        ['ti-alert-triangle','#f87171','In any emergency,','follow established emergency procedures and contact the appropriate authorities. This app does not replace proper training, a valid Certificate of Inspection, or qualified engineering judgment.'],
-      ].map(([icon,color,bold,rest])=>`
-        <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 12px;background:rgba(255,255,255,.04);border-radius:8px;border:.5px solid rgba(255,255,255,.07)">
-          <i class="ti ${icon}" style="font-size:14px;color:${color};flex-shrink:0;margin-top:1px"></i>
-          <p style="font-size:11px;color:rgba(255,255,255,.65);line-height:1.6;margin:0"><strong style="color:rgba(255,255,255,.9)">${bold}</strong> ${rest}</p>
-        </div>`).join('')}
-    </div>
-  </div>
-
   <div class="box" style="border-left:3px solid var(--r);border-radius:0 10px 10px 0">
     <div class="bl">What We're Looking For</div>
     <div class="desc">This reference is a living document. If you find something missing, incorrect, or that could be more useful to someone working on the boat, send it in. The more specific you are, the faster it can be added.</div>
@@ -4955,6 +5657,7 @@ function renderHowto(key){
   if(key==='howto-startengine') return renderStartEngine();
   if(key==='howto-lash') return renderLashAdjustment();
   if(key==='howto-swapgen') return renderSwapGenerators();
+  if(key==='howto-groundfault') return renderGroundFault();
   return `<div class="pt"><i class="ti ti-school" style="margin-right:6px;font-size:15px"></i>${title}</div>
   <div class="ps" style="margin-bottom:14px">Step-by-step procedure — coming soon</div>
   <div style="display:flex;align-items:center;gap:12px;padding:18px;background:#f8fafc;border:.5px solid var(--bd);border-radius:10px;color:var(--t2)">
@@ -4964,6 +5667,92 @@ function renderHowto(key){
       <div style="font-size:11px;color:var(--t3);line-height:1.6">This procedure is being documented. Check back after the next update — step-by-step instructions with checkboxes will appear here.</div>
     </div>
   </div>`;
+}
+
+function renderGroundFault(){
+  const phases=[
+    {
+      phase:'PHASE 1 — Identify the Fault on the Switchboard',
+      color:'#ef4444',
+      note:'A ground fault means a current-carrying conductor has made unwanted contact with the vessel\'s steel hull. On a 480VAC 3-phase system this is a serious fire and electrocution hazard. Your first indication is the ground detection lamp panel on the main switchboard.',
+      steps:[
+        {t:'Locate the ground detection lamps on the switchboard',d:'Find the three ground detection bulbs on the main switchboard — they are typically arranged in a triangle or horizontal row labeled A, B, and C (for the three electrical phases). Normal state: all three bulbs glow at the same dim, equal intensity. Fault state: one bulb goes completely dark or noticeably dimmer, and the other two burn intensely bright. The dark bulb identifies the faulted phase.'},
+        {t:'Read the fault — identify the dark lamp',d:'The dark or extinguished lamp tells you which phase (A, B, or C) has made contact with the ship\'s hull. The two bright lamps are normal — they appear brighter because the faulted phase has provided a lower-resistance path to ground through the hull, unbalancing the lamp circuit. Write down which phase is dark before proceeding.'},
+        {t:'Determine which voltage bus the fault is on',d:'Most switchboards have a selector switch that toggles the ground detection lamps between the 480VAC heavy power bus and the 120VAC lighting/appliance bus. Toggle this switch to identify whether the ground fault is on the 480V system (main engines, pumps, compressors, generators) or the 120V system (lighting, outlets, galley appliances). This determines where you focus your search.'},
+        {t:'Notify the wheelhouse before touching any breakers',d:'Call the captain and inform them you have a ground fault on the (480V or 120V) bus, Phase (A/B/C). Tell them you are beginning isolation by breaker elimination and that some loads may momentarily lose power during the search. Get acknowledgment before proceeding — do not take any load offline without the captain\'s awareness.'},
+      ]
+    },
+    {
+      phase:'PHASE 2 — Isolation by Elimination (Breaker Flip Method)',
+      color:'#f59e0b',
+      note:'You find the faulted circuit by systematically removing loads one at a time and watching the ground lamps. Do NOT rush — move methodically and restore each breaker that does not clear the fault before moving to the next.',
+      steps:[
+        {t:'Identify all non-essential loads first',d:'Before touching anything, mentally (or on paper) sort all breakers on the faulted bus into two categories: NON-ESSENTIAL (galley equipment, crew quarters AC units, washers/dryers, deck lights, entertainment systems — loads that can be momentarily dropped without affecting navigation or propulsion) and ESSENTIAL (steering pumps, autopilot, navigation lights, bilge pumps, engine room ventilation, fire detection). Always start with non-essential loads.'},
+        {t:'Stand at the switchboard with a clear view of the ground lamps',d:'Position yourself or your assistant where the ground detection lamps are clearly visible. You need to see the lamp reaction the instant a breaker is switched — the fault clears immediately when the faulted circuit is opened. If working alone, switch the breaker and walk back to check; if you have an assistant, have them call out lamp status as you flip each breaker.'},
+        {t:'Switch off each non-essential breaker — one at a time',d:'Open the first non-essential breaker and immediately observe the ground lamps. Two outcomes: (A) Lamps stay faulted — turn that breaker back ON and move to the next; (B) All three lamps return to equal dim brightness — you have found the faulted circuit. Leave that breaker OPEN and tag it. Do not move on without restoring breakers that did not clear the fault.'},
+        {t:'Handle essential circuits carefully — swap to backup first',d:'If you have eliminated all non-essential loads and the fault remains, you must start checking essential circuits. Before opening any essential circuit breaker: verify the backup system is running and confirmed operational. For example, if checking the primary steering pump circuit, ensure the auxiliary steering pump is running and steering is confirmed at the pilothouse before removing power from the primary. Never remove an essential load without a confirmed backup in service.'},
+        {t:'Tag out the faulted breaker',d:'Once the faulted circuit breaker is identified: leave the breaker OPEN, lock it out with your LOTO device, and hang a "DO NOT ENERGIZE — GROUND FAULT UNDER INVESTIGATION" tag. Verify on the switchboard that the ground detection lamps have returned to normal equal glow. Report to the captain that the fault is isolated and the affected circuit is secured.'},
+      ]
+    },
+    {
+      phase:'PHASE 3 — Trace and Pinpoint the Fault',
+      color:'#7c3aed',
+      note:'You know which circuit has the fault. Now trace the circuit to its load equipment and find exactly where the conductor is touching the hull.',
+      steps:[
+        {t:'Walk to the equipment on the faulted circuit',d:'Trace the circuit from the tagged breaker to the load it feeds. For a 480VAC circuit this typically means walking to a motor, pump, compressor, or other major piece of equipment. For a 120VAC circuit it may be an outlet run, a lighting panel, or a galley appliance. Identify every piece of equipment on that circuit branch — the fault could be at any point along the run, not necessarily at the final load.'},
+        {t:'Perform a thorough visual inspection first',d:'Open the equipment terminal box, junction box, or motor connection housing. Look carefully for: water or condensation pooled inside the housing (most common cause on a river vessel); a wire chafed through its insulation where it contacts a sharp metal edge, conduit lip, or vibrating frame; discolored, burnt, or brittle insulation from overheating; any conductor that is visibly contacting the metal housing or hull structure. A flashlight and a good look often reveals the problem before you even pick up a meter.'},
+        {t:'Set up your Megger (insulation resistance tester)',d:'A Megger (insulation tester) measures the resistance between the conductor and the hull — a healthy insulated conductor should show very high resistance (typically 2–10 megohms minimum; above 100 megohms is excellent). A faulted conductor shows near-zero resistance. Before using the Megger: verify the circuit is de-energized and your LOTO is in place. Disconnect the power leads inside the equipment terminal box so you can test the cable and the motor or appliance separately.'},
+        {t:'Test the cable run — conductor to hull',d:'Connect one Megger lead to the faulted phase conductor (the wire coming from the switchboard) at the equipment terminal. Connect the other Megger lead to a clean, unpainted, bare metal spot on the ship\'s steel hull or structural steel. Apply the test voltage (typically 500VDC for 480VAC circuits; 250VDC for 120VAC circuits). A reading below 1 megohm is a confirmed fault. A reading above 2 megohms on the cable alone means the cable is good and the fault is inside the equipment.'},
+        {t:'Test the equipment internally — motor or appliance',d:'With the cable disconnected from the equipment terminals: connect the Megger to the equipment\'s internal conductors (motor winding leads or appliance internal wiring) against the equipment frame or hull. A near-zero reading on the equipment internals confirms the fault is inside the motor windings, heating element, or appliance — not in the cable. This directs your repair to the specific component rather than the wiring run.'},
+        {t:'Walk the cable run for chafed insulation',d:'If the Megger reads good on the cable at the equipment end but the ground still cleared when you opened the breaker, the fault may be an intermittent chafe somewhere along the cable run. Walk the entire cable path from the switchboard to the equipment and look at every point where the cable contacts metal — conduit openings, cable tray edges, bulkhead penetrations, and anywhere cable ties have cut through insulation from vibration.'},
+      ]
+    },
+    {
+      phase:'PHASE 4 — Fix the Fault',
+      color:'#0d9488',
+      note:'Repair method depends on what you found. Match the repair to the root cause — do not just dry things out and re-energize if the underlying cause is not addressed.',
+      steps:[
+        {t:'Moisture / water ingress in junction box or terminal housing',d:'Dry the housing completely — use a clean air blower or a safe heat gun at low temperature (never open flame near electrical equipment). Spray electrical contact cleaner to displace water from terminals and connector pins. After drying, Megger the circuit again to confirm insulation resistance has returned to normal. Identify how water entered: replace cracked or dry-rotted rubber housing gaskets; seal cable entry points with appropriate marine sealant or watertight fittings; if condensation was the cause, consider a small internal desiccant pack.'},
+        {t:'Chafed wire — damaged insulation on the cable run',d:'Cut out the damaged section of wire completely — do not tape over chafed insulation on a 480VAC circuit. Splice using proper marine-grade heat-shrink butt connectors rated for the conductor size and voltage; do not use household wire nuts on a vessel. Wrap the repair area with self-amalgamating (self-fusing) marine tape, then cover with cable loom or rubber grommet where the cable passes through metal. Identify why the chafe occurred — add cable clamps, loom, or conduit to protect the cable from recontact with the metal edge.'},
+        {t:'Failed motor winding — insulation breakdown to motor frame',d:'If the Megger confirmed the fault is inside the motor windings (near-zero resistance from winding to motor frame): the motor must come out. The motor cannot be repaired in place. Pull the motor and either swap with a known-good spare if one is available aboard, or ship it to a motor repair shop for rewinding (dipped and baked). Document the motor nameplate data (voltage, horsepower, RPM, frame size) before pulling it so the shop can repair or the supply chain can source a replacement.'},
+        {t:'Verify repair — Megger before re-energizing',d:'After any repair: Megger the repaired circuit from the disconnected breaker end before restoring power. Verify insulation resistance is above 2 megohms (above 100 megohms is excellent). Do not re-energize until the Megger shows the fault is fully cleared — re-energizing a still-faulted circuit damages repaired components and may trip the same breaker instantly.'},
+        {t:'Remove LOTO, restore power, verify switchboard lamps',d:'With the Megger confirming clean insulation: remove all lockout devices and tags. Restore the breaker. Walk immediately to the main switchboard and verify all three ground detection lamps return to equal, dim brightness. If one lamp is still dark: the fault is not fully cleared or there is a second fault on the same phase — LOTO the breaker again and investigate further. Document the fault location, cause, and repair in the engine room maintenance log.'},
+      ]
+    }
+  ];
+
+  let h=`<div class="pt"><i class="ti ti-bolt-off" style="margin-right:6px;font-size:15px"></i>Locate &amp; Fix a Ground Fault — 480VAC 3-Phase</div>
+  <div class="ps" style="margin-bottom:14px">Isolation by elimination · Megger testing · Main switchboard ground detection lamps</div>
+  <div style="background:#fef2f2;border:.5px solid #ef4444;border-radius:10px;padding:11px 14px;margin-bottom:8px;display:flex;gap:9px;align-items:flex-start">
+    <i class="ti ti-alert-triangle" style="color:#ef4444;font-size:14px;flex-shrink:0;margin-top:1px"></i>
+    <span style="font-size:11px;color:#7f1d1d;line-height:1.6"><strong>480VAC is lethal.</strong> LOTO before testing any component. Verify de-energized with a non-contact voltage tester before opening any terminal box. Never work on energized 480VAC circuits — no exceptions.</span>
+  </div>
+  <div style="background:#eff6ff;border:.5px solid #2563eb;border-radius:10px;padding:11px 14px;margin-bottom:12px;display:flex;gap:9px;align-items:flex-start">
+    <i class="ti ti-info-circle" style="color:#2563eb;font-size:14px;flex-shrink:0;margin-top:1px"></i>
+    <span style="font-size:11px;color:#1e3a8a;line-height:1.6"><strong>Ground lamp rule:</strong> Dark lamp = faulted phase. Two bright lamps = normal phases. Toggle the 480V / 120V selector to confirm which bus the fault is on. Notify the wheelhouse before opening any breaker.</span>
+  </div>`;
+
+  phases.forEach(function(phase){
+    h+=`<div style="margin-bottom:10px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;padding:8px 12px;background:${phase.color};border-radius:8px">
+        <span style="font-size:10px;font-weight:700;color:#fff;letter-spacing:.05em">${phase.phase}</span>
+      </div>`;
+    if(phase.note){
+      h+=`<div style="font-size:10.5px;color:${phase.color};background:${phase.color}14;border-left:3px solid ${phase.color};padding:7px 11px;border-radius:0 6px 6px 0;margin-bottom:6px;line-height:1.5">${phase.note}</div>`;
+    }
+    h+=`<div style="display:flex;flex-direction:column;gap:4px">`;
+    phase.steps.forEach(function(step,i){
+      h+=`<div style="display:flex;align-items:flex-start;gap:10px;background:#fff;border:.5px solid #e2e8f0;border-left:3px solid ${phase.color};border-radius:0 7px 7px 0;padding:9px 12px">
+        <span style="font-size:10px;font-weight:700;color:#fff;background:${phase.color};border-radius:4px;min-width:20px;height:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">${i+1}</span>
+        <div>
+          <div style="font-size:11.5px;font-weight:600;color:#1e293b;margin-bottom:3px">${step.t}</div>
+          <div style="font-size:11px;color:#475569;line-height:1.6">${step.d}</div>
+        </div>
+      </div>`;
+    });
+    h+=`</div></div>`;
+  });
+  return h;
 }
 
 function renderSwapGenerators(){
