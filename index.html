@@ -214,7 +214,7 @@ body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:v
   <div class="mitem" onclick="goHowto('howto-lash')"><i class="ti ti-adjustments-horizontal"></i>Set Lash Adjustments</div>
   <div class="mitem" onclick="goHowto('howto-swapgen')"><i class="ti ti-bolt"></i>Swap Generators</div>
   <div class="mitem" onclick="goHowto('howto-boilertochiller')"><i class="ti ti-temperature-minus"></i>Boiler to Chiller</div>
-  <div class="mitem" onclick="goHowto('howto-chillertobboiler')"><i class="ti ti-temperature-plus"></i>Chiller to Boiler</div>
+  <div class="mitem" onclick="goHowto('howto-chillertoboiler')"><i class="ti ti-temperature-plus"></i>Chiller to Boiler</div>
   <div class="mitem" onclick="goHowto('howto-groundfault')"><i class="ti ti-bolt-off"></i>Locate &amp; Fix a Ground Fault</div>
 </div>
 <div id="sb-overlay" onclick="closeSidebar()"></div>
@@ -285,34 +285,34 @@ function setSteerType(t){S.steerType=t;renderMain()}
 const NAV=[
   {g:'Propulsion',items:[
     {k:'engines',i:'engine',l:'Main Engines'},
-    {k:'drivetrain',i:'propeller',l:'Drive Train'},
-    {k:'rexroth',i:'adjustments-horizontal',l:'Rexroth Air Controls'}]},
+    {k:'drivetrain',i:'propeller',l:'Drive Train & Propulsion'},
+    {k:'rexroth',i:'adjustments-horizontal',l:'Rexroth Pneumatic Controls'}]},
   {g:'Systems',items:[
     {k:'cooling',i:'thermometer',l:'Cooling Systems'},
     {k:'chiller',i:'snowflake',l:'Chiller System'},
     {k:'boiler',i:'flame',l:'Boiler System'},
-    {k:'generators',i:'bolt',l:'Generators'},
+    {k:'generators',i:'bolt',l:'Generators & Electrical'},
     {k:'steering',i:'steering-wheel',l:'Steering'},
     {k:'electronics',i:'cpu',l:'Electronics Room'},
     {k:'fuel',i:'droplet',l:'Fuel & Lube Oil'}]},
   {g:'Vessel',items:[
     {k:'deck',i:'anchor',l:'Deck Equipment'},
     {k:'hull',i:'ship',l:'Hull & Bilge'},
-    {k:'pilothouse',i:'steering-wheel',l:'Pilothouse'},
+    {k:'pilothouse',i:'steering-wheel',l:'Pilothouse & Controls'},
     {k:'safety',i:'flame',l:'Safety Systems'}]},
   {g:'Procedures',items:[
     {k:'proc-fueltransfer',i:'droplet-filled',l:'Fuel Transfer'},
     {k:'proc-paintcodes',i:'palette',l:'Engine Room Paint Codes'},
   ]},
   {g:'Emergency Scenarios',items:[
-    {k:'emg-air',i:'air-balloon-off',l:'Loss of Air'},
-    {k:'emg-power',i:'bolt-off',l:'Loss of Power'},
-    {k:'emg-crankcase',i:'engine',l:'Crankcase Pressure'},
-    {k:'emg-steering',i:'steering-wheel',l:'Loss of Steering'},
     {k:'emg-fire',i:'flame',l:'Engine Room Fire'},
     {k:'emg-flooding',i:'droplets',l:'Flooding / Taking on Water'},
     {k:'emg-mob',i:'man',l:'Man Overboard'},
+    {k:'emg-crankcase',i:'engine',l:'Crankcase Pressure'},
+    {k:'emg-power',i:'bolt-off',l:'Loss of Power'},
+    {k:'emg-steering',i:'steering-wheel',l:'Loss of Steering'},
     {k:'emg-prop',i:'propeller',l:'Loss of Propulsion'},
+    {k:'emg-air',i:'air-balloon-off',l:'Loss of Air'},
     {k:'emg-grounding',i:'anchor',l:'Running Aground'},
     {k:'emg-marsec2',i:'shield-lock',l:'MARSEC Level 2'},
     {k:'emg-marsec3',i:'shield-exclamation',l:'MARSEC Level 3'},
@@ -443,7 +443,7 @@ const SEC={
     ['gra','circuit-board','I/O Modules — Input/Output','Field I/O modules · Sensor wiring, LED fault indicators',['I/O Module','Field Wiring'],'ok','ab-io'],
    ]},
   ]},
- fuel:{title:'Fuel & Lube Oil Systems',sub:'Fuel storage, day tanks, transfer pumps, lube oil systems',
+ fuel:{title:'Fuel & Lube Oil',sub:'Fuel storage, day tanks, transfer pumps, lube oil systems',
   groups:[
    {l:'Fuel System',cards:[
     ['blue','droplet','Fuel Storage Tanks','Wing tanks · Capacity, vent, fill, drain',['Wing Tanks','Vent/Fill'],'ok','fuel-tank'],
@@ -521,7 +521,7 @@ const SEC={
     ['gra','sun','Deck Flood Lights','Work lights, flood lights · LED array',['Flood Lights','LED'],'ok','deck-floods'],
    ]},
   ]},
- hull:{title:'Hull & Bilge Systems',sub:'Bilge pumps, sea chests, ballast, hull integrity',
+ hull:{title:'Hull & Bilge',sub:'Bilge pumps, sea chests, ballast, hull integrity',
   groups:[
    {l:'Bilge & Pumping',cards:[
     ['blue','droplet','Bilge Pumps','Submersible · Float switch, alarm relay',['Bilge Pump','Float Switch'],'ok','hull-bilge'],
@@ -630,8 +630,15 @@ const QREF=[
   ['Steering hydraulic fluid','ISO 32 (per HPU spec)','steer-hpu'],
  ]},
  {cat:'Critical Torque & Clearances',icon:'settings',color:'yel',items:[
-  ['Con. rod bolt torque (EMD 645)','170 ft-lb — REPLACE EVERY REMOVAL','eng-cyl'],
-  ['Injector hold-down bolt','35 ft-lb','eng-fuel'],
+  ['Con. rod (basket) bolt torque (EMD 645)','190 ft-lb final — REPLACE EVERY REMOVAL','eng-cyl'],
+  ['Injector crab nut torque (EMD 645)','50 ft-lb','eng-fuel'],
+  ['Cylinder head-to-liner nuts','Initial 70 / Final 240 ft-lb','eng-cyl'],
+  ['Cylinder head crab nuts (w/o plate crabs)','Initial 400 / Final 1800 ft-lb','eng-cyl'],
+  ['Main bearing nuts','Initial 350–400 / Final 750 ft-lb','eng-cyl'],
+  ['Rocker arm shaft nuts','Initial 150 / Final 300 ft-lb','eng-cyl'],
+  ['Crankcase-to-oil pan','Initial 100 / Final 450 ft-lb','eng-cyl'],
+  ['Engine mounting bolts','455 ft-lb (650 w/ sleeves)','eng-cyl'],
+  ['Turbocharger mounting bolts (3/4")','175 ft-lb','eng-turbo'],
   ['Shaft alignment TIR max','0.002 in. TIR at coupling','dt-shaft'],
   ['Cutless bearing clearance max','0.010 in. per inch of shaft dia.','dt-stern'],
   ['Propeller nut — ALWAYS fit cotter','Never omit cotter pin','dt-prop'],
@@ -1198,7 +1205,7 @@ const DET={
    ['Piston Assembly','40005023','Trunk-type articulating piston, tin-coated skirt','16/eng'],
    ['Piston Ring Set','8062316','3-ring pack: 2 compression rings + 1 oil control ring','16/eng'],
    ['Connecting Rod Assy.','40003700','Forged steel H-beam, full-floating wrist pin bore','16/eng'],
-   ['Con. Rod Bolts','8062310','REPLACE EVERY REMOVAL — torque to 170 ft-lb','32/eng'],
+   ['Con. Rod Bolts','8062310','REPLACE EVERY REMOVAL — basket-to-rod final torque 190 ft-lb','32/eng'],
    ['Cylinder Head Assy.','40018620','Cast iron, 4-valve, injector bore, water passages','16/eng'],
    ['Head Gasket Fire Ring','8062421','Individual stainless fire ring — seals combustion','16/eng'],
    ['Head Gasket Water Seal','8062422','Rubber O-ring outer groove water seal','16/eng'],
@@ -1235,7 +1242,7 @@ const DET={
   parts:[
    ['Unit Injector — 645E','8-480-002','Standard EUI unit injector, factory tested & flow-matched','16/eng'],
    ['Injector Rack Rod','8062440','Individual fuel rack control rod — one per cylinder','16/eng'],
-   ['Injector Hold-Down Clamp Bolt','8062445','Torque 35 ft-lb — replace if stretched','16/eng'],
+   ['Injector Crab Nut','8062445','Torque 50 ft-lb — replace if stretched','16/eng'],
    ['Fuel Jumper Line','8062400','Flexible braided fuel supply line, 45° SAE end fittings','16/eng'],
    ['Jumper Line O-rings','8062401','Buna-N O-ring seal set — ALWAYS replace on removal','32/eng'],
    ['Fuel Manifold Gasket','8062410','Primary fuel supply manifold sealing gaskets','2/eng'],
@@ -1389,7 +1396,7 @@ const DET={
     c:['Air start solenoid valve not opening (no 24V signal or failed coil)','Air supply valve to engine closed','Both receivers depleted — no air pressure','Air start motor completely failed'],
     s:['Check both air receiver pressure gauges — must read above 150 PSI','Verify main air supply valve to engine is open','Check 24VDC at solenoid terminal with multimeter — no voltage means electrical problem at start circuit','If voltage is present but solenoid does not click: solenoid coil is failed, replace it','If solenoid works but no air to motor: check air line between solenoid and motor for blockage or disconnection']},
   ]},
- 'dt-gear':{t:'Faulk Reversing Reduction Gear',sys:'Drive Train',st:'ok',
+ 'dt-gear':{t:'Faulk Reversing Reduction Gear',sys:'Drive Train & Propulsion',st:'ok',
   desc:'The Faulk reversing reduction gear is a air-actuated marine reverse/reduction gear. It transmits engine power to the propeller shaft and provides forward, neutral, and reverse selection via air-actuated clutch packs. The gear ratio reduces engine RPM to propeller RPM. Air pressure to the clutch is critical — insufficient air pressure causes slipping and rapid clutch pack wear.',
   loc:'Mounted directly to engine rear (PTO end) via flexible coupling — one per engine. Output flange connects to propeller shaft via flexible coupling or direct flange.',
   specs:[['Manufacturer','Faulk Corporation (now Rexnord)'],['Model','Verify model number on gear nameplate'],['Gear ratio','Verify on gear nameplate'],['Input RPM','900 RPM (engine rated)'],['Output RPM','~220–255 RPM at 3.54:1 ratio'],['Oil capacity','~8–12 gallons (verify on dipstick)'],['Oil specification','Per Faulk spec — verify on gear nameplate'],['Clutch engagement pressure','150–200 PSI']],
@@ -1421,7 +1428,7 @@ const DET={
     c:['Worn output shaft lip seal (most common)','Scored shaft surface at seal contact area','Loose housing bolts allowing housing joint to weep','Overfilled oil — above correct level forces oil past seals'],
     s:['Confirm leak origin — clean area thoroughly and watch where oil appears first','Output shaft seal: replace lip seal; check shaft contact surface for scoring — use Speedi-Sleeve if scored','Check oil level — if above MAX mark, drain to correct level and see if leak stops','Torque all housing bolts to Faulk spec — check for any loose fasteners at seams','Log oil consumption between checks to quantify leak rate while planning repair']},
   ]},
- 'dt-lube':{t:'Gear Lube Oil System — Faulk Reduction Gear',sys:'Drive Train',st:'ok',
+ 'dt-lube':{t:'Gear Lube Oil System — Faulk Reduction Gear',sys:'Drive Train & Propulsion',st:'ok',
   desc:'The Faulk reduction gear uses an internal gear-driven oil pump to circulate lube oil through the gear housing, clutch packs, and a shell-and-tube cooler. Oil pressure and temperature must be monitored — low air pressure starves the clutch and bearings; high temperature signals cooler fouling or oil degradation. A magnetic drain plug captures ferrous debris and serves as an early warning indicator for internal wear.',
   loc:'Internal oil pump inside gear housing. External oil filter and sight glass on gear housing side. Shell-and-tube oil cooler connected to engine jacket water circuit. Oil fill and drain plugs on gear housing.',
   specs:[['Oil capacity','8–12 gallons (verify on gear nameplate)'],['Oil specification','Per Faulk specification — verify on gear nameplate'],['Normal oil pressure','40–60 PSI at operating temperature'],['Normal oil temperature','160–200°F'],['Filter type','Spin-on element on external housing'],['Cooler type','Shell-and-tube — gear oil to jacket water'],['Oil pump type','Internal gear-driven — runs whenever engine runs'],['Drain plug','Magnetic — inspect at every oil change']],
@@ -1449,7 +1456,7 @@ const DET={
     c:['Low oil level reducing pump suction','Worn internal oil pump with reduced output','Pressure regulating valve stuck open','Clogged oil filter causing bypass'],
     s:['Check oil level first — low level is the most common cause','Switch to clean filter side or replace element and see if pressure recovers','Measure pressure directly at test port with calibrated gauge — compare to spec','If pressure low with correct level and clean filter: internal pump or regulator valve requires gear disassembly for repair','Do not operate gear under full load with low oil pressure — bearing damage follows rapidly']},
   ]},
- 'dt-shaft':{t:'Propeller Shafts — 4 in. Aquamet 22',sys:'Drive Train',st:'ok',
+ 'dt-shaft':{t:'Propeller Shafts — 4 in. Aquamet 22',sys:'Drive Train & Propulsion',st:'ok',
   desc:'The propeller shafts transmit torque from the reduction gears to the propellers. They are manufactured from Aquamet 22 (or 316 stainless steel) for corrosion resistance in a water environment. The shaft taper at the propeller end uses a 1:16 Morse taper with a key and propeller nut. Shaft alignment must be maintained within 0.002 in. TIR (total indicator runout) — misalignment causes vibration, bearing wear, and seal damage. Any suspected strike or grounding event requires immediate shaft inspection.',
   loc:'Running from reduction gear output flange, through the stern tube, to the propeller. Supported by the cutless bearing in the stern tube. Flexible coupling connects shaft to gear output flange inside engine room.',
   specs:[['Material','Aquamet 22 or 316 stainless steel'],['Nominal diameter','4 in. (verify on vessel drawings)'],['Propeller taper','1:16 Morse taper at propeller end'],['Coupling end','Flexible disc or rubber element coupling to gear flange'],['Alignment tolerance','0.002 in. TIR maximum'],['Keyway','Single key at propeller taper'],['Surface finish at seal','125 RMS or better at lip seal contact area']],
@@ -1478,7 +1485,7 @@ const DET={
     c:['Rubber element or disc pack has failed from age or overloading','Coupling bolts loose — bolt has backed out','Misalignment causing accelerated coupling wear'],
     s:['REDUCE TO IDLE — do not operate at high load with a suspected coupling failure','Inspect coupling visually — missing rubber, cracked discs, or visible bolt movement confirms failure','If coupling is failed: lock out engine and replace coupling element before any further underway operation','After replacement: check shaft alignment before returning to service — misalignment destroys replacement couplings quickly']},
   ]},
- 'dt-rudder':{t:'Rudder System',sys:'Drive Train',st:'ok',
+ 'dt-rudder':{t:'Rudder System',sys:'Drive Train & Propulsion',st:'ok',
   desc:'The rudder system provides directional control of the vessel. Each rudder consists of a steel or stainless blade suspended by pintle pins fitting into gudgeon bushings at the hull. The rudder stock connects to the steering system via a tiller arm. The captain steers using the pilothouse control sticks, which command the hydraulic rams (fed by the steering HPU) to rotate the steering and flanking rudders through ±35° of travel. Pintle wear and gudgeon bushing wear cause looseness and poor steering response.',
   loc:'Aft of propellers — one rudder per side (port and starboard). Rudder stock passes through a bearing in the hull bottom. Steering rams connect tiller arm to hydraulic cylinders in the engine room or lazarette.',
   specs:[['Rudder type','Semi-balanced spade rudder'],['Actuation','Hydraulic rams from steering HPU — commanded by pilothouse control sticks'],['Maximum rudder angle','±35° port and starboard'],['Hydraulic pressure','500–1,000 PSI at steering rams (varies by system)'],['Rudder stock material','316 stainless or carbon steel — verify on vessel drawings'],['Pintle material','316 stainless steel'],['Gudgeon bushing material','Bronze or Thordon composite bearing material']],
@@ -1512,7 +1519,7 @@ const DET={
     c:['Hydraulic steering ram leaking internally — not holding position','Relief valve in steering circuit set too low, allowing ram to drift','Steering ram rod seal weeping — slow fluid loss'],
     s:['Center the helm and observe — if rudder slowly drifts, the ram is leaking internally or externally','Check ram rod seal for oil weeping — any wetness at rod means seal is leaking','If ram appears dry externally but drifts: internal bypass in ram piston seals — ram requires rebuild or replacement','Check hydraulic fluid level — repeated drifting causes slow fluid loss if seal is weeping','Temporary management: increase helm input frequency to compensate; do not operate on long passages with a drifting rudder without repair']},
   ]},
- 'dt-prop':{t:'Propellers — Fixed Pitch 4-Blade',sys:'Drive Train',st:'ok',
+ 'dt-prop':{t:'Propellers — Fixed Pitch 4-Blade',sys:'Drive Train & Propulsion',st:'ok',
   desc:'The vessel uses fixed-pitch, 4-bladed propellers made of nibral (nickel-aluminum bronze) or manganese bronze alloy. Any blade damage, even small nicks or bends, causes vibration and efficiency loss. Propeller pitch must be uniform across all blades — variations cause vibration and uneven thrust.',
   loc:'Mounted on tapered propeller shafts aft of stern tubes. Port propeller turns left-hand. Starboard turns right-hand. Access requires dry dock or diver.',
   specs:[['Type','Fixed pitch, 4-bladed'],['Material','Nibral (Ni-Al bronze) or manganese bronze'],['Shaft taper','1:16 Morse taper (typical)'],['Key connection','Single key plus propeller nut'],['Port shaft rotation','Left-hand (counter-clockwise from aft)'],['Starboard shaft rotation','Right-hand (clockwise from aft)'],['NOTE','ALWAYS use cotter pin in propeller nut — never omit']],
@@ -1535,7 +1542,7 @@ const DET={
     c:['Bent or damaged propeller blade from grounding or debris strike','Cavitation damage causing blade imbalance','Foreign object (rope, cable, net) wrapped on shaft'],
     s:['If vibration started suddenly: likely debris strike or wrapped object — reduce speed immediately','Arrange diver inspection — look for wrapped line, blade damage, or bent blade','In dry dock: check each blade pitch and inspect for bends — have prop shop straighten and balance','Check cutless bearing clearance — jack shaft and measure; excessive clearance causes vibration even with good prop']},
   ]},
- 'dt-gearcooler':{t:'Gear Oil Cooler — Faulk Reduction Gear',sys:'Drive Train',st:'ok',
+ 'dt-gearcooler':{t:'Gear Oil Cooler — Faulk Reduction Gear',sys:'Drive Train & Propulsion',st:'ok',
   desc:'Each Faulk reversing reduction gear has its own lube oil cooler that removes heat from the gear oil before it returns to the gear sump. Gear oil heats up from the friction of the gear mesh, clutch pack engagement, and bearing operation — without a cooler, gear oil temperature would climb until the oil viscosity broke down, leading to accelerated bearing and gear wear. The gear oil cooler is typically a shell-and-tube or plate-type heat exchanger with jacket water (engine coolant) or raw water as the cooling medium. One cooler is installed per gearbox. The gear oil temperature gauge and high-temperature alarm are the primary operating indicators — a rising gear oil temperature with adequate oil level almost always points to the cooler.',
   loc:'Adjacent to the Faulk gearbox — the cooler is typically mounted on the gearbox itself or on a bracket in close proximity, with short oil supply and return lines connecting to the gear lube oil circuit. Cooling water connections come from the engine jacket water circuit or a separate raw water supply. One cooler per gearbox means the vessel has two coolers total (port and starboard).',
   specs:[['Type','Shell-and-tube or plate heat exchanger — gear oil to cooling water'],['Cooling medium','Engine jacket water or raw water — verify on installation drawing'],['Quantity','One per Faulk gearbox — two total per vessel (port and starboard)'],['Normal gear oil temp','170–200°F (verify on Faulk spec sheet for this gear model)'],['High temp alarm setpoint','~220°F (verify on alarm panel)'],['Oil flow','Gear oil circulated by internal gear-driven pump — cooler in the return circuit'],['Fouling risk','Coolant side: scale buildup reduces heat transfer; oil side: varnish from overheated oil']],
@@ -1560,7 +1567,7 @@ const DET={
     s:['Drain a gear oil sample and check for milkiness — milky gear oil with a cooler installed almost always means cooler failure','Pressure test the cooler immediately to confirm — isolate the cooler from the circuit; if milkiness clears, cooler is the source','Do not operate the gearbox with water-contaminated oil — water destroys bearing surfaces in a short time; drain and refill before returning to service']},
   ]},
 
- 'dt-packing':{t:'Shaft Packing — Stuffing Box Gland Seal',sys:'Drive Train',st:'ok',
+ 'dt-packing':{t:'Shaft Packing — Stuffing Box Gland Seal',sys:'Drive Train & Propulsion',st:'ok',
   desc:'Shaft packing — also called stuffing box packing or gland packing — is the seal material compressed around the propeller shaft where it exits the hull through the stern tube. Traditional shaft packing consists of braided flax rope rings impregnated with grease or PTFE, compressed between the shaft and the stuffing box housing by tightening the gland nut. A properly adjusted stuffing box should weep a slow, controlled drip of water while the shaft is turning — this water flow lubricates and cools the packing material. A completely dry stuffing box means the packing is over-tightened or failed, which causes the packing to overheat and burn, rapidly destroying it. A heavy stream or gushing flow means the packing is worn out or the gland nut needs tightening. Modern vessels may use a mechanical face seal instead of traditional packing — the maintenance differs significantly between the two types.',
   loc:'Stern tube area — the stuffing box housing is where the propeller shaft exits the hull. Accessible from inside the engine room by crawling into the bilge area near the stern. The gland nut is the large threaded ring that compresses the packing material around the shaft. On a twin-screw vessel there is one stuffing box per shaft — two total.',
   specs:[['Type','Braided flax or synthetic PTFE packing — or mechanical face seal on newer installations'],['Desired drip rate','3–8 drops per minute while shaft is turning — this is CORRECT; a dry box is a problem'],['Gland nut tightening','Adjust in small increments (1/6 turn at a time) — wait and observe before tightening further'],['Packing ring quantity','Typically 4–6 rings of packing — never remove all rings at once'],['Packing replacement','At drydocking or when drip rate cannot be controlled by gland nut adjustment'],['WARNING','A completely dry stuffing box overheats — the heat will score the shaft and burn the packing in minutes']],
@@ -1585,7 +1592,7 @@ const DET={
     s:['Tighten gland nut firmly — if box continues to flood heavily, the packing is spent','If vessel is underway: station a bilge pump on that compartment and head for a safe berth','The only repair for spent packing is packing replacement — this can be done at dock by hauling the shaft back slightly or by a diver if the vessel cannot be hauled out immediately']},
   ]},
 
- 'dt-stern':{t:'Stern Tubes & Shaft Seals',sys:'Drive Train',st:'ok',
+ 'dt-stern':{t:'Stern Tubes & Shaft Seals',sys:'Drive Train & Propulsion',st:'ok',
   desc:'The stern tube houses the propeller shaft where it exits the vessel hull, providing bearing support and a watertight seal. The cutless bearing (rubber-stave, water-lubricated) is the primary shaft support bearing inside the stern tube. The shaft seal prevents water ingress into the vessel.',
   loc:'Where propeller shafts exit through the hull — both port and starboard. Stern tube extends from inside the vessel through the hull to outside. Access to inner seal from engine room; outer bearing requires dry dock or diver.',
   specs:[['Bearing type','Cutless bearing — rubber-stave, water lubricated'],['Seal type','Lip seal or stuffing box with packing (varies by vessel)'],['Max shaft clearance in cutless','0.010 in per inch of shaft diameter'],['Shaft material','316 stainless or Aquamet 22 (corrosion resistant)'],['Lubrication (cutless bearing)','River water — no grease required on water-lube type'],['Stuffing box drip rate','Slow drip acceptable — steady stream is NOT acceptable']],
@@ -1608,7 +1615,7 @@ const DET={
     c:['Worn or damaged shaft lip seal','Packing worn out or gland not adjusted','Stern tube seal damaged during grounding or debris strike'],
     s:['If stuffing box type: carefully tighten gland follower 1/6 turn at a time — allow time to observe effect','Do NOT over-tighten gland — overheating of shaft causes worse damage than the leak','If lip seal type and leaking heavily: dry dock repair required — cannot be fixed underway','Monitor bilge accumulation rate — if rapid flooding, reduce speed and head toward safe harbor']},
   ]},
- 'rx-head':{t:'Control Head — Rexroth Single-Lever Pilot Stick',sys:'Rexroth Air Controls',st:'ok',
+ 'rx-head':{t:'Control Head — Rexroth Single-Lever Pilot Stick',sys:'Rexroth Pneumatic Controls',st:'ok',
   desc:'The Rexroth control head (pilot stick) is a mechanical air-routing station — not hydraulic, not electrical. When the captain moves the lever, precision-machined valve spools and rubber seals inside the head route compressed air to perform two functions in sequence. A small movement past the center neutral detent actuates the clutch section: internal 3-way directional valves immediately send a regulated shot of ship air to deflate the neutral brake and inflate the ahead or astern air clutch on the Faulk gear. Pushing the lever further past the clutch engagement point acts on the throttle section: a pressure-regulating valve sends variable air pressure (3–15 PSI or 10–60 PSI depending on the governor actuator type) down to the engine room, where a mechanical actuator translates that pressure directly into fuel rack position. The entire system is pneumatic with no electrical signals. Clean, dry, lubricated air is critical — moisture or contamination reaching the internal seals causes sticky throttle, sluggish clutch, or air leaks at the console.',
   loc:'Wheelhouse helm console — one pilot stick per control station. The control head mounts through the console face with the lever protruding upward. Air supply tubing connects at the bottom; output lines run to the engine room through conduit. Internal valve spools and O-rings are factory-fit precision components — not externally repairable in the field.',
   specs:[['Type','Mechanical pneumatic single-lever — no hydraulics, no electrical signals in valve body'],['Clutch section','3-way directional valves — routes ship air to ahead or astern clutch on Faulk gear'],['Throttle section','Pressure-regulating valve — output 3–15 PSI or 10–60 PSI proportional to lever position'],['Control air supply','Clean, dry, lubricated air from dedicated FRL station — CRITICAL for seal life'],['Detents','Neutral (center), clutch-in (ahead/astern), full-throttle stop'],['Air exhaust','Used control air vents through brass mufflers at console — no return line to engine room'],['Failure mode','Sticky lever = moisture or dry seals; air leaking at console base = failed O-rings']],
@@ -1633,7 +1640,7 @@ const DET={
     s:['Isolate which head is leaking by temporarily closing individual air supply valves','A failed internal O-ring requires the unit to be removed and sent to a qualified pneumatic shop for rebuild','As emergency measure: if the leaking head is not the active control station, close its air supply and operate from the alternate station while arranging repair']},
   ]},
 
- 'rx-wing':{t:'Auxiliary Control Station — Secondary Throttle & Clutch',sys:'Rexroth Air Controls',st:'ok',
+ 'rx-wing':{t:'Auxiliary Control Station — Secondary Throttle & Clutch',sys:'Rexroth Pneumatic Controls',st:'ok',
   desc:'Auxiliary control stations are secondary Rexroth control heads at alternate positions — a wing station for close-quarters maneuvering or an engine room station for local control during maintenance. They use the same pneumatic single-lever principle as the main helm head: 3-way directional valves for clutch, pressure-regulating valves for throttle. Transfer between stations uses an air-operated or manual transfer valve that enables one station at a time. Never transfer control mid-maneuver without coordination — an unexpected clutch or throttle command during a transfer can be dangerous.',
   loc:'Wing stations at the sides of the pilothouse. Engine room station (if installed) at the engine room control console. All stations share the same FRL-conditioned air supply and the same maintenance requirements as the main helm head.',
   specs:[['Type','Same pneumatic single-lever valve as main head — same maintenance requirements'],['Transfer','Air or manual transfer valve — one station enabled at a time'],['Transfer rule','Captain and engineer must coordinate before transferring control authority'],['Maintenance','Identical to main control head — same FRL, same lubricator check interval']],
@@ -1651,7 +1658,7 @@ const DET={
     s:['Verify transfer valve is set to enable this station','Check air pressure at the station — trace from FRL to station isolation valve to head body','If transfer and air are confirmed: head has failed internally']},
   ]},
 
- 'rx-muffler':{t:'Air Mufflers — Console Exhaust Vents',sys:'Rexroth Air Controls',st:'ok',
+ 'rx-muffler':{t:'Air Mufflers — Console Exhaust Vents',sys:'Rexroth Pneumatic Controls',st:'ok',
   desc:'When the control head lever moves and actuates the clutch or throttle valves, the used control air must exhaust somewhere. In the Rexroth pneumatic system this happens right at the head through small sintered-bronze brass mufflers threaded into the exhaust ports. They reduce the sharp blast of exhausting air to a soft hiss and prevent debris from entering the exhaust ports. No return line to the engine room is needed — used air simply vents at the console. This is the single biggest advantage of pneumatic controls over hydraulic: if a line chafed behind the console it releases air harmlessly instead of dumping oil over the wheelhouse electronics.',
   loc:'Threaded into the exhaust ports of each control head, or into an exhaust manifold behind the console panel. Typically 1/8 or 1/4 inch NPT thread. Sintered bronze elements inside a brass housing.',
   specs:[['Thread','1/8 or 1/4 inch NPT — match existing port on head'],['Failure mode','Clogged muffler = back-pressure = delayed throttle return or sluggish clutch release'],['No return line','Air exhausts here — unique advantage over hydraulic control systems']],
@@ -1663,7 +1670,7 @@ const DET={
     s:['Remove mufflers and operate lever without them; if response immediately improves, mufflers are the cause; replace','If response does not improve without mufflers, issue is inside the head or air supply']},
   ]},
 
- 'rx-frl':{t:'FRL Station — Filter-Regulator-Lubricator',sys:'Rexroth Air Controls',st:'ok',
+ 'rx-frl':{t:'FRL Station — Filter-Regulator-Lubricator',sys:'Rexroth Pneumatic Controls',st:'ok',
   desc:'The FRL (Filter-Regulator-Lubricator) station is the single most important maintenance point in the entire Rexroth pneumatic control system. Every cubic inch of air that reaches the control heads passes through here. Filter removes water, oil, and particles before they reach the precision valve seals. Regulator drops ship air (120–150 PSI) to the correct control circuit pressure (90–100 PSI). Lubricator injects a fine mist of pneumatic tool oil to keep valve spools and O-rings lubricated. If water gets past the air dryer and the FRL filter, it washes away the specialty grease inside the Rexroth heads and rots the rubber seals — the most common cause of sticky throttles and internal air leaks at the console.',
   loc:'Engine room — mounted on or adjacent to the control air supply line where it enters the engine room. Three modular units in series: filter bowl with manual drain, regulator with knob and pressure gauge, lubricator with oil sight bowl. One FRL station typically serves all control heads aboard.',
   specs:[['Filter','Removes water, oil aerosol, and particles — manual drain weekly'],['Regulator','Reduces supply to 90–100 PSI — verify on gauge'],['Lubricator','Oil-mist injection — ISO VG 32 or 46 pneumatic tool oil only; NEVER engine oil or hydraulic oil'],['Drain interval','Weekly — water in bowl = dryer failing upstream'],['Lubricator level','Check weekly — empty = heads running dry']],
@@ -1689,7 +1696,7 @@ const DET={
     s:['Check regulator output gauge under load (when lever is moved); if pressure drops significantly, filter or regulator is restricting','Replace filter element — a severely clogged element drops regulated pressure under flow','If filter and regulator are good, check main ship air pressure at FRL inlet']},
   ]},
 
- 'rx-airline':{t:'Control Air Supply Line',sys:'Rexroth Air Controls',st:'ok',
+ 'rx-airline':{t:'Control Air Supply Line',sys:'Rexroth Pneumatic Controls',st:'ok',
   desc:'The control air supply line carries FRL-conditioned compressed air from the engine room up to the control heads in the wheelhouse. Copper tubing or high-pressure nylon (Synflex) tubing is used depending on the run. This line carries regulated pressure (90–100 PSI) and must be free from leaks and restrictions along its full run — any leak or restriction reduces air available at the heads, causing sluggish clutch engagement or reduced throttle resolution.',
   loc:'Runs from FRL regulator outlet through the engine room bulkhead penetration and up through conduit to the wheelhouse console. Copper hard tubing in the engine room transitions to flexible nylon tubing in the conduit run to allow movement.',
   specs:[['Pressure','90–100 PSI — FRL-regulated'],['Material','Copper tubing (hard sections) or nylon/Synflex (flexible sections)'],['Size','1/4 or 3/8 inch OD — match existing installation'],['Fittings','Compression fittings (copper) or push-to-connect (nylon); do not use threaded pipe fittings on tubing']],
@@ -1707,7 +1714,7 @@ const DET={
     s:['Check FRL gauge under load; if pressure drops when lever moves, restriction is in FRL or supply line','Leak-check the full supply line run']},
   ]},
 
- 'rx-dryer':{t:'Air Dryer — Control Air Moisture Removal',sys:'Rexroth Air Controls',st:'ok',
+ 'rx-dryer':{t:'Air Dryer — Control Air Moisture Removal',sys:'Rexroth Pneumatic Controls',st:'ok',
   desc:'The air dryer removes moisture from ship air before it reaches the FRL and control heads. River vessel compressors collect significant moisture — humid ambient air is compressed and the moisture concentrates. Without a dryer, water accumulates in distribution piping and eventually reaches the control head seals. Desiccant dryers (common on towboats for their simplicity) pass air through a moisture-absorbing desiccant bed. Refrigerated dryers cool air below dew point so moisture condenses and drains. The FRL filter bowl is the early-warning indicator — heavy water in the bowl means the dryer is failing.',
   loc:'Engine room — installed on the control air supply branch between the main air system and the FRL station, upstream of the FRL so the filter bowl does not have to handle excessive moisture.',
   specs:[['Type','Desiccant (most common) or refrigerated — verify on unit label'],['Saturation indicator','Desiccant changes color when spent — typically blue→pink for silica gel; replace when indicator shows saturation'],['Auto drain','Most dryers have an auto-drain — verify it actuates periodically'],['Warning sign','Heavy water in FRL filter bowl = dryer failing']],
@@ -1725,7 +1732,7 @@ const DET={
     s:['Check desiccant indicator and replace if saturated','Manually drain dryer body and verify auto-drain operation','Confirm no bypass valve is open around the dryer']},
   ]},
 
- 'rx-clutchvalve':{t:'Clutch Control Valves — 3-Way Directional Valves',sys:'Rexroth Air Controls',st:'ok',
+ 'rx-clutchvalve':{t:'Clutch Control Valves — 3-Way Directional Valves',sys:'Rexroth Pneumatic Controls',st:'ok',
   desc:'The clutch control valves are 3-way directional air valves that translate the initial lever movement from the control head into clutch commands on the Faulk gear. When the lever is cracked past the neutral detent, the control head internal spool opens one of these valves, which routes full ship air pressure to either deflate the neutral brake and inflate the ahead clutch, or inflate the astern clutch. Clutch valves operate on/off — full engagement once the detent is passed, regardless of how far the lever travels.',
   loc:'Engine room — mounted on the Faulk gear air control manifold or on a nearby valve bracket. Signal tubing from the control head connects to the pilot port. Supply air and clutch actuator connections are at the valve body.',
   specs:[['Type','3-way directional valve — pneumatically piloted by control head signal'],['Actuation','No electrical actuation — purely pneumatic'],['Pressure','Full ship air pressure to clutch (not throttle signal pressure)'],['Response','Immediate — clutch inflates as signal reaches pilot port'],['Failure mode','Stuck closed = no engagement; stuck open = clutch will not release; internal leak = soft engagement']],
@@ -1743,7 +1750,7 @@ const DET={
     s:['Check pilot signal pressure at valve pilot port with lever in ahead or astern','If pilot air confirmed: verify valve shifts and routes supply air to clutch port','If air reaches clutch port but gear does not engage: fault is in Faulk gear clutch pack itself']},
   ]},
 
- 'rx-throttlevalve':{t:'Throttle Pressure Valves — Variable Output Regulators',sys:'Rexroth Air Controls',st:'ok',
+ 'rx-throttlevalve':{t:'Throttle Pressure Valves — Variable Output Regulators',sys:'Rexroth Pneumatic Controls',st:'ok',
   desc:'The throttle section inside the Rexroth control head contains precision pressure-regulating valves that translate lever position into variable air pressure — the throttle signal sent to the engine room governor actuator. As the lever is pushed past clutch engagement toward full throttle, the internal regulating valve progressively increases output pressure: 3–15 PSI or 10–60 PSI depending on the governor actuator type. This variable pressure travels down the signal tubing from wheelhouse to engine room where a mechanical governor actuator translates it directly into fuel rack position. Higher pressure = more rack pull = higher RPM. The entire throttle path from wheelhouse to engine is pneumatic — no electrical signals involved.',
   loc:'Integral to the control head valve body in the wheelhouse — the throttle section is not a separate serviceable component but part of the head. The variable pressure output tubing exits the head body and runs through conduit to the engine room governor actuator.',
   specs:[['Output range','3–15 PSI or 10–60 PSI — must match governor actuator nameplate'],['Signal type','Variable air pressure proportional to lever position — analog pneumatic'],['Zero point','At clutch engagement, throttle output begins at minimum (idle)'],['Full output','Full-ahead/astern = maximum pressure = full fuel rack'],['Linearity','A worn valve produces jumpy or non-linear throttle response']],
@@ -1760,7 +1767,7 @@ const DET={
     s:['Install a pressure gauge on the signal line at the engine room end; move lever slowly from idle to full; pressure should rise smoothly; jumps or flat spots identify the worn valve position','Check signal line for micro-leaks — even a small leak causes pressure inconsistency']},
   ]},
 
- 'rx-interlock':{t:'Safety Interlock Valves — Anti-Shock Gear Protection',sys:'Rexroth Air Controls',st:'ok',
+ 'rx-interlock':{t:'Safety Interlock Valves — Anti-Shock Gear Protection',sys:'Rexroth Pneumatic Controls',st:'ok',
   desc:'The pneumatic safety interlock valves prevent catastrophic gear damage during a crash-stop (full-ahead to full-astern). These are passive pneumatic choke valves, orifice fittings, and timing valves installed between the control head outputs and the Faulk gear clutch actuators. When the captain slams the stick from full-ahead to full-astern, the interlock enforces two things in sequence: the orifice fitting controls the rate at which clutch pressure bleeds off, and a timing delay ensures the throttle signal has dropped to idle before the reverse clutch is allowed to inflate. This prevents the reverse clutch from engaging against a still-spinning high-RPM engine — an event that would instantly destroy the clutch packs. These interlocks are purely pneumatic and operate even during electrical failures.',
   loc:'Engine room — in the pneumatic lines between control head signal outputs and Faulk gear clutch actuators. Orifice fittings, choke valves, and timing valves typically installed at or near the Faulk gear control manifold.',
   specs:[['Type','Passive pneumatic — orifice fittings, choke valves, timed sequence valves'],['Function','Ensures engine drops to idle before reverse clutch can inflate during crash-stop'],['Timing','Typically 2–5 seconds delay from ahead to reverse clutch inflation'],['CRITICAL','Never bypass or remove interlock orifices — gear destruction can result from an unprotected crash-stop'],['No power needed','Purely pneumatic — functions during electrical failure']],
@@ -1778,7 +1785,7 @@ const DET={
     s:['STOP performing crash-stops until the interlock is verified — continued hard engagement is destroying the clutch packs','Inspect all orifice fittings for enlargement or bypass jumper tubes','Verify throttle pressure drops to zero (idle) when stick passes through neutral — if throttle does not cut, the interlock timing cannot protect the gear']},
   ]},
 
- 'rx-govactuator':{t:'Governor Air Actuator — Fuel Rack Positioner',sys:'Rexroth Air Controls',st:'ok',
+ 'rx-govactuator':{t:'Governor Air Actuator — Fuel Rack Positioner',sys:'Rexroth Pneumatic Controls',st:'ok',
   desc:'The governor air actuator is the final link between the wheelhouse pilot stick and the engine fuel rack. It is a mechanical air-pressure-to-position converter: variable air pressure from the control head throttle valve (3–15 PSI or 10–60 PSI) enters the actuator diaphragm or piston chamber, and the resulting force positions a mechanical output arm connected directly to the ED05 governor lay-shaft or fuel rack linkage. More pressure = more arm travel = more fuel rack pull = higher RPM. At minimum pressure the internal return spring moves the arm back to idle. Loss of control air causes the spring to return the engine to idle — a built-in fail-safe.',
   loc:'Engine room — mounted adjacent to the main engine governor, with the mechanical output arm connected to the ED05 governor input shaft or fuel rack lay-shaft via a clevis and linkage rod. Air signal input comes from the throttle signal tubing from the wheelhouse.',
   specs:[['Input','Variable air pressure — 3–15 PSI or 10–60 PSI (must match control head output range)'],['Output','Mechanical arm travel — positions governor lay-shaft or fuel rack'],['Return spring','Spring-return to idle — fail-safe on air supply loss'],['Type','Diaphragm (most common) or piston actuator'],['Fail-safe','Loss of control air = spring returns engine to idle automatically']],
@@ -1801,7 +1808,7 @@ const DET={
     s:['Measure signal pressure at actuator inlet with a gauge; if pressure rises with lever movement but engine does not respond, actuator or linkage is the fault','Check linkage clevis connections at both ends','If signal is zero regardless of lever: trace back to control head and signal line']},
   ]},
 
- 'rx-feedback':{t:'Feedback Units — Position Transducers',sys:'Rexroth Air Controls',st:'ok',
+ 'rx-feedback':{t:'Feedback Units — Position Transducers',sys:'Rexroth Pneumatic Controls',st:'ok',
   desc:'Feedback units are position sensors that measure actual clutch or throttle mechanism position and return that reading to a display or control indicator. On some installations they allow a remote station to show the actual gear and throttle position. On others they provide position confirmation to the control head. Not all Rexroth installations have feedback units — simpler systems rely on the operator reading engine RPM and gear status directly.',
   loc:'Mounted on the Faulk gear clutch actuator (for clutch feedback) or on the governor actuator linkage (for throttle feedback). A small linear or rotary transducer with a mechanical connection to the actuator output shaft. Signal wiring runs to a display panel or control head indicator.',
   specs:[['Type','Linear or rotary position transducer'],['Signal','Analog (0–5VDC, 4–20mA) or potentiometer — verify on unit label'],['Optional','Not all installations equipped — verify on vessel drawings']],
@@ -4068,20 +4075,164 @@ const MANUAL_CONTENT={
   sub:'16-Cylinder 645-E Series — Marine Application Reference',
   color:'red',icon:'book',
   sections:[
-   {t:'Torque Specifications',type:'table',
-    heads:['Fastener / Location','Torque','Critical Notes'],
+   {t:'EMD Diesel Engine Bolt Torques — Official Card',type:'notes',
+    lines:[
+     'Source: Ingram Barge Company — M/V Vessel Engineering, EMD Diesel Engine Bolt Torques (Metric & English), Rev. 9-12. Values are the authoritative reference for this fleet.',
+     'IMPORTANT: When torque values are listed as "Initial" and "Final," the torquing procedures in the engine manual MUST be followed — do not skip the intermediate steps.',
+     'Lubrication codes from the card:  * = lubricate with Texaco Threadtex No. 2303    ** = lubricate with Fel-Pro C5A or equivalent    † = apply Loctite Sealing Compound No. 242',
+     'Both N·m and Ft-Lbs are given. Torque the value that matches your wrench; they are the same spec in different units.',
+    ]},
+   {t:'Power Pack',type:'table',
+    heads:['Fastener / Location','N·m','Ft-Lbs'],
     rows:[
-     ['Connecting rod bolts','170 ft-lb','SINGLE-USE — replace every removal without exception'],
-     ['Main bearing cap bolts — inner','200 ft-lb','Torque in sequence: center outward'],
-     ['Main bearing cap bolts — outer','130 ft-lb','Torque after inner bolts are set'],
-     ['Cylinder head bolts','Step 1: 80 ft-lb / Step 2: 150 ft-lb','Torque in cross pattern; re-torque after first heat cycle'],
-     ['Injector hold-down clamp bolt','35 ft-lb','Do not overtighten — clamp must seat flat on injector flange'],
-     ['Rocker arm stud nut','70 ft-lb','Check push rod seating before torquing'],
-     ['Camshaft bearing cap bolts','45 ft-lb','Lubricate threads with engine oil'],
-     ['Flywheel bolts','300 ft-lb','Safety wire after torque — use new wire every removal'],
-     ['Oil pump cover bolts','25 ft-lb','Even pattern; overtightening distorts cover'],
-     ['Air box drain tube plugs','15 ft-lb','Hand-tight plus 1/4 turn — no sealant on straight threads'],
-     ['Crankshaft damper bolt','400 ft-lb','Require hydraulic torque tool for accurate setting'],
+     ['Piston pin bearing retainer bolts — 1/4"-20 x 1/2"','16.4','12'],
+     ['Piston pin bearing retainer bolts — 5/16"-24 x 1"','36.6–40.7','27–30'],
+     ['Connecting rod-to-piston pin *','610','450'],
+     ['Water outlet elbow-to-head bolts','41','30'],
+     ['Connecting rod basket (bottom)','102','75'],
+     ['Basket-to-connecting rod * (top) — Initial','14','10'],
+     ['Basket-to-connecting rod * (top) — Final','258','190'],
+     ['Cylinder head-to-liner nuts — Initial','95','70'],
+     ['Cylinder head-to-liner nuts — Final','325','240'],
+     ['Topdeck head frame bolts — 300M bolts w/ hardened washers','54','40'],
+     ['Topdeck head frame bolts — 280M bolts w/ plain washers','41','30'],
+     ['Cylinder head crab nuts (studs & nuts) * — Initial','542','400'],
+     ['Cylinder head crab nuts * — Final (engines w/o plate crabs)','2 440','1800'],
+     ['Cylinder head crab nuts * — Final (engines w/ plate crabs)','3 254','2400'],
+     ['Overspeed trip mechanism','32','24'],
+     ['Injector crab nuts *','68','50'],
+     ['Injector fuel (jumper) line bolts (MUI)','54','40'],
+     ['Injector fuel (jumper) lines (EUI) — injector end bolt','27','20'],
+     ['Injector fuel (jumper) lines (EUI) — manifold end bolt','54','40'],
+     ['Fuel manifold blocks','54','40'],
+     ['Rocker arm shaft nuts * — Initial','203','150'],
+     ['Rocker arm shaft nuts * — Final','407','300'],
+     ['Rocker arm oil line bolts','9.5','7'],
+     ['Water jumper saddle strap nuts','20','15'],
+     ['Water jumper-to-liner','41','30'],
+     ['Piston cooling oil pipe bolts','27','20'],
+     ['Cylinder test valve packing nut','88','65'],
+     ['Handhole cover bolts','27–41','20–30'],
+    ]},
+   {t:'Top Deck',type:'table',
+    heads:['Fastener / Location','N·m','Ft-Lbs'],
+    rows:[
+     ['Camshaft assembly segment & spacer nuts','47','35'],
+     ['Camshaft stubshaft bearing bracket bolts — 5/8" hex head *','190','140'],
+     ['Camshaft stubshaft bearing bracket bolts — 1/2" socket head','102','75'],
+     ['Top deck head frame bolts — 280M bolts w/ captive lockwasher & plain washer','41','30'],
+     ['Top deck head frame bolts — 300M bolts w/ hardened washers','54','40'],
+     ['Camshaft bearing blocks','43','32'],
+     ['Camshaft drive gear & counterweights-to-camshaft — 1/2"','122','90'],
+     ['Camshaft drive gear & counterweights-to-camshaft — 5/16" (dowel bolts)','23','17'],
+     ['Exhaust manifold-to-crankcase ** — Initial','68','50'],
+     ['Exhaust manifold-to-crankcase ** — Final','176','130'],
+     ['Exhaust manifold connector bolts','108','80'],
+     ['Exhaust manifold inspection cover (when equipped)','108','80'],
+     ['Water discharge "Y" manifold (w/ gasket)','169','125'],
+     ['Lifting shackle (replaces "Y" manifold w/o gasket)','407','300'],
+    ]},
+   {t:'Accessory End',type:'table',
+    heads:['Fastener / Location','N·m','Ft-Lbs'],
+    rows:[
+     ['Accessory drive housing-to-crankcase & oil pan †','88','65'],
+     ['Overspeed trip housing-to-crankcase','88','65'],
+     ['Water pump mounting bolts','88','65'],
+     ['Water pump elbows','88','65'],
+     ['Scavenging oil pump mounting bolts','88','65'],
+     ['Scavenging oil pump elbows','88','65'],
+     ['Lube oil pump mounting bolts','88','65'],
+     ['Lube oil pump elbows','88','65'],
+     ['Oil strainer housing mounting bolts','88','65'],
+     ['Governor drive hsg. mtg. bolts','88','65'],
+     ['Governor-to-drive housing','88','65'],
+     ['Overspeed trip cover-to-overspeed trip housing','41','30'],
+     ['Fuel manifolds-to-filter','47','35'],
+     ['Oil strainer elbows-to-strainer housing','54','40'],
+     ['Accessory drive oil seal cover','54','40'],
+     ['Oil seal retainer to accessory drive oil seal cover','41','30'],
+     ['Accessory drive coupling — single retaining bolt design — Initial','136','100'],
+     ['Accessory drive coupling — single retaining bolt design — Final','881','650'],
+     ['Accessory drive coupling — three retaining bolt design','393','290'],
+     ['Accy. drive flange locking spring bolt','88','65'],
+    ]},
+   {t:'Camshaft Drive End',type:'table',
+    heads:['Fastener / Location','N·m','Ft-Lbs'],
+    rows:[
+     ['Governor drive gear assembly — stubshaft-to-crankcase','102','75'],
+     ['Governor drive gear assembly — stubshaft dowel bolts','9.5','17'],
+     ['Oil jumper-to-stubshaft','47','35'],
+     ['Retainer plate-to-stubshaft','47','35'],
+     ['Governor drive flange-to-drive gear','47','35'],
+     ['Piston cooling manifold flange-to-crankcase','37','27'],
+     ['Idler gear stubshaft bracket-to-crankcase — 1/2"','122','90'],
+     ['Idler gear stubshaft bracket-to-crankcase — 3/8"','37','27'],
+     ['Idler gear stubshaft bracket-to-crankcase — 5/16" (dowel bolts)','23','17'],
+     ['No. 1 idler gear thrust plate — 1/2" (to stubshaft)','102','75'],
+     ['No. 1 idler gear thrust plate — 5/8" (to crankcase)','251','185'],
+     ['No. 1 idler gear thrust plate — 7/8" (to crankcase)','698','515'],
+     ['Camshaft drive hsg.-to-crankcase','88','65'],
+     ['Oil manifold-to-oil manifold','50','37'],
+     ['Oil manifold-to-crankcase','43','32'],
+     ['Oil slinger-to-crankshaft gear','23','17'],
+     ['Oil retainer-to-camshaft drive hsg.','41','30'],
+    ]},
+   {t:'Turbo Engines Only',type:'table',
+    heads:['Fastener / Location','N·m','Ft-Lbs'],
+    rows:[
+     ['Turbocharger mounting bolts — 3/4"','238','175'],
+     ['Turbocharger mounting bolts — 1/2"','88','65'],
+     ['Air ducts-to-turbocharger','81','60'],
+     ['Air ducts-to-crankcase','88','65'],
+     ['Auxiliary drive-to-turbocharger — 3/8"','32','24'],
+     ['Auxiliary drive-to-camshaft drive housing — 1/2"','88','65'],
+     ['Aftercooler-to-air duct','61','45'],
+     ['Aftercooler support pad bolts','176','130'],
+     ['Turbocharger-to-manifold **','122','90'],
+     ['Exhaust silencer-to-turbo **','122','90'],
+     ['Water piping-to-aftercooler','47','35'],
+     ['Water piping-to-engine','47','35'],
+     ['Oil separator expansion joint to exhaust duct — 3/8"','37','27'],
+     ['Oil separator expansion joint to ejector — 3/8"','32','34'],
+     ['Oil separator-to-turbocharger — 1/2"','122','90'],
+     ['Camshaft drive housing-to-crankcase lockwire anchor bolts','88','65'],
+    ]},
+   {t:'Blower Engines Only',type:'table',
+    heads:['Fastener / Location','N·m','Ft-Lbs'],
+    rows:[
+     ['Blower rotor shaft nut','915','675'],
+     ['Blower timing gear cover nuts','47','35'],
+     ['Blower end plate-to-housing nuts','88','65'],
+     ['Blower support-to-crankcase','88','65'],
+     ['Blower-to-support','88','65'],
+     ['Blower drain lines','88','65'],
+     ['Auxiliary drive hsg.-to-crankcase','88','65'],
+     ['Blower drive gear stubshaft bracket-to-crankcase','238','175'],
+     ['Camshaft drive gear cover-to-hsg. †','122','90'],
+    ]},
+   {t:'Crankcase & Oil Pan',type:'table',
+    heads:['Fastener / Location','N·m','Ft-Lbs'],
+    rows:[
+     ['Main bearing nuts * — Initial','475–542','350–400'],
+     ['Main bearing nuts * — Final','1 017','750'],
+     ['Crankcase-to-oil pan — Initial','136','100'],
+     ['Crankcase-to-oil pan — Final','610','450'],
+     ['Damper/balancer-to-crankshaft * — 645 engines','678','500'],
+     ['Damper/balancer-to-crankshaft * — 710 engines','814','600'],
+     ['Bolt-on crankshaft stubshaft * (where applicable) — 7/8"-9','678','500'],
+     ['Bolt-on crankshaft stubshaft * — 7/8"-14','814','600'],
+     ['Bolt-on crankshaft stubshaft retention bolts','81','60'],
+     ['Accessory drive gear to crankshaft * — 7/8"','678','500'],
+     ['Accessory drive gear to crankshaft * — 3/4"','407','300'],
+     ['Accessory drive gear to crankshaft * — 5/8"','217','160'],
+     ['Accessory drive gear oil slinger','33','24'],
+     ['Coupling disc-to-crankshaft * — 1-1/2"-8, 12, 16 cyl','2 440','1800'],
+     ['Coupling disc-to-crankshaft * — 1-1/4"-20 cyl','1 830','1350'],
+     ['Coupling disc rim bolts','400','295'],
+     ['Rim gear & EMDEC timing plates-to-coupling disc','37','27'],
+     ['Handhold cover bolts','27–41','20–30'],
+     ['Engine mounting bolts','617','455'],
+     ['Engine mounting bolts w/ sleeves','881','650'],
     ]},
    {t:'Clearance & Wear Limits',type:'table',
     heads:['Measurement','New / Nominal','Reject / Service Limit'],
@@ -4191,7 +4342,7 @@ const MANUAL_CONTENT={
      {s:'With the head removed, use the EMD power assembly extractor tool to remove the piston, liner, and connecting rod as a single unit from the top of the block.'},
      {s:'Mark each power assembly with its cylinder number before storing or shipping for reconditioning. Do not mix components between different cylinder positions.'},
      {s:'Inspect the liner bore, piston, and ring condition. Measure liner bore at three heights (top, middle, bottom) with an inside micrometer. Record and compare to wear limit specifications.'},
-     {s:'On reassembly: install new con. rod bolts (single-use — no exceptions), new head gasket fire ring and water seal O-ring, new injector O-rings, and a new rocker cover gasket.',warn:'Con. rod bolts are torqued to 170 ft-lb and must be replaced at every disassembly. Installing old con. rod bolts is an EMD warranty violation and a safety hazard — a bolt that has been torqued once has yielded and cannot be relied upon to hold torque again.'},
+     {s:'On reassembly: install new con. rod bolts (single-use — no exceptions), new head gasket fire ring and water seal O-ring, new injector O-rings, and a new rocker cover gasket.',warn:'Con. rod (basket-to-rod) bolts are torqued to 190 ft-lb final per the Ingram EMD card (Initial 10 ft-lb, Final 190 ft-lb) and must be replaced at every disassembly. Installing old con. rod bolts is an EMD warranty violation and a safety hazard — a bolt that has been torqued once has yielded and cannot be relied upon to hold torque again.'},
      {s:'After reassembly and refilling with oil and coolant: prelube engine for 3 minutes before first start. On first run, check for oil and coolant leaks, correct oil pressure, and perform a cylinder balance after engine reaches operating temperature.'},
     ]},
    {t:'Firing Order & Cylinder Identification',type:'notes',
@@ -4232,7 +4383,7 @@ const MANUAL_CONTENT={
      ['Piston assembly — articulating trunk','40005023','Tin-coated skirt; order with ring set'],
      ['Piston ring set — 3-ring pack','8062316','2 compression + 1 oil control; measure groove clearance before ordering'],
      ['Connecting rod assembly','40003700','Forged steel H-beam; order with new rod bolts — never reuse old bolts'],
-     ['Connecting rod bolts (pair)','8062310','SINGLE-USE — order 2 per con rod every disassembly; torque 170 ft-lb'],
+     ['Connecting rod bolts (pair)','8062310','SINGLE-USE — order 2 per con rod every disassembly; basket-to-rod final torque 190 ft-lb'],
      ['Wrist pin — standard','8062315','Hardened steel full-floating; measure pin and bore before ordering'],
      ['Wrist pin snap rings (pair)','8062317','NEVER reuse — order 2 per piston at every disassembly'],
      ['Cylinder head assembly','40018620','Cast iron 4-valve head; includes injector bore and water passages'],
@@ -4250,7 +4401,7 @@ const MANUAL_CONTENT={
     rows:[
      ['Unit injector — 645E standard','8-480-002','Factory tested and flow-matched; always replace as matched set when possible'],
      ['Injector rack rod — per cylinder','8062440','One per cylinder; inspect for bends or binding before reusing'],
-     ['Injector hold-down clamp bolt','8062445','Torque to 35 ft-lb; replace if threads are pulled or shank is stretched'],
+     ['Injector crab nut','8062445','Torque to 50 ft-lb; replace if threads are pulled or shank is stretched'],
      ['Fuel jumper line — flexible braided','8062400','One per cylinder; replace if outer braid is frayed or fittings are corroded'],
      ['Jumper line O-ring set (end fittings)','8062401','Buna-N; order 2 per jumper line; never reuse old O-rings'],
      ['Fuel manifold gasket set','8062410','Primary fuel supply manifold; one set per bank (2 sets per engine)'],
@@ -5680,13 +5831,15 @@ function renderHowto(key){
     'howto-lash':'Set Lash Adjustments — EMD 645',
     'howto-swapgen':'Swap Generators',
     'howto-boilertochiller':'Boiler to Chiller',
-    'howto-chillertobboiler':'Chiller to Boiler',
+    'howto-chillertoboiler':'Chiller to Boiler',
   };
   const title=titles[key]||'How To';
   if(key==='howto-startengine') return renderStartEngine();
   if(key==='howto-lash') return renderLashAdjustment();
   if(key==='howto-swapgen') return renderSwapGenerators();
   if(key==='howto-groundfault') return renderGroundFault();
+  if(key==='howto-boilertochiller') return renderBoilerToChiller();
+  if(key==='howto-chillertoboiler') return renderChillerToBoiler();
   return `<div class="pt"><i class="ti ti-school" style="margin-right:6px;font-size:15px"></i>${title}</div>
   <div class="ps" style="margin-bottom:14px">Step-by-step procedure — coming soon</div>
   <div style="display:flex;align-items:center;gap:12px;padding:18px;background:#f8fafc;border:.5px solid var(--bd);border-radius:10px;color:var(--t2)">
@@ -5697,6 +5850,139 @@ function renderHowto(key){
     </div>
   </div>`;
 }
+
+function renderBoilerToChiller(){
+  const phases=[
+    {
+      phase:'PHASE 1 — Plan the Changeover',
+      color:'#ef4444',
+      note:'This procedure switches the vessel HVAC from winter heating (diesel-fired boiler / hot water) to summer cooling (chiller / chilled water) on the shared fan-coil distribution loop. Plan it for a mild day so the crew is comfortable while the system is down, and allow a few hours start to finish.',
+      steps:[
+        {t:'Confirm the season and outside conditions',d:'Verify the changeover is warranted — sustained warm weather, no overnight freeze risk in the forecast. Once the boiler is secured and drained from the loop you lose heating, so do not change over while freezing temperatures are still possible in the accommodation spaces.'},
+        {t:'Notify the crew and wheelhouse',d:'Tell the crew the HVAC will be down for a few hours during the swap. Coordinate timing so it does not interfere with watch changes or meals.'},
+        {t:'Gather what you need',d:'Have on hand: the chilled-water system fill (treated water / glycol mix per the system spec), a chilled-water strainer screen if you plan to clean it, refrigerant gauges if you will verify the chiller charge, and the boiler and chiller component logs to record the changeover.'},
+      ]
+    },
+    {
+      phase:'PHASE 2 — Secure the Boiler',
+      color:'#f59e0b',
+      note:'Take the diesel-fired boiler offline cleanly before isolating it from the loop. Refer to the Boiler — Diesel-Fired Hot Water and Burner Assembly component pages for unit-specific detail.',
+      steps:[
+        {t:'Shut down the burner and let the boiler cool',d:'Turn the aquastat / boiler control to OFF so the burner stops firing. Let the boiler and the hot water in the loop cool before working on the piping — circulating hot water can scald and a hot boiler is under thermal stress. Give it time to come down to a safe touch temperature.'},
+        {t:'Close the boiler fuel supply',d:'Close the boiler fuel supply valve and confirm the burner cannot re-light. This isolates the diesel supply while the boiler is out of service for the season and prevents an accidental fire-up.'},
+        {t:'Stop the boiler circulating pump',d:'Switch off the boiler circulating pump and lock out its breaker. With the burner secured and the pump stopped, the hot water side is no longer moving heat into the loop.'},
+        {t:'Isolate the boiler from the shared loop',d:'Close the isolation valves on the boiler supply and return connections to the fan-coil loop. This separates the boiler from the distribution piping so the chiller can take over the same loop without circulating through the boiler.'},
+      ]
+    },
+    {
+      phase:'PHASE 3 — Line Up the Chiller Side',
+      color:'#7c3aed',
+      note:'Bring the chilled-water side into service on the shared loop. Refer to the Chiller Unit, Chilled Water Pump, and TXV component pages for unit-specific detail.',
+      steps:[
+        {t:'Open the chilled-water isolation valves',d:'Open the isolation valves that connect the chiller evaporator (chiller barrel) and the chilled-water piping to the fan-coil distribution loop. The fan coil units that delivered hot water in winter now circulate chilled water in summer — the distribution side is shared.'},
+        {t:'Verify the chilled-water loop is full and vented',d:'Check the chilled-water expansion tank level and top off the loop with the correct treated water / glycol mix if needed. Vent air from the high points and the fan coil units — air in the loop blocks flow and reduces cooling. Confirm the chilled-water expansion tank pre-charge is correct.'},
+        {t:'Clean or check the chilled-water strainer',d:'Inspect the chilled-water Y-strainer screen and clean it if it has accumulated debris over the idle season. A clogged strainer starves the pump and reduces flow through the coils.'},
+        {t:'Start the chilled-water pump and confirm flow',d:'Restore the chilled-water pump breaker and start the pump. Confirm flow through the loop — listen for cavitation (air or low suction) and verify the pump is moving water to the fan coil units. Re-vent any remaining air.'},
+      ]
+    },
+    {
+      phase:'PHASE 4 — Start the Chiller & Verify',
+      color:'#0d9488',
+      note:'Energize the refrigeration side and confirm the system is cooling properly before calling the changeover complete.',
+      steps:[
+        {t:'Start the chiller and watch the compressor protection',d:'Start the chiller per its control sequence. Watch that the high- and low-pressure switches do not trip on startup — a high-pressure trip points to a condenser / heat-rejection problem, a low-pressure trip points to low charge or low chilled-water flow. The compressor should start and run smoothly.'},
+        {t:'Verify refrigeration operation',d:'Confirm the compressor is running, the condenser is rejecting heat, and the evaporator is producing chilled water. If you gauge the system, verify suction and head pressures are in the normal range for the refrigerant and the TXV is feeding the evaporator correctly (no starving or flooding).'},
+        {t:'Confirm cooling at the fan coil units',d:'Walk the accommodation spaces and confirm the fan coil units are delivering cool air and the thermostats are calling and satisfying correctly. Set the thermostats to cooling mode.'},
+        {t:'Record the changeover',d:'Log the date, the boiler-secured and chiller-started readings, strainer condition, loop fill added, and any abnormalities in the engine room log. Note that the boiler fuel is closed and the boiler is isolated for the season.'},
+      ]
+    }
+  ];
+  return renderPhaseProc('temperature-minus','Boiler to Chiller — Seasonal Changeover','Secure the diesel boiler · line up the chilled-water side · start the chiller',
+    'Do not change over while overnight freezing is still possible — once the boiler is isolated you lose accommodation heating. Plan for a mild day.',phases);
+}
+
+function renderChillerToBoiler(){
+  const phases=[
+    {
+      phase:'PHASE 1 — Plan the Changeover',
+      color:'#ef4444',
+      note:'This procedure switches the vessel HVAC from summer cooling (chiller / chilled water) to winter heating (diesel-fired boiler / hot water) on the shared fan-coil distribution loop. Do it before the first hard freeze so the accommodation has heat when it is needed.',
+      steps:[
+        {t:'Confirm the season and outside conditions',d:'Verify the changeover is warranted — falling temperatures and freeze risk in the forecast. It is better to switch to heat a little early than to be caught with the boiler isolated when the first cold snap arrives.'},
+        {t:'Notify the crew and wheelhouse',d:'Tell the crew the HVAC will be down for a few hours during the swap. Coordinate timing around watches and meals.'},
+        {t:'Gather what you need',d:'Have on hand: the hot-water loop fill (treated water / glycol mix per spec), a clean boiler fuel filter element, the boiler-system strainer screen if cleaning, and the boiler and chiller logs to record the changeover.'},
+      ]
+    },
+    {
+      phase:'PHASE 2 — Secure the Chiller',
+      color:'#f59e0b',
+      note:'Take the refrigeration side offline cleanly before isolating it from the loop. Refer to the Chiller Unit and Refrigerant Compressor component pages for unit-specific detail.',
+      steps:[
+        {t:'Shut down the chiller',d:'Stop the chiller per its control sequence so the compressor is no longer running. The refrigeration circuit (compressor, condenser, evaporator, refrigerant) stays sealed and at rest for the season — there is normally nothing to drain on the refrigerant side.'},
+        {t:'Stop the chilled-water pump',d:'Switch off the chilled-water distribution pump and lock out its breaker. With the chiller stopped and the pump off, the chilled-water side is no longer moving cooling into the loop.'},
+        {t:'Isolate the chiller from the shared loop',d:'Close the isolation valves on the chiller evaporator (chiller barrel) supply and return connections to the fan-coil loop. This separates the chiller from the distribution piping so the boiler can take over the same loop.'},
+        {t:'Protect the chiller for the idle season',d:'Confirm the chiller controls are off and the unit is secured. If the chiller barrel or any chilled-water piping is exposed to freezing, make sure it is either drained or protected with adequate glycol so it cannot freeze and crack over winter.'},
+      ]
+    },
+    {
+      phase:'PHASE 3 — Line Up the Boiler Side',
+      color:'#7c3aed',
+      note:'Bring the hot-water side into service on the shared loop. Refer to the Boiler, Burner Assembly, Boiler Fuel Filter, and Boiler Circulating Pump component pages for unit-specific detail.',
+      steps:[
+        {t:'Open the boiler isolation valves',d:'Open the isolation valves connecting the boiler supply and return to the fan-coil distribution loop. The fan coil units that delivered chilled water in summer now circulate hot water in winter — the distribution side is shared.'},
+        {t:'Verify the hot-water loop is full and vented',d:'Check the hydronic expansion tank level and top off the loop with the correct treated water / glycol mix if needed. Vent air from the high points and the fan coil units — air blocks circulation and creates cold spots. Confirm the bladder-type expansion tank pre-charge is correct.'},
+        {t:'Service the boiler fuel filter and check the fuel line',d:'Replace the fine-micron boiler fuel filter element and confirm the boiler fuel supply line is sound before firing. Open the boiler fuel supply valve. Clean diesel is essential for reliable burner operation after the idle season.'},
+        {t:'Clean or check the boiler-system strainer',d:'Inspect the boiler-system Y-strainer screen and clean it if needed. A clogged strainer starves the circulating pump and reduces heat delivery to the coils.'},
+        {t:'Start the boiler circulating pump and confirm flow',d:'Restore the circulating pump breaker and start the pump. Confirm flow through the loop, listen for cavitation, and re-vent any remaining air at the fan coil units.'},
+      ]
+    },
+    {
+      phase:'PHASE 4 — Fire the Boiler & Verify',
+      color:'#0d9488',
+      note:'Light the burner and confirm the system is heating properly and the safety controls are working before calling the changeover complete.',
+      steps:[
+        {t:'Set the aquastat and start the burner',d:'Set the aquastat / boiler control to the desired water temperature and allow the burner to fire. Watch the burner light off cleanly — a burner that fails to light, smokes, or cycles on safety lockout needs attention before the system is left in service (see the Burner Assembly page).'},
+        {t:'Verify the safety relief valve and controls',d:'Confirm the boiler comes up to temperature and the aquastat cycles the burner correctly. Verify the safety relief valve and overpressure protection are in place and not weeping — the relief valve is the boiler overpressure protection and must be functional whenever the boiler is fired.'},
+        {t:'Confirm heat at the fan coil units and radiators',d:'Walk the accommodation spaces and confirm the fan coil units and any baseboard / panel radiators are delivering heat and the thermostats are calling and satisfying correctly. Set the thermostats to heating mode.'},
+        {t:'Record the changeover',d:'Log the date, the chiller-secured and boiler-fired readings, fuel filter change, strainer condition, loop fill added, and any abnormalities in the engine room log. Note that the chiller is isolated and protected for the season.'},
+      ]
+    }
+  ];
+  return renderPhaseProc('temperature-plus','Chiller to Boiler — Seasonal Changeover','Secure the chiller · line up the hot-water side · fire the boiler',
+    'Switch to heat before the first hard freeze. Make sure any chiller piping exposed to freezing is drained or protected with glycol before winter.',phases);
+}
+
+// Shared renderer for the phase/step procedure layout
+function renderPhaseProc(icon,title,sub,warn,phases){
+  let h=`<div class="pt"><i class="ti ti-${icon}" style="margin-right:6px;font-size:15px"></i>${title}</div>
+  <div class="ps" style="margin-bottom:14px">${sub}</div>
+  <div style="background:#fffbeb;border:.5px solid #f59e0b;border-radius:10px;padding:11px 14px;margin-bottom:12px;display:flex;gap:9px;align-items:flex-start">
+    <i class="ti ti-alert-triangle" style="color:#f59e0b;font-size:14px;flex-shrink:0;margin-top:1px"></i>
+    <span style="font-size:11px;color:#78350f;line-height:1.6">${warn}</span>
+  </div>`;
+  phases.forEach(function(phase){
+    h+=`<div style="margin-bottom:10px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;padding:8px 12px;background:${phase.color};border-radius:8px">
+        <span style="font-size:10px;font-weight:700;color:#fff;letter-spacing:.05em">${phase.phase}</span>
+      </div>`;
+    if(phase.note){
+      h+=`<div style="font-size:10.5px;color:${phase.color};background:${phase.color}14;border-left:3px solid ${phase.color};padding:7px 11px;border-radius:0 6px 6px 0;margin-bottom:6px;line-height:1.5">${phase.note}</div>`;
+    }
+    h+=`<div style="display:flex;flex-direction:column;gap:4px">`;
+    phase.steps.forEach(function(step,i){
+      h+=`<div style="display:flex;align-items:flex-start;gap:10px;background:#fff;border:.5px solid #e2e8f0;border-left:3px solid ${phase.color};border-radius:0 7px 7px 0;padding:9px 12px">
+        <span style="font-size:10px;font-weight:700;color:#fff;background:${phase.color};border-radius:4px;min-width:20px;height:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">${i+1}</span>
+        <div>
+          <div style="font-size:11.5px;font-weight:600;color:#1e293b;margin-bottom:3px">${step.t}</div>
+          <div style="font-size:11px;color:#475569;line-height:1.6">${step.d}</div>
+        </div>
+      </div>`;
+    });
+    h+=`</div></div>`;
+  });
+  return h;
+}
+
 
 function renderGroundFault(){
   const phases=[
@@ -5934,7 +6220,7 @@ function renderLashAdjustment(){
         {t:'Insert the THIN fork (under-spec gauge)',d:'Slide the thin fork — the one thinner than the spec clearance — into the gap between the rocker arm and the valve stem or bridge. This fork should slide in effortlessly with no resistance. If it does not fit, your gap is already too tight — loosen the adjusting screw before proceeding.'},
         {t:'Insert the SPEC fork — evaluate the drag',d:'Slide the spec-thickness fork into the gap. You want a smooth, firm drag — like pulling a sheet of paper from under a book. It moves, but with resistance. If it slides freely with no drag, the gap is too loose. If it will not fit at all, the gap is too tight. This is your target feel.'},
         {t:'Loosen the locknut and adjust the screw',d:'Hold the adjusting screw steady with your screwdriver so it cannot rotate. Loosen the locknut with your wrench. To decrease the gap (tighten), turn the adjusting screw clockwise. To increase the gap (loosen), turn counter-clockwise. Make small adjustments and re-check with the spec fork after each one.'},
-        {t:'Set final clearance — spec fork in gap, snug the screw',d:'With the spec fork inserted in the gap, gently snug the adjusting screw until you feel that firm, smooth drag on the fork. Hold the screw absolutely still with your screwdriver and torque the locknut down to the manufacturer\'s specified torque. Do not let the screw turn as you tighten the locknut — this is the most common way lash gets shifted off spec.'},
+        {t:'Set final clearance — spec fork in gap, snug the screw',d:'With the spec fork inserted in the gap, gently snug the adjusting screw until you feel that firm, smooth drag on the fork. Hold the screw absolutely still with your screwdriver and torque the locknut down to the manufacturer\'s specified torque (the adjusting-screw locknut value is in the engine manual; rocker arm shaft nut torque is on the Ingram EMD card — Initial 150 ft-lb / Final 300 ft-lb — in the Manuals section). Do not let the screw turn as you tighten the locknut — this is the most common way lash gets shifted off spec.'},
         {t:'Insert the THICK fork — it must not fit',d:'Try to insert the thick fork — the one thicker than the spec clearance. It should not fit. If it does, the gap is still too wide — the adjusting screw moved when you tightened the locknut. Loosen the locknut and re-set. The thick fork not fitting is your confirmation that you are at or below the upper limit.'},
         {t:'Re-check the SPEC fork after tightening locknut',d:'Re-insert the spec fork after the locknut is torqued. Tightening the locknut sometimes rotates the screw slightly, shifting the clearance. The spec fork must still slide with the same firm drag after locknut tightening. If the feel has changed, the screw moved — loosen and re-set.'},
       ]
@@ -6186,10 +6472,10 @@ function startTowboatGame(){
 
   const TOUCH={L:false,R:false,U:false,D:false};
   const BTN={
-    L:{x:14,y:H-108,w:68,h:58},
-    R:{x:90,y:H-108,w:68,h:58},
-    U:{x:W-84,y:H-108,w:68,h:58},
-    D:{x:W-162,y:H-108,w:68,h:58},
+    L:{x:20,    y:H-138, w:106, h:104},
+    R:{x:136,   y:H-138, w:106, h:104},
+    U:{x:W-126, y:H-138, w:106, h:104},
+    D:{x:W-242, y:H-138, w:106, h:104},
   };
 
   (function setupTouch(){
@@ -7169,13 +7455,13 @@ function startTowboatGame(){
     };
     Object.entries(BTN).forEach(([k,b])=>{
       const pr=pressed[k];
-      ctx.fillStyle=pr?'rgba(28,80,130,0.88)':'rgba(8,20,36,0.72)';
+      ctx.fillStyle=pr?'rgba(28,80,130,0.92)':'rgba(8,20,36,0.78)';
       ctx.strokeStyle=pr?'#38a0cc':'#1e4e66';
-      ctx.lineWidth=2;
-      ctx.beginPath();ctx.roundRect(b.x,b.y,b.w,b.h,9);ctx.fill();ctx.stroke();
+      ctx.lineWidth=2.5;
+      ctx.beginPath();ctx.roundRect(b.x,b.y,b.w,b.h,16);ctx.fill();ctx.stroke();
       ctx.fillStyle=pr?'#78ccee':'#386880';
-      ctx.font='bold 22px monospace';ctx.textAlign='center';
-      ctx.fillText(labels[k],b.x+b.w/2,b.y+b.h/2+8);
+      ctx.font='bold 42px monospace';ctx.textAlign='center';
+      ctx.fillText(labels[k],b.x+b.w/2,b.y+b.h/2+15);
     });
   }
 
