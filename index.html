@@ -1197,7 +1197,7 @@ const DET={
   ]},
 
  'eng-cyl':{t:'Cylinder Packs — EMD 645E',sys:'Main Engines',st:'ok',
-  desc:'The power assembly is the core of the EMD 645 engine. Each of the 16 cylinders contains a replaceable cast iron liner, trunk-type piston with three-ring pack, and forged steel connecting rod. The 645 designation refers to the 645 cubic inch displacement per cylinder. All 16 cylinders must deliver equal power — imbalance causes rough running and accelerated wear.',
+  desc:'The power assembly is the core of the EMD 645 engine. Each of the 16 cylinders contains a replaceable cast iron liner, trunk-type piston with three-ring pack, and forged steel connecting rod. The cylinder head carries 4 exhaust valves (the 645 is a 2-stroke — there are no intake valves; air enters through ports in the liner) and one central unit injector. The 4 exhaust valves are operated in pairs through valve bridges. The 645 designation refers to the 645 cubic inch displacement per cylinder. All 16 cylinders must deliver equal power — imbalance causes rough running and accelerated wear.',
   loc:'Engine block — V16 configuration, 8 cylinders per bank. A-bank (port side), B-bank (starboard side). Accessible from top deck by removing rocker covers.',
   specs:[['Bore','9-1/16 in (230 mm)'],['Stroke','10 in (254 mm)'],['Displacement / cyl.','645 cu in (10.57 L)'],['Total displacement','10,320 cu in (169 L)'],['Compression ratio','16:1'],['Firing order','A1-B1-A3-B3-A5-B5-A7-B7'],['Power / cylinder','≈100 BHP at rated RPM'],['Rated speed','900 RPM (marine)']],
   parts:[
@@ -1206,7 +1206,7 @@ const DET={
    ['Piston Ring Set','8062316','3-ring pack: 2 compression rings + 1 oil control ring','16/eng'],
    ['Connecting Rod Assy.','40003700','Forged steel H-beam, full-floating wrist pin bore','16/eng'],
    ['Con. Rod Bolts','8062310','REPLACE EVERY REMOVAL — basket-to-rod final torque 190 ft-lb','32/eng'],
-   ['Cylinder Head Assy.','40018620','Cast iron, 4-valve, injector bore, water passages','16/eng'],
+   ['Cylinder Head Assy.','40018620','Cast iron — 4 exhaust valves (2-stroke, no intake valves) + central unit injector bore, water passages','16/eng'],
    ['Head Gasket Fire Ring','8062421','Individual stainless fire ring — seals combustion','16/eng'],
    ['Head Gasket Water Seal','8062422','Rubber O-ring outer groove water seal','16/eng'],
    ['Wrist Pin','8062315','Hardened steel, full-floating pin design','16/eng'],
@@ -4392,9 +4392,9 @@ const MANUAL_CONTENT={
      ['Main bearing set — standard (upper + lower)','40003800','9 sets per engine; plastigage to verify clearance before ordering oversize'],
      ['Con. rod bearing set — standard (upper + lower)','40003810','16 sets per engine; plastigage to confirm size needed'],
      ['Rocker arm assembly — complete','40018700','Complete rocker shaft, arms, and pedestals for one cylinder'],
-     ['Valve — intake (per cylinder, qty 2)','8062320','Check stem-to-guide clearance before replacing valves alone'],
-     ['Valve — exhaust (per cylinder, qty 2)','8062321','Exhaust valves run hotter — inspect for burning or recession'],
-     ['Valve spring set (per cylinder)','8062322','Replace all 4 springs when cylinder head is opened'],
+     ['Valve — exhaust (per cylinder, qty 4)','8062321','EMD 645 is a 2-stroke — exhaust valves ONLY, no intake valves. 4 exhaust valves per cylinder, operated through valve bridges. Inspect for burning or recession — they run hot'],
+     ['Exhaust valve bridge (crosshead)','8062323','Bridges link the rocker arm to the pairs of exhaust valves; inspect bridge feet and adjusting screw for wear'],
+     ['Valve spring set (per cylinder)','8062322','Replace all 4 exhaust valve springs when the cylinder head is opened'],
     ]},
    {t:'Fuel Injection System Parts',type:'table',
     heads:['Part Name','Part Number','Notes / Application'],
@@ -6196,7 +6196,7 @@ function renderLashAdjustment(){
       color:'#2563eb',
       note:'The EMD 645 is a 2-stroke engine. There are NO intake valves — air enters through ports in the cylinder liner uncovered by the piston. Each cylinder head has exhaust valves only. You are adjusting exhaust valve lash and injector rocker arm lash.',
       steps:[
-        {t:'Identify what you are adjusting — exhaust valves and injector rocker arm',d:'Each EMD 645 cylinder has a camshaft lobe for the exhaust valves and a separate lobe for the unit injector push rod. You will set lash on the exhaust valve rocker arm(s) and verify the injector rocker arm travel. Consult the EMD 645 service manual for the exact clearance specs for this engine model — exhaust valve and injector lash specs differ and must not be confused.'},
+        {t:'Identify what you are adjusting — exhaust valves and injector rocker arm',d:'Each EMD 645 cylinder has 4 exhaust valves (no intake valves — it is a 2-stroke) and one central unit injector. The 4 exhaust valves are operated through valve bridges (crossheads) so that one rocker arm opens a pair of valves evenly; lash is set at the rocker-arm-to-bridge interface. A separate camshaft lobe drives the unit injector push rod. You will set lash on the exhaust valve rocker arm(s) and verify the injector rocker arm travel. Consult the EMD 645 service manual for the exact clearance specs for this engine model — exhaust valve and injector lash specs differ and must not be confused.'},
         {t:'Identify the firing order for cylinder sequencing',d:'Adjust cylinders in firing order sequence, not cylinder number order, to minimize the number of times you bar the engine over. The EMD 645-16 firing order: verify in the engine service manual for this specific installation. Record your sequence before starting.'},
         {t:'Gather your tools — 3 forks, wrench, screwdriver, turning bar',d:'You need three feeler gauge forks for each lash spec you are setting: one UNDER spec (always slides in — confirms minimum clearance is met), one AT spec (slides with smooth firm drag — this is your target), and one OVER spec (will not fit — confirms you have not gone too tight). Also need a box-end wrench for the locknut, a screwdriver or hex key for the adjusting screw, and the manual turning bar.'},
       ]
