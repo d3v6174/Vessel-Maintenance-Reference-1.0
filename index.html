@@ -2159,6 +2159,260 @@ const DET={
     s:['Measure the 4–20 mA at the module terminals with a clamp meter or loop calibrator; 0 mA = open circuit; >20 mA = sensor at/beyond max range','If the signal is normal but the module still faults, the analog module may need calibration or has failed']},
   ]},
 
+ 'gen-ss':{t:'Ship Service Generator — Diesel Genset',sys:'Generators & Electrical',st:'ok',
+  desc:'The ship service generators supply all the vessel\'s electrical power — 480VAC 3-phase for motors, pumps, and major equipment, stepped down to 120VAC for lighting and outlets. The vessel carries two diesel gensets and runs one at a time, swapping between them periodically to keep the running hours and maintenance even on both units (see the Swap Generators procedure). Each genset is a diesel engine (CAT or Cummins) driving an AC alternator. Routine PM — oil, filters, coolant, belts — keeps the gensets reliable; an electrical failure underway means loss of all powered systems including steering pumps, navigation electronics, and lighting.',
+  loc:'Engine room — two gensets, each a diesel engine close-coupled to an alternator on a common skid. Fuel from the day tank, cooling via keel cooler or raw water heat exchanger, exhaust to the stack. Output breakers at the main switchboard.',
+  specs:[['Output','480VAC 3-phase, 60 Hz — stepped to 120VAC for lighting/outlets'],['Quantity','Two gensets — run one, swap periodically to balance hours'],['Engine','CAT or Cummins diesel — verify model on nameplate'],['Rating','60 kW (typical) — verify on genset nameplate'],['Oil','15W-40 (CAT and Cummins typical) — verify on engine nameplate'],['Swap procedure','Parallel transfer to balance running hours — see Swap Generators how-to'],['Cooling','Keel cooler or raw water HX — verify installation']],
+  parts:[
+   ['Engine Oil Filter','(by engine model — CAT/Cummins)','Replace at each oil change; verify old gasket comes off (no double-gasket)','Per service'],
+   ['Fuel Filter (Primary/Secondary)','(by engine model)','Replace on schedule; pre-fill and bleed after change','Per service'],
+   ['Engine Oil — 15W-40','(per engine nameplate)','Change on hours schedule; confirm dipstick at Full','Per service'],
+   ['Drive Belts','(by engine model)','Replace if cracked, glazed, or loose','Per engine'],
+   ['Coolant','(per engine spec — extended-life if specified)','Top off with correct mix; check only when cool','As needed'],
+  ],
+  maint:[
+   {t:'Check oil, coolant, fuel before/at startup',n:'Verify engine oil level, coolant level (when cool), and fuel supply before starting a genset; confirm no leaks and belt condition; a genset started low on oil or coolant fails quickly',i:'Before start / daily',b:'d'},
+   {t:'Monitor output voltage and frequency',n:'Confirm the running genset holds 480VAC and 60 Hz under load; voltage or frequency drift indicates a voltage regulator or governor problem',i:'Each watch',b:'d'},
+   {t:'Perform PM at oil-change interval',n:'Change oil and filters, service fuel filters (pre-fill and bleed), check coolant and belts, and inspect heat exchanger zincs if raw water cooled; follow the full PM in the Swap Generators procedure',i:'Per hours schedule',b:'ann'},
+   {t:'Swap generators to balance hours',n:'Periodically swap to the standby genset (parallel transfer) so both units accumulate similar hours and stay exercised; the idle unit is then serviced',i:'Per rotation schedule',b:'ann'},
+  ],
+  probs:[
+   {p:'Generator will not start',
+    c:['Fuel supply problem — day tank low, valve closed, air in fuel','Start battery weak or disconnect off','Engine fault — low oil pressure or coolant shutdown'],
+    s:['Check day tank level and fuel supply valve; bleed air if a filter was just changed','Verify the 24VDC start battery and disconnect switch','Check for an active shutdown (low oil pressure, high temp) on the engine panel before re-cranking'],},
+   {p:'Generator runs but no/low output voltage',
+    c:['Voltage regulator fault','Alternator excitation problem','Output breaker open'],
+    s:['Verify the output breaker is closed','Check the voltage regulator and excitation per the genset manual','If one genset has no output, swap to the other and arrange repair']},
+  ]},
+
+ 'gen-shore':{t:'Shore Power Inlet & Transfer Switch',sys:'Generators & Electrical',st:'ok',
+  desc:'Shore power lets the vessel connect to a dockside electrical supply so the generators can be shut down while tied up — saving fuel and engine hours and allowing generator maintenance. A transfer switch selects between shore power and generator power and prevents both sources from being connected to the bus at the same time (which would be dangerous and could back-feed the shore connection). The shore inlet is a heavy-duty connector rated for the vessel\'s load. Correct procedure is to confirm the shore supply is the right voltage and phase, connect, then transfer the bus.',
+  loc:'Shore power inlet connector on the deck or hull exterior, with a cable run to the transfer switch near the main switchboard. The transfer switch is a manual or automatic device that selects shore or generator power.',
+  specs:[['Inlet','Heavy-duty shore connector — 30A/50A or vessel-specific rating'],['Transfer switch','Selects shore OR generator — prevents both on the bus simultaneously'],['Voltage/phase','Confirm shore supply matches vessel (voltage, phase) before connecting'],['Use','Run on shore power tied up — saves fuel/hours, allows generator service'],['Back-feed protection','Transfer switch prevents back-feeding the shore connection']],
+  parts:[
+   ['Shore Power Inlet Connector','(by amperage rating)','Replace if pins are corroded, burned, or the connector is damaged','1/inlet'],
+   ['Shore Power Cable','(by rating and length)','Replace if jacket is damaged or connector ends are burned','1/vessel'],
+   ['Transfer Switch','(by rating)','Replace if it does not positively select one source or contacts are burned','1/vessel'],
+  ],
+  maint:[
+   {t:'Inspect shore connector and cable for damage/heat',n:'Inspect the shore power connector pins and cable ends for corrosion, burning, or heat discoloration — a high-resistance connection at the shore inlet generates heat and is a fire risk; clean or replace as needed',i:'Each connection / monthly',b:'ann'},
+   {t:'Verify transfer switch selects correctly',n:'Confirm the transfer switch positively selects shore or generator and that both cannot be on the bus at once; test the interlock',i:'Quarterly',b:'ann'},
+  ],
+  probs:[
+   {p:'No power from shore connection',
+    c:['Shore supply breaker off or wrong voltage','Connector not fully seated or corroded','Transfer switch not selected to shore'],
+    s:['Verify the dockside breaker is on and the supply is the correct voltage/phase','Confirm the connector is fully seated and the pins are clean','Verify the transfer switch is selected to shore power'],},
+   {p:'Shore connector hot to the touch',
+    c:['High-resistance connection — corroded or loose pins','Connector undersized or damaged'],
+    s:['Disconnect and inspect the pins for corrosion or burning — a hot connector is a fire hazard','Clean or replace the connector; do not continue using a connector that overheats']},
+  ]},
+
+ 'gen-swbd':{t:'Main Switchboard',sys:'Generators & Electrical',st:'ok',
+  desc:'The main switchboard is the central distribution point for the vessel\'s electrical system. It receives power from the running generator (or shore power) on the main bus and distributes it through breakers to the distribution panels and major loads. It carries the generator breakers, the synchronizing equipment used when paralleling generators (synchroscope, voltmeters, frequency meters), the ground detection lamps, and the main feeder breakers. The switchboard is where generator swaps, ground fault isolation, and load management are performed — it is the electrical heart of the vessel.',
+  loc:'Engine room or a dedicated electrical space. A panel with the main bus, generator and feeder breakers, metering (volts, amps, frequency, kW), synchroscope, and ground detection lamps. 480VAC — work on it only de-energized and follow LOTO.',
+  specs:[['Bus','480VAC 3-phase main bus'],['Generator breakers','One per generator — used in parallel transfer (see Swap Generators)'],['Metering','Voltmeters, ammeters, frequency meters, kW meters, synchroscope'],['Ground detection','Ground lamps — dark lamp = faulted phase (see Ground Fault how-to)'],['Feeders','Main feeder breakers to distribution panels'],['Safety','480VAC is lethal — LOTO before any work; never work it live']],
+  parts:[
+   ['Circuit Breaker','(by frame size and rating)','Replace if a breaker will not reset, trips below rating, or contacts are burned','Per breaker'],
+   ['Ground Detection Lamp','(by lamp type)','Replace burned-out ground lamps so the detection system reads correctly','Per lamp'],
+   ['Meter / Synchroscope','(by panel)','Replace if metering reads incorrectly — needed for safe paralleling','Per meter'],
+  ],
+  maint:[
+   {t:'Check metering and ground lamps each watch',n:'Confirm the switchboard metering reads normal bus voltage, frequency, and load, and that the three ground detection lamps glow equally; an unequal or dark ground lamp indicates a ground fault (see Ground Fault how-to)',i:'Each watch',b:'d'},
+   {t:'Inspect for heat, discoloration, loose connections — periodically',n:'With the board de-energized and LOTO applied: inspect breaker and bus connections for heat discoloration or looseness; loose 480VAC connections generate heat and fail; torque per spec',i:'Annually',b:'ann'},
+  ],
+  probs:[
+   {p:'Ground detection lamp dark / unequal',
+    c:['Ground fault on the indicated phase','Burned-out ground lamp'],
+    s:['First verify the lamp itself is not just burned out by comparing across phases','If a real ground fault: follow the Locate & Fix a Ground Fault procedure','Notify the wheelhouse before isolating circuits'],},
+   {p:'Breaker trips repeatedly or will not reset',
+    c:['Overload or fault on the circuit downstream','Failed breaker'],
+    s:['Do not keep resetting a tripping breaker — identify the downstream overload or fault first','If the circuit is confirmed healthy and the breaker still trips below rating, replace the breaker (de-energized, LOTO)']},
+  ]},
+
+ 'gen-dist':{t:'Distribution Panels',sys:'Generators & Electrical',st:'ok',
+  desc:'Distribution panels (load centers) take power from the main switchboard feeders and break it down into the individual branch circuits that serve cabins, galley, deck equipment, engine room auxiliaries, and lighting. There are typically several panels around the vessel — a 480VAC panel for motors and large loads, and 120VAC panels for lighting, outlets, and electronics. Each branch circuit has its own breaker sized for its load. Clear circuit labeling at each panel is important so a circuit can be quickly identified and isolated for maintenance or during a ground fault search.',
+  loc:'Distributed around the vessel — engine room, accommodation, pilothouse. Each panel has a main feed from the switchboard and rows of branch breakers. Panels should be clearly labeled with each circuit\'s function.',
+  specs:[['Function','Break switchboard feeders into individual branch circuits'],['Voltages','480VAC panels (motors/large loads) and 120VAC panels (lighting/outlets/electronics)'],['Breakers','One per branch circuit, sized to the load'],['Labeling','Each circuit should be clearly labeled — critical for fast isolation'],['Ground fault','Panels are where individual circuits are isolated during a ground fault search']],
+  parts:[
+   ['Branch Circuit Breaker','(by panel type and amperage)','Replace if a breaker trips below rating or will not reset with circuit healthy','Per circuit'],
+   ['Panel Directory / Labels','(printed)','Keep circuit labels current — relabel after any circuit change','Per panel'],
+  ],
+  maint:[
+   {t:'Verify circuit labeling is current',n:'Confirm each breaker in each panel is correctly labeled with its circuit; accurate labels are essential for fast isolation during maintenance or a ground fault search',i:'Annually / after any change',b:'ann'},
+   {t:'Inspect panels for heat and corrosion',n:'With panels de-energized: check for heat discoloration at breaker connections and corrosion in panels exposed to moisture; tighten loose connections',i:'Annually',b:'ann'},
+  ],
+  probs:[
+   {p:'A branch circuit is dead',
+    c:['Branch breaker tripped or off','Feeder from switchboard lost','Wiring fault on the branch'],
+    s:['Check the branch breaker — reset if tripped (once); if it trips again, find the fault before resetting','Verify the panel has power from its switchboard feeder','Trace the branch wiring if the breaker holds but the load is dead'],},
+  ]},
+
+ 'gen-batt':{t:'Battery Banks — 24VDC Start & House',sys:'Generators & Electrical',st:'ok',
+  desc:'The battery banks provide 24VDC for engine and generator starting, emergency/standby loads, and control power. AGM (absorbed glass mat) batteries are common for their sealed maintenance-free construction and vibration resistance. The batteries are kept charged by chargers running off the AC system and/or engine-driven alternators. A float voltage in the correct range (27.0–27.4V on a 24V bank) indicates a healthy, properly charged bank. Weak or aged batteries are a common cause of hard starting; AGM batteries are replaced proactively every few years before they fail.',
+  loc:'Battery boxes in the engine room or a dedicated battery space, secured against vibration and vented if needed. Battery chargers nearby run off the AC system. Disconnect switches isolate each bank.',
+  specs:[['Type','AGM (absorbed glass mat) — sealed, maintenance-free, vibration resistant'],['Voltage','24VDC banks for engine/generator start and control power'],['Float voltage','27.0–27.4V on a 24V bank indicates healthy charge'],['Charging','AC-powered chargers and/or engine alternators'],['Replacement','Replace AGM start batteries every 4–5 years proactively','before failure'],['Disconnect','Isolation switch per bank — turn off for service']],
+  parts:[
+   ['AGM Battery','(by group size and Ah)','Replace every 4–5 years proactively, or sooner if float voltage is low or starting is weak','Per bank'],
+   ['Battery Charger','(by voltage and amperage)','Replace if a bank will not reach float voltage with AC confirmed','Per charger'],
+   ['Disconnect Switch','(by rating)','Replace if switch is corroded or will not pass full current','Per bank'],
+  ],
+  maint:[
+   {t:'Check battery float voltage — monthly',n:'Verify each 24V bank reads 27.0–27.4V on float charge; a low float voltage indicates a charger problem or aging batteries; a bank that will not hold charge is due for replacement',i:'Monthly',b:'ann'},
+   {t:'Inspect terminals and security',n:'Check battery terminals for corrosion and tightness, and confirm batteries are secured against vibration; clean corroded terminals and re-secure',i:'Monthly',b:'ann'},
+   {t:'Replace AGM batteries proactively',n:'Replace start batteries every 4–5 years before they fail; a battery that fails during a start attempt in a critical moment is far costlier than scheduled replacement',i:'Every 4–5 years',b:'dd'},
+  ],
+  probs:[
+   {p:'Weak or no cranking — engine/generator hard to start',
+    c:['Battery aged or discharged — low float voltage','Charger not maintaining the bank','Corroded terminals adding resistance'],
+    s:['Check float voltage — a bank below range needs charging or replacement','Verify the charger is working and AC is present','Clean and tighten terminals','If the bank is past 4–5 years, replace proactively'],},
+  ]},
+
+ 'gen-ups':{t:'UPS / Inverters — Electronics Power',sys:'Generators & Electrical',st:'ok',
+  desc:'The UPS (uninterruptible power supply) and inverters provide clean, continuous power to the navigation electronics and other sensitive loads, bridging the brief power gaps during a generator swap or shore-to-generator transfer and protecting electronics from power disturbances. A pure-sine-wave output is important for sensitive electronics. The UPS contains its own internal batteries that carry the load for a short time during a power interruption; those internal batteries age and are replaced on a schedule (typically every 3 years) so the UPS can actually carry the load when needed.',
+  loc:'In the electronics room or near the navigation equipment it protects. The UPS takes AC input from the distribution panel and provides protected AC output to the electronics, with internal batteries for ride-through.',
+  specs:[['Function','Clean continuous power to nav electronics; rides through generator/shore transfers'],['Output','Pure sine wave — required for sensitive electronics'],['Internal battery','Carries the load briefly during a power gap — replace every 3 years'],['Protection','Buffers electronics from power disturbances during transfers'],['Capacity','Sized for the electronics load and ride-through time — verify on unit']],
+  parts:[
+   ['UPS Internal Battery','(by UPS model)','Replace every 3 years — an aged internal battery cannot carry the load during a transfer','Per UPS'],
+   ['UPS / Inverter Unit','(by VA rating and output type)','Replace if the unit will not provide protected output with internal battery confirmed good','1/unit'],
+  ],
+  maint:[
+   {t:'Test UPS ride-through periodically',n:'Confirm the UPS carries the electronics load briefly when input power is interrupted (or use its self-test); a UPS with a dead internal battery passes input straight through and provides no protection during a transfer',i:'Quarterly',b:'ann'},
+   {t:'Replace UPS internal battery every 3 years',n:'Replace the UPS internal battery on a 3-year schedule; internal batteries age and lose capacity, and a UPS only protects the electronics if its battery can actually carry the load',i:'Every 3 years',b:'dd'},
+  ],
+  probs:[
+   {p:'Electronics drop out during a generator swap or transfer',
+    c:['UPS internal battery dead or aged — no ride-through','UPS in bypass mode','UPS undersized for the load'],
+    s:['Test/replace the UPS internal battery — a dead battery means no ride-through during the transfer gap','Verify the UPS is in normal (not bypass) mode','Confirm the UPS is sized for the connected electronics load'],},
+  ]},
+
+ 'cool-skin':{t:'Skin Cooler (Keel Cooler)',sys:'Cooling Systems',st:'ok',
+  desc:'The skin cooler (keel cooler) is the vessel\'s primary engine cooling heat exchanger — but unlike a raw-water-cooled vessel, it has no sea chest pump pulling river water through the engine. Instead, the jacket water circulates through cooling channels or external piping built into the hull below the waterline; the river water flowing past the hull carries the heat away. This is rugged and reliable on a silty, debris-filled river because there is no raw water strainer to clog and no raw water pump to wear. The main concern is external fouling (marine growth or mud) reducing heat transfer, and internal corrosion or damage to the cooler, which can only be inspected at dry dock.',
+  loc:'Built into the hull below the waterline — either internal cooling channels in the hull or external keel cooler piping mounted to the hull bottom. The jacket water circuit connects to the engine; there is no raw water side. Inspected and cleaned at dry dock.',
+  specs:[['Type','Hull-integral keel/skin cooler — no raw water pump or sea chest'],['Cooling','River water flowing past the hull carries away jacket water heat'],['Advantage','No raw water strainer to clog, no raw water pump to wear — ideal for silty rivers'],['Concern','External fouling (growth/mud) reduces heat transfer; internal corrosion'],['Inspection','External condition inspected and cleaned at dry dock'],['No sea cock','Cooling requires no sea cock operation at startup']],
+  parts:[
+   ['Keel Cooler Section','(by hull installation)','Repair/replace damaged sections at dry dock — not a underway repair','Per dry dock'],
+   ['Anode (if fitted)','(by installation)','Inspect/replace protective anodes at dry dock','Per dry dock'],
+  ],
+  maint:[
+   {t:'Monitor jacket water temperature for fouling trend',n:'Watch the engine jacket water temperature over time — a gradual rise in operating temperature at the same load can indicate the keel cooler is fouling externally and losing heat-transfer capacity',i:'Each watch',b:'d'},
+   {t:'Inspect and clean keel cooler at dry dock',n:'At dry dock, inspect the keel cooler external surfaces for marine growth, mud packing, and corrosion or impact damage; clean fouling and repair damage; this is the only time the cooler can be properly inspected',i:'Per dry dock',b:'dd'},
+  ],
+  probs:[
+   {p:'Engine running hot — jacket water temperature high',
+    c:['Keel cooler fouled externally — reduced heat transfer','Low jacket water level or air in the system','Thermostat or JW pump problem'],
+    s:['First rule out the JW level, thermostat, and pump (easier to check underway)','A gradually rising temperature trend over weeks points to keel cooler fouling — schedule cleaning at the next dry dock','Reduce load to manage temperature until the cause is corrected'],},
+  ]},
+
+ 'cool-jwcooler':{t:'JW Cooler (Plate Heat Exchanger)',sys:'Cooling Systems',st:'ok',
+  desc:'On installations that use an intermediate cooling loop, the JW (jacket water) cooler is a plate heat exchanger that transfers heat from the engine jacket water to another cooling medium. A plate heat exchanger stacks many thin corrugated plates to create a large heat-transfer area in a compact package, with the two fluids flowing in alternating channels between the plates. The plates can be opened for cleaning and individual gaskets replaced. Fouling or scale on the plates reduces heat transfer; a failed plate gasket causes cross-contamination or external leakage.',
+  loc:'Engine room — a stack of clamped plates between two end frames, with four piping connections (jacket water in/out and cooling medium in/out). Tie bolts clamp the plate stack; the clamp dimension is marked so the stack is reassembled to the correct compression.',
+  specs:[['Type','Plate heat exchanger — stacked corrugated plates'],['Function','Transfers engine jacket water heat to the cooling medium'],['Cleanable','Plates open for cleaning; individual gaskets replaceable'],['Clamp dimension','Reassemble to the marked clamp dimension — over/under-compression causes leaks'],['Fouling','Scale/fouling on plates reduces heat transfer'],['Gasket failure','Causes cross-contamination or external leak']],
+  parts:[
+   ['Plate Gasket Set','(by HX model)','Replace gaskets when the HX is opened for cleaning or if leaking','Per HX'],
+   ['Heat Exchanger Plate','(by HX model)','Replace any cracked or perforated plate found during cleaning','As needed'],
+  ],
+  maint:[
+   {t:'Monitor temperature differential across the HX',n:'Track the jacket water temperature in and out of the cooler; a narrowing differential at the same load indicates fouling on the plates reducing heat transfer',i:'Monthly',b:'ann'},
+   {t:'Open and clean plates when fouling indicated',n:'When fouling is indicated, open the plate stack, clean the plates of scale and deposits, inspect for cracks, replace gaskets, and reassemble to the marked clamp dimension',i:'As indicated',b:'ann'},
+  ],
+  probs:[
+   {p:'Poor cooling — narrow temperature drop across the HX',
+    c:['Plates fouled or scaled — reduced heat transfer','Low flow on one side'],
+    s:['Verify flow on both sides (pump running, valves open)','If flow is good but heat transfer is poor, open and clean the plates'],},
+   {p:'Coolant cross-contamination or external leak at the HX',
+    c:['Failed plate gasket','Cracked or perforated plate','Incorrect clamp compression'],
+    s:['Open the HX, inspect plates and gaskets','Replace failed gaskets and any cracked plates','Reassemble to the correct marked clamp dimension']},
+  ]},
+
+ 'cool-oilcooler':{t:'Lube Oil Cooler — Shell & Tube',sys:'Cooling Systems',st:'ok',
+  desc:'The lube oil cooler removes heat from the engine lube oil by transferring it to the jacket water. It is a shell-and-tube heat exchanger: jacket water flows through a bundle of tubes while lube oil flows around them in the shell (or vice versa). Keeping the lube oil at the correct temperature is important — oil that is too hot loses its film strength and oxidizes; oil that is too cold is thick and does not flow well. A key failure mode is an internal leak in the cooler: because lube oil is often at higher pressure than the jacket water, a tube leak pushes oil into the cooling system, showing up as oil in the expansion tank.',
+  loc:'Engine room, mounted on or near the engine. A cylindrical shell with tube bundle inside, with lube oil and jacket water connections. End covers can be removed to access the tube bundle for cleaning or inspection.',
+  specs:[['Type','Shell-and-tube heat exchanger — lube oil to jacket water'],['Function','Keeps lube oil in the correct temperature band'],['Internal leak sign','Oil in the jacket water expansion tank (oil pressure higher than JW)'],['Cleanable','End covers remove to access tube bundle'],['Too hot','Oil loses film strength and oxidizes'],['Too cold','Oil is thick and flows poorly']],
+  parts:[
+   ['Tube Bundle','(by cooler model)','Replace if tubes are perforated (internal leak) and cannot be plugged','1/cooler'],
+   ['End Cover Gasket Set','(by cooler model)','Replace whenever end covers are removed','Per cooler'],
+   ['Zinc Anode (if fitted)','(by cooler)','Inspect/replace if the cooler has sacrificial anodes','Per cooler'],
+  ],
+  maint:[
+   {t:'Check for oil in the JW expansion tank',n:'Inspect the jacket water expansion tank for any oil film or sheen — oil in the coolant is the classic sign of an internal lube oil cooler leak (oil pressure pushes oil into the lower-pressure cooling side); investigate immediately',i:'Daily',b:'d'},
+   {t:'Monitor lube oil temperature',n:'Confirm lube oil temperature stays in the normal band; a rising oil temperature can indicate cooler fouling, while a drop in cooling can indicate low JW flow',i:'Each watch',b:'d'},
+   {t:'Clean tube bundle when fouling indicated',n:'When cooling performance drops, remove end covers and clean the tube bundle; replace end cover gaskets on reassembly',i:'As indicated',b:'ann'},
+  ],
+  probs:[
+   {p:'Oil found in jacket water / expansion tank',
+    c:['Internal leak in the lube oil cooler — perforated tube'],
+    s:['Confirm the source is the oil cooler (isolate and pressure-test if possible)','A leaking cooler pushes oil into the coolant — repair (plug/replace tubes) or replace the cooler before the coolant is heavily contaminated','Flush the cooling system of oil contamination after repair'],},
+   {p:'Lube oil running hot',
+    c:['Cooler tube bundle fouled','Low jacket water flow through the cooler'],
+    s:['Verify JW flow through the cooler','Clean the tube bundle if fouled']},
+  ]},
+
+ 'cool-jwpump':{t:'JW Circulating Pump',sys:'Cooling Systems',st:'ok',
+  desc:'The jacket water circulating pump moves coolant through the engine and the cooling circuit, carrying heat from the cylinders and heads to the cooler. On the EMD 645 the JW pump is an engine-driven (gear or belt) centrifugal pump, though some installations use electric pumps. The pump has an impeller that develops the flow and a mechanical seal that keeps coolant from leaking along the shaft. A weeping mechanical seal is the most common wear item — a small weep is the early warning, and the seal is replaced at the first weep or on a hours schedule before it fails outright and dumps coolant.',
+  loc:'On the engine (engine-driven JW pump) or in the cooling circuit (electric pump). The pump has coolant suction and discharge connections, an impeller inside the housing, and a mechanical seal on the drive shaft. A weep hole below the seal area shows seal leakage.',
+  specs:[['Type','Engine-driven centrifugal pump (gear/belt) — some installs electric'],['Function','Circulates jacket water through engine and cooler'],['Wear item','Mechanical seal — weeps before it fails; replace at first weep or on schedule'],['Impeller','Develops flow — wear reduces cooling circulation'],['Seal replacement','3,000 hrs or at first weep (typical) — verify on engine spec'],['Weep hole','Below the seal — weeping indicates seal replacement due']],
+  parts:[
+   ['Mechanical Seal','(by pump model)','Replace at first weep from the weep hole or on the hours schedule','1/pump'],
+   ['Impeller','(by pump model)','Replace if flow is low with the pump confirmed running','1/pump'],
+   ['Pump Bearing / Repair Kit','(by pump model)','Replace bearings if the pump is noisy or has shaft play','1/pump'],
+  ],
+  maint:[
+   {t:'Check the pump weep hole for coolant leakage',n:'Inspect the weep hole below the mechanical seal for coolant weeping; a small weep is the early warning that the seal is starting to fail — plan to replace the seal before it fails outright and dumps coolant and overheats the engine',i:'Daily',b:'d'},
+   {t:'Confirm coolant circulation',n:'Verify the jacket water is circulating (warm flow, normal engine temperature); a failed pump or worn impeller causes rapid overheating',i:'Each watch',b:'d'},
+   {t:'Replace mechanical seal at first weep or on schedule',n:'Replace the mechanical seal at the first sign of weeping or at the scheduled hours (3,000 hrs typical); do not wait for a full failure underway',i:'3,000 hrs or at first weep',b:'ann'},
+  ],
+  probs:[
+   {p:'Coolant weeping/dripping from the pump',
+    c:['Mechanical seal worn — the normal wear item','Worn pump bearings allowing shaft play'],
+    s:['A weep from the weep hole means the mechanical seal needs replacement — schedule it before full failure','If accompanied by noise or shaft play, replace bearings as well'],},
+   {p:'Engine overheating — no/low coolant circulation',
+    c:['Pump impeller worn or failed','Drive (gear/belt) failure on engine-driven pump','Air lock in the cooling system'],
+    s:['Verify the pump is actually turning (drive intact)','Check for an air lock — bleed the cooling system','If the pump turns but produces no flow, the impeller is worn or failed']},
+  ]},
+
+ 'cool-thermo':{t:'Thermostat — 165°F JW',sys:'Cooling Systems',st:'ok',
+  desc:'The jacket water thermostat regulates engine operating temperature by controlling coolant flow to the cooler. When the engine is below operating temperature, the thermostat is closed and coolant bypasses the cooler so the engine warms up quickly; as the engine reaches the target temperature (165°F wax-element setpoint), the thermostat opens and routes coolant through the cooler to hold the temperature steady. A thermostat stuck closed causes rapid overheating; one stuck open causes the engine to run too cold (poor combustion, oil dilution). Thermostats are inexpensive and are replaced proactively rather than waiting for failure.',
+  loc:'In the jacket water circuit on the engine, in a thermostat housing where coolant routes either to the bypass or to the cooler. A wax-element thermostat opens at its rated temperature. The housing cover removes to replace the element.',
+  specs:[['Setpoint','165°F wax element (verify on engine spec)'],['Function','Closed below temp (warm-up via bypass), opens at setpoint (routes to cooler)'],['Stuck closed','Rapid overheating — coolant cannot reach the cooler'],['Stuck open','Engine runs too cold — poor combustion, oil dilution'],['Replacement','Replace proactively every 2,000 hrs or 2 years — cheap insurance'],['Type','Wax-element thermostat']],
+  parts:[
+   ['Thermostat Element','(165°F — by engine model)','Replace proactively every 2,000 hrs or 2 years, or if stuck','1/thermostat'],
+   ['Thermostat Housing Gasket','(by engine model)','Replace whenever the housing is opened','Per thermostat'],
+  ],
+  maint:[
+   {t:'Watch warm-up and operating temperature behavior',n:'Confirm the engine warms up at a normal rate and then holds steady around the thermostat setpoint; an engine that overheats quickly (stuck closed) or never reaches temperature (stuck open) indicates a thermostat problem',i:'Each watch',b:'d'},
+   {t:'Replace thermostat proactively',n:'Replace the thermostat every 2,000 hrs or 2 years regardless of condition; a stuck thermostat causes overheating or overcooling and the part is inexpensive — proactive replacement avoids the failure',i:'Every 2,000 hrs / 2 years',b:'ann'},
+  ],
+  probs:[
+   {p:'Engine overheats quickly after start',
+    c:['Thermostat stuck closed — coolant cannot reach the cooler'],
+    s:['A fast overheat with normal coolant level and a working pump points to a thermostat stuck closed','Replace the thermostat element','Until replaced, the engine cannot be safely operated under load'],},
+   {p:'Engine never reaches operating temperature / runs cold',
+    c:['Thermostat stuck open — coolant always routed to the cooler'],
+    s:['An engine that runs persistently cold has a thermostat stuck open','Replace the thermostat — running cold causes poor combustion and fuel/oil dilution']},
+  ]},
+
+ 'cool-exptank':{t:'Expansion Tank',sys:'Cooling Systems',st:'ok',
+  desc:'The jacket water expansion tank accommodates the volume change of the coolant as it heats and cools, provides a fill point and reservoir for the cooling system, and lets entrained air separate out of the coolant. The tank has a pressure cap that holds the system at a slight positive pressure (raising the coolant boiling point) and relieves excess pressure. A sight glass or level marks show the coolant level, which should sit between MIN and MAX when cool. The expansion tank is also the best early-warning point for two serious problems: oil in the coolant (lube oil cooler internal leak) and combustion gas in the coolant (head gasket or liner seal leak), both of which show up here.',
+  loc:'Highest point of the jacket water circuit so air rises into it. A tank with a pressure cap, a sight glass or level gauge, and connections to the cooling circuit. Check level only when the system is cool — opening a hot pressurized cap is dangerous.',
+  specs:[['Function','Coolant expansion, fill reservoir, air separation'],['Pressure cap','Holds slight positive pressure (raises boiling point), relieves excess'],['Level','Between MIN and MAX when cool — check only when cool'],['Early warning','Oil sheen = oil cooler leak; bubbling/gas = head gasket/liner seal leak'],['Safety','Never open the pressure cap on a hot, pressurized system']],
+  parts:[
+   ['Pressure Cap','(by rated pressure)','Replace if the cap will not hold or relieve at its rated pressure — a failed cap causes overheating or coolant loss','1/tank'],
+   ['Sight Glass / Level Gauge','(by tank)','Replace if the level cannot be read','1/tank'],
+  ],
+  maint:[
+   {t:'Check coolant level — only when cool',n:'With the system cool, confirm the coolant level is between MIN and MAX; top off with the correct coolant mix if low; never open the cap on a hot pressurized system',i:'Daily (cool) / before start',b:'d'},
+   {t:'Inspect coolant for oil or gas contamination',n:'Look at the coolant in the expansion tank for an oil sheen (lube oil cooler leak) or continuous bubbling with the engine running (combustion gas from a head gasket or liner seal leak); either is a serious finding to investigate immediately',i:'Daily',b:'d'},
+   {t:'Verify pressure cap holds and relieves',n:'Check the pressure cap seal and that it holds and relieves at its rated pressure; a failed cap causes overheating (no pressure) or coolant loss (stuck relieving)',i:'Annually',b:'ann'},
+  ],
+  probs:[
+   {p:'Coolant level dropping with no visible external leak',
+    c:['Internal lube oil cooler leak (oil into coolant) or coolant into oil','Combustion gas leak pushing coolant out','Small external leak not yet located'],
+    s:['Check the expansion tank for oil sheen and for bubbling with the engine running','Check the engine oil for coolant contamination (milky oil)','Pressure-test the cooling system to find the loss path'],},
+   {p:'Continuous bubbling in the expansion tank with engine running',
+    c:['Combustion gas entering the coolant — head gasket or cylinder liner seal leak'],
+    s:['Continuous bubbling/gassing is combustion gas leaking into the coolant — a head gasket or liner seal problem','Investigate which cylinder; this requires engine work — do not ignore it as it will worsen']},
+  ]},
+
  'fuel-tank':{t:'Fuel Storage Tanks — Wing Tanks',sys:'Fuel & Lube Oil',st:'ok',
   desc:'The port and starboard wing tanks are the primary diesel fuel storage for both main engines and generators. Tank capacity and fuel quality directly determine range and operational reliability. Water accumulation at the tank bottom is the most common fuel system problem on river vessels — condensation forms inside partially-filled tanks and settles below the diesel. Microbial growth (diesel bug) thrives at the fuel-water interface and can clog filters, damage injectors, and contaminate an entire fuel system rapidly.',
   loc:'Port and starboard hull sides — wing tanks integrated into hull structure. Fill deck plates on main deck. Vent pipes terminate above deck. Sounding tubes allow depth measurement. Suction and return lines run to day tank and engine fuel systems.',
@@ -2908,6 +3162,89 @@ const DET={
    {p:'Bitt weld cracked — visible crack at weld toe or base plate',
     c:['Overload from surge on mooring line during current or wind event','Weld toe corrosion that reduced effective weld throat','Fatigue from repeated high-load mooring cycles'],
     s:['DO NOT USE this bitt for mooring or towing until repaired — route lines to adjacent fittings','Mark cracked bitt with tag: DO NOT USE','Arrange weld repair by a qualified marine welder — grind crack to clean metal, re-weld, inspect with dye penetrant after repair','Investigate overload cause — if bitt was correctly sized, determine if mooring procedure contributed to overload']},
+  ]},
+
+ 'deck-navlights':{t:'Navigation Lights',sys:'Deck Equipment',st:'ok',
+  desc:'Navigation lights show the vessel\'s position, heading, and status to other vessels at night and in reduced visibility, as required by the Navigation Rules. A towing vessel pushing a tow ahead displays specific light configurations so other vessels can identify it as a towboat with a tow and determine its aspect. The configuration includes sidelights (red to port, green to starboard), a sternlight, masthead lights, and the special towing lights (such as two masthead lights in a vertical line when pushing or towing). The lights are USCG-required equipment and a single failed nav light at night is both a safety hazard and a violation.',
+  loc:'Sidelights on the port (red) and starboard (green) sides of the pilothouse or mast; sternlight at the stern; masthead/towing lights on the mast. Many vessels now use LED nav light fixtures for reliability and long life. A nav light failure indicator panel may be at the helm.',
+  specs:[['Configuration','Red (port) / green (starboard) sidelights, sternlight, masthead and towing lights per Navigation Rules'],['Towing display','Towing vessels show specific light configurations identifying push/tow — verify correct config for operation'],['Type','LED fixtures common — long life and low current draw'],['USCG','Required equipment — must be operational for night/reduced-visibility operation'],['Backup','Carry spare bulbs/fixtures; a failed nav light at night must be corrected promptly'],['Monitor','Nav light failure alarm panel at helm on many vessels']],
+  parts:[
+   ['LED Nav Light Fixture','(by position — sidelight/sternlight/masthead, USCG-approved)','Replace complete fixture if LED array fails — must use USCG-approved fixtures','Per position'],
+   ['Spare Bulb','(for incandescent fixtures — by fixture)','Carry spares for any incandescent fixtures aboard','Per fixture type'],
+   ['Nav Light Switch / Panel','(by panel)','Replace if a light cannot be switched on with fixture confirmed good','1/vessel'],
+  ],
+  maint:[
+   {t:'Walk-around nav light check at dusk — daily',n:'Before operating at night or in reduced visibility, walk around and confirm every navigation light is lit and showing the correct color and arc; a single dark nav light is a collision hazard and a regulatory violation',i:'Daily / before night operation',b:'d'},
+   {t:'Verify correct towing light configuration',n:'Confirm the masthead and towing light configuration matches the operation (pushing ahead vs towing astern); the wrong configuration misrepresents the vessel to other traffic',i:'Per operation',b:'d'},
+   {t:'Inspect fixtures and lenses for damage',n:'Check nav light lenses for cracks, fogging, or water intrusion that dims or discolors the light; clean lenses and check seals',i:'Monthly',b:'ann'},
+  ],
+  probs:[
+   {p:'A navigation light is dark',
+    c:['Bulb or LED array failed','Switch or circuit breaker off / tripped','Wiring or connection corroded'],
+    s:['Check the switch and breaker for that light first','For LED fixtures: replace the complete fixture; for incandescent: replace the bulb','Inspect the fixture connection for corrosion — deck fixtures are exposed to spray','Do not operate at night with a failed nav light — correct before getting underway'],},
+  ]},
+
+ 'deck-searchlight':{t:'Searchlight — Remote-Controlled',sys:'Deck Equipment',st:'ok',
+  desc:'The searchlight is a high-intensity remote-controlled light used to illuminate the bank, buoys, bridge piers, lock walls, and other vessels during night navigation. The captain controls its aim (pan and tilt) from the pilothouse with a joystick or control panel. On the river, the searchlight is essential for picking out unlit buoys, reading daymarks at night, spotting deadheads and debris, and judging distance to the bank and structures in the dark. A searchlight that will not aim or will not light leaves the captain navigating blind in the dark stretches between lit aids.',
+  loc:'Mounted on top of the pilothouse with a clear field of view forward and to both sides. The remote control (joystick/panel) is at the helm. Power and control wiring runs from the helm control to the searchlight motor and lamp.',
+  specs:[['Type','Remote-controlled pan/tilt searchlight'],['Control','Joystick or panel at the helm — pan and tilt'],['Lamp','High-intensity — halogen or LED depending on model'],['Use','Illuminate buoys, daymarks, bank, bridge piers, lock walls, debris at night'],['Coverage','Forward and both sides — verify full pan/tilt range is unobstructed']],
+  parts:[
+   ['Searchlight Lamp / LED Module','(by searchlight model)','Replace if lamp is dim or dead with power confirmed','1/light'],
+   ['Pan/Tilt Drive Motor','(by model)','Replace if light will not aim in one axis','Per axis'],
+   ['Remote Control Unit','(by model)','Replace if light does not respond to control with motors confirmed good','1/light'],
+  ],
+  maint:[
+   {t:'Test searchlight aim and beam before night operation',n:'Before operating after dark, confirm the searchlight lights and pans/tilts fully in both axes from the helm control; a searchlight that fails after dark cannot be safely repaired underway',i:'Before night operation',b:'d'},
+   {t:'Lubricate pan/tilt mechanism and check wiring',n:'Periodically check the pan/tilt mechanism moves freely and inspect the exposed wiring and connections for corrosion from weather exposure',i:'Quarterly',b:'ann'},
+  ],
+  probs:[
+   {p:'Searchlight will not light',
+    c:['Lamp/LED failed','Power or breaker off','Wiring fault to the fixture'],
+    s:['Check power and breaker','Replace the lamp/LED module','Inspect wiring to the rooftop fixture for corrosion or breaks'],},
+   {p:'Searchlight will not aim',
+    c:['Pan or tilt drive motor failed','Control unit fault','Mechanism seized from corrosion'],
+    s:['Determine which axis is affected','Check the control unit responds','Inspect the drive motor and mechanism for seizing or corrosion']},
+  ]},
+
+ 'deck-horn':{t:'Horn / Whistle — Sound Signals',sys:'Deck Equipment',st:'ok',
+  desc:'The horn (whistle) produces the sound signals required by the Navigation Rules for maneuvering, passing arrangements, restricted visibility, and danger. On the river it is used constantly: one short blast for a port-to-port passing, two for starboard-to-starboard, the prolonged blasts required in fog, and the five short blasts of the danger signal. The vessel typically has an air horn (loud, powered by the ship air system) and may have an electric whistle as backup. A working sound signal is USCG-required equipment and is essential for communicating intentions to other vessels when radio contact is not established.',
+  loc:'Air horn mounted high on the mast or pilothouse top for maximum sound projection. The air supply comes from the ship air system through a solenoid valve actuated by the horn button at the helm. An electric whistle, if fitted, is a separate backup with its own button.',
+  specs:[['Air horn','Powered by ship air system — loud, primary signal'],['Electric whistle','Backup sound signal — independent of air system'],['Required signals','Maneuvering (1/2 short blasts), danger (5 short), restricted visibility (prolonged) per Navigation Rules'],['USCG','Required equipment — must be operational'],['Air dependency','Air horn depends on ship air pressure — verify air system is charged']],
+  parts:[
+   ['Horn Solenoid Valve','(by horn model)','Replace if horn does not sound with air pressure confirmed and button pressed','1/horn'],
+   ['Air Horn Diaphragm','(by horn model)','Replace if horn sound is weak or distorted','1/horn'],
+   ['Horn Button / Switch','(at helm)','Replace if button does not actuate the horn','Per station'],
+  ],
+  maint:[
+   {t:'Test horn before getting underway',n:'Sound the horn briefly before departure to confirm it works; in fog or traffic the horn is your primary signaling device and a failure mid-river is a serious safety gap',i:'Before getting underway',b:'d'},
+   {t:'Verify air supply to the horn',n:'The air horn depends on the ship air system — confirm air pressure is adequate; a low air system produces a weak horn',i:'Daily',b:'d'},
+   {t:'Test electric whistle backup',n:'If an electric whistle backup is fitted, test it periodically so it is available if the air horn or air supply fails',i:'Monthly',b:'ann'},
+  ],
+  probs:[
+   {p:'Horn will not sound',
+    c:['No air pressure (air horn) — air system depleted','Solenoid valve failed','Horn button/switch fault'],
+    s:['Check ship air pressure first for an air horn','Check the solenoid valve actuates when the button is pressed','Test the backup electric whistle if fitted','A horn failure underway is a safety issue — slow down and use VHF for passing arrangements until restored'],},
+   {p:'Horn sound weak or distorted',
+    c:['Low air pressure','Horn diaphragm worn or fouled'],
+    s:['Verify full air pressure','Inspect and replace the horn diaphragm if worn']},
+  ]},
+
+ 'deck-floods':{t:'Deck Flood Lights — Work Lights',sys:'Deck Equipment',st:'ok',
+  desc:'Deck flood lights illuminate the deck, tow, and working areas for nighttime line handling, making and breaking tow, lock operations, and maintenance. Good deck lighting is a crew-safety item — working with heavy mooring lines, ratchets, and wire on a dark deck is dangerous. The floods are typically LED arrays for brightness, low current draw, and long life. They must be positioned and aimed to light the work areas without blinding the captain\'s night vision in the pilothouse or shining into the eyes of approaching vessels.',
+  loc:'Mounted on the pilothouse, mast, and deck stanchions, aimed at the deck and tow working areas. Switched from the pilothouse and/or local switches. LED flood arrays are common.',
+  specs:[['Type','LED flood array — bright, low current, long life'],['Purpose','Deck and tow work lighting for night line handling, locking, maintenance'],['Aim','Light work areas without blinding the helm or approaching vessels'],['Switching','Pilothouse and/or local switches'],['Crew safety','Adequate deck lighting prevents line-handling injuries in the dark']],
+  parts:[
+   ['LED Flood Fixture','(by fixture)','Replace complete fixture if LED array fails','Per fixture'],
+   ['Flood Light Switch','(by panel)','Replace if floods cannot be switched','Per circuit'],
+  ],
+  maint:[
+   {t:'Verify deck floods before night deck work',n:'Before any nighttime line handling, locking, or making/breaking tow, confirm the deck flood lights illuminate the work areas adequately; working heavy lines on a dark deck is a serious injury risk',i:'Before night deck work',b:'d'},
+   {t:'Check aim and clean lenses',n:'Verify floods are aimed at the work areas and not into the helm or at approaching traffic; clean lenses fouled by deck spray and exhaust soot',i:'Quarterly',b:'ann'},
+  ],
+  probs:[
+   {p:'Deck flood not lighting',
+    c:['LED array or fixture failed','Switch or breaker off','Wiring corroded at the exposed deck fixture'],
+    s:['Check switch and breaker','Replace the LED fixture','Inspect the exposed deck wiring connection for corrosion'],},
   ]},
 
  'hull-bilge':{t:'Bilge Pumps — Submersible Electric',sys:'Hull & Bilge',st:'ok',
@@ -5986,7 +6323,6 @@ function closeGame(){
 }
 
 function startTowboatGame(){
-  'use strict';
   const C=document.getElementById('game-canvas');
   const ctx=C.getContext('2d');
   const W=800,H=650;
@@ -5994,106 +6330,1080 @@ function startTowboatGame(){
   function resize(){const s=Math.min(window.innerWidth/W,window.innerHeight/H);C.style.width=(W*s)+'px';C.style.height=(H*s)+'px';}
   resize();_gameResize=resize;window.addEventListener('resize',resize);
   if(!CanvasRenderingContext2D.prototype.roundRect){CanvasRenderingContext2D.prototype.roundRect=function(x,y,w,h,r){r=Math.min(r,w/2,h/2);this.moveTo(x+r,y);this.lineTo(x+w-r,y);this.arcTo(x+w,y,x+w,y+h,r);this.lineTo(x+w,y+h-r);this.arcTo(x+w,y+h,x,y+h,r);this.lineTo(x+r,y+h);this.arcTo(x,y+h,x,y,r);this.lineTo(x,y+r);this.arcTo(x,y,x+w,y,r);this.closePath();};}
+
+  // ── Fleet Constants ──
   const BW=36,BH=50,BG=4,COLS=3,ROWS=5;
-  const FW=COLS*(BW+BG)-BG,FH=ROWS*(BH+BG)-BG,TWW=46,TWH=68,TOTAL=ROWS*COLS;
-  const BRIDGE_GAP=FW+96,LOCK_GAP=FW+110;
+  const FW=COLS*(BW+BG)-BG;
+  const FH=ROWS*(BH+BG)-BG;
+  const TWW=46,TWH=68;
+  const TOTAL=ROWS*COLS;
+
+  // ── River Functions ──
   function rCX(wy){return W/2+16*Math.sin(wy*0.0026)+8*Math.sin(wy*0.0065+2.0);}
   function rHW(wy){return 365+8*Math.sin(wy*0.0045+0.9);}
+
+  // ── Input ──
   const KEY={};
-  _gameKeyDown=function(e){KEY[e.code]=true;if('Space,Enter'.split(',').includes(e.code))handleBtn();if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.code))e.preventDefault();};
+  const CHEAT=['left','left','right','right','up','up','down','down'];
+  function keyDir(code){
+    if(code==='ArrowLeft'||code==='KeyA')return 'left';
+    if(code==='ArrowRight'||code==='KeyD')return 'right';
+    if(code==='ArrowUp'||code==='KeyW')return 'up';
+    if(code==='ArrowDown'||code==='KeyS')return 'down';
+    return null;
+  }
+  _gameKeyDown=function(e){
+    if(!_gameRunning)return;
+    if(!e.repeat){const d=keyDir(e.code);if(d)cheatPress(d);}
+    KEY[e.code]=true;
+    if('Space,Enter'.split(',').includes(e.code))handleBtn();
+    if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.code))e.preventDefault();
+  };
   _gameKeyUp=function(e){KEY[e.code]=false;};
-  window.addEventListener('keydown',_gameKeyDown);window.addEventListener('keyup',_gameKeyUp);
+  window.addEventListener('keydown',_gameKeyDown);
+  window.addEventListener('keyup',_gameKeyUp);
+
   const TOUCH={L:false,R:false,U:false,D:false};
-  const BTN={L:{x:10,y:H-105,w:92,h:80},R:{x:110,y:H-105,w:92,h:80},U:{x:W-102,y:H-105,w:92,h:80},D:{x:W-202,y:H-105,w:92,h:80}};
-  (function setupTouch(){const held={};function getP(t){const r=C.getBoundingClientRect();return{x:(t.clientX-r.left)*(W/r.width),y:(t.clientY-r.top)*(H/r.height)};}function inB(b,mx,my){return mx>=b.x&&mx<=b.x+b.w&&my>=b.y&&my<=b.y+b.h;}function upd(){TOUCH.L=TOUCH.R=TOUCH.U=TOUCH.D=false;Object.values(held).forEach(p=>{if(inB(BTN.L,p.x,p.y))TOUCH.L=true;if(inB(BTN.R,p.x,p.y))TOUCH.R=true;if(inB(BTN.U,p.x,p.y))TOUCH.U=true;if(inB(BTN.D,p.x,p.y))TOUCH.D=true;});}C.addEventListener('touchstart',e=>{e.preventDefault();[...e.changedTouches].forEach(t=>{held[t.identifier]=getP(t);if(gameState!=='PLAY')handleBtn();});upd();},{passive:false});C.addEventListener('touchmove',e=>{e.preventDefault();[...e.changedTouches].forEach(t=>{held[t.identifier]=getP(t);});upd();},{passive:false});C.addEventListener('touchend',e=>{e.preventDefault();[...e.changedTouches].forEach(t=>{delete held[t.identifier];});upd();},{passive:false});C.addEventListener('click',()=>{if(gameState!=='PLAY')handleBtn();});})();
-  const LEVELS=[{miles:0,baseSpd:1.60,spawnFloor:50,label:'LEVEL 1',col:'#5ab0cc'},{miles:75,baseSpd:2.05,spawnFloor:42,label:'LEVEL 2',col:'#58cc88'},{miles:200,baseSpd:2.55,spawnFloor:34,label:'LEVEL 3',col:'#ccb840'},{miles:320,baseSpd:3.05,spawnFloor:26,label:'LEVEL 4',col:'#cc6622'},{miles:450,baseSpd:3.55,spawnFloor:20,label:'LEVEL 5',col:'#cc2244'}];
-  let gameState,scroll,score,barges,fr,spd,currentLevel,levelUpTimer;
-  let tow,obstacles,buoys,wakeP,sparks,structures,fleets,rings;
-  let flashTimer,bankCooldown,nextObsFr,nextBuoyWY,nextStructureScore,nextFleetScore,nextRingScore,healTimer;
-  function handleBtn(){if(gameState==='START')gameState='PLAY';else if(gameState==='OVER'||gameState==='WIN')init();}
-  function init(){gameState='START';scroll=0;score=0;barges=TOTAL;fr=0;spd=1.6;currentLevel=0;levelUpTimer=0;tow={x:W/2,y:378,angle:0,vx:0,av:0};obstacles=[];buoys=[];wakeP=[];sparks=[];structures=[];fleets=[];rings=[];flashTimer=0;bankCooldown=0;nextObsFr=90;nextBuoyWY=-600;nextStructureScore=20;nextFleetScore=30;nextRingScore=45;healTimer=0;}
-  function loseBarge(n){if(gameState!=='PLAY')return;barges-=(n||1);flashTimer=14;if(barges<=0){barges=0;gameState='OVER';}}
-  function bankHit(){if(bankCooldown>0)return;loseBarge(1);bankCooldown=28;}
-  function gainBarge(n){if(barges<TOTAL){barges=Math.min(TOTAL,barges+(n||1));healTimer=16;}}
-  function segDist(px,py,ax,ay,bx,by){const dx=bx-ax,dy=by-ay,L2=dx*dx+dy*dy||1;let t=((px-ax)*dx+(py-ay)*dy)/L2;t=Math.max(0,Math.min(1,t));const cx=ax+t*dx,cy=ay+t*dy;return Math.hypot(px-cx,py-cy);}
+  const BTN={
+    L:{x:14,y:H-108,w:68,h:58},
+    R:{x:90,y:H-108,w:68,h:58},
+    U:{x:W-84,y:H-108,w:68,h:58},
+    D:{x:W-162,y:H-108,w:68,h:58},
+  };
+
+  (function setupTouch(){
+    const held={};
+    function getP(t){const r=C.getBoundingClientRect();return{x:(t.clientX-r.left)*(W/r.width),y:(t.clientY-r.top)*(H/r.height)};}
+    function inB(b,mx,my){return mx>=b.x&&mx<=b.x+b.w&&my>=b.y&&my<=b.y+b.h;}
+    function upd(){
+      const pL=TOUCH.L,pR=TOUCH.R,pU=TOUCH.U,pD=TOUCH.D;
+      TOUCH.L=TOUCH.R=TOUCH.U=TOUCH.D=false;
+      Object.values(held).forEach(p=>{
+        if(inB(BTN.L,p.x,p.y))TOUCH.L=true;
+        if(inB(BTN.R,p.x,p.y))TOUCH.R=true;
+        if(inB(BTN.U,p.x,p.y))TOUCH.U=true;
+        if(inB(BTN.D,p.x,p.y))TOUCH.D=true;
+      });
+      if(TOUCH.L&&!pL)cheatPress('left');
+      if(TOUCH.R&&!pR)cheatPress('right');
+      if(TOUCH.U&&!pU)cheatPress('up');
+      if(TOUCH.D&&!pD)cheatPress('down');
+    }
+    C.addEventListener('touchstart',e=>{e.preventDefault();[...e.changedTouches].forEach(t=>{held[t.identifier]=getP(t);if(gameState!=='PLAY')handleBtn();});upd();},{passive:false});
+    C.addEventListener('touchmove',e=>{e.preventDefault();[...e.changedTouches].forEach(t=>{held[t.identifier]=getP(t);});upd();},{passive:false});
+    C.addEventListener('touchend',e=>{e.preventDefault();[...e.changedTouches].forEach(t=>{delete held[t.identifier];});upd();},{passive:false});
+    C.addEventListener('click',()=>{if(gameState!=='PLAY')handleBtn();});
+  })();
+
+  // ── Level Definitions ──
+  const LEVELS=[
+    {miles:0,baseSpd:1.60,spawnFloor:50,label:'LEVEL 1',col:'#5ab0cc'},
+    {miles:75,baseSpd:2.05,spawnFloor:42,label:'LEVEL 2',col:'#58cc88'},
+    {miles:200,baseSpd:2.55,spawnFloor:34,label:'LEVEL 3',col:'#ccb840'},
+    {miles:320,baseSpd:3.05,spawnFloor:26,label:'LEVEL 4',col:'#cc6622'},
+    {miles:450,baseSpd:3.55,spawnFloor:20,label:'LEVEL 5',col:'#cc2244'},
+  ];
+
+  const BRIDGE_GAP=FW+96;
+  const LOCK_GAP=FW+110;
+
+  // ── Game State ──
+  let gameState,scroll,score,barges,fr,spd;
+  let currentLevel,levelUpTimer;
+  let tow,obstacles,buoys,wakeP,sparks,structures;
+  let flashTimer,bankCooldown,nextObsFr,nextBuoyWY,nextStructureScore;
+  let fleets,nextFleetScore;
+  let rings,nextRingScore,healTimer;
+  let cheatBuf=[],cheatMsgTimer=0;
+
+  function handleBtn(){
+    if(gameState==='START')gameState='PLAY';
+    else if(gameState==='OVER'||gameState==='WIN')init();
+  }
+
+  function init(){
+    gameState='START';
+    scroll=0;score=0;barges=TOTAL;fr=0;spd=1.6;
+    currentLevel=0;levelUpTimer=0;
+    tow={x:W/2,y:378,angle:0,vx:0,av:0};
+    obstacles=[];buoys=[];wakeP=[];sparks=[];structures=[];
+    fleets=[];nextFleetScore=30;
+    rings=[];nextRingScore=45;healTimer=0;
+    cheatBuf.length=0;cheatMsgTimer=0;
+    flashTimer=0;bankCooldown=0;nextObsFr=90;nextBuoyWY=-600;
+    nextStructureScore=20;
+  }
+
+  function loseBarge(n){
+    if(gameState!=='PLAY')return;
+    barges-=(n||1);
+    flashTimer=14;
+    if(barges<=0){barges=0;gameState='OVER';}
+  }
+
+  function bankHit(){
+    if(bankCooldown>0)return;
+    loseBarge(1);
+    bankCooldown=28;
+  }
+
+  function gainBarge(n){
+    if(barges<TOTAL){
+      barges=Math.min(TOTAL,barges+(n||1));
+      healTimer=16;
+    }
+  }
+
+  function cheatPress(dir){
+    const now=(performance&&performance.now)?performance.now():Date.now();
+    cheatBuf.push({dir,t:now});
+    if(cheatBuf.length>CHEAT.length)cheatBuf.shift();
+    if(cheatBuf.length===CHEAT.length){
+      let ok=(cheatBuf[CHEAT.length-1].t-cheatBuf[0].t)<=3000;
+      for(let i=0;ok&&i<CHEAT.length;i++){if(cheatBuf[i].dir!==CHEAT[i])ok=false;}
+      if(ok){cheatBuf.length=0;activateCheat();}
+    }
+  }
+
+  function activateCheat(){
+    if(gameState!=='PLAY')return;
+    barges=TOTAL;
+    healTimer=18;
+    cheatMsgTimer=120;
+    mkHealSparks(tow.x,tow.y);
+  }
+
+  function segDist(px,py,ax,ay,bx,by){
+    const dx=bx-ax,dy=by-ay;
+    const L2=dx*dx+dy*dy||1;
+    let t=((px-ax)*dx+(py-ay)*dy)/L2;
+    t=Math.max(0,Math.min(1,t));
+    const cx=ax+t*dx,cy=ay+t*dy;
+    return Math.hypot(px-cx,py-cy);
+  }
+
+  // ── Update ──
   function update(){
-    if(gameState!=='PLAY')return;fr++;
+    if(gameState!=='PLAY')return;
+    fr++;
     const newLvl=LEVELS.reduce((best,l,i)=>score>=l.miles?i:best,0);
     if(newLvl>currentLevel){currentLevel=newLvl;levelUpTimer=210;}
     if(levelUpTimer>0)levelUpTimer--;
     const lvl=LEVELS[currentLevel];
-    const goFast=KEY.ArrowUp||KEY.KeyW||TOUCH.U,goSlow=KEY.ArrowDown||KEY.KeyS||TOUCH.D;
+
+    const goFast=KEY.ArrowUp||KEY.KeyW||TOUCH.U;
+    const goSlow=KEY.ArrowDown||KEY.KeyS||TOUCH.D;
     spd=goFast?lvl.baseSpd+0.90:goSlow?Math.max(0.45,lvl.baseSpd-0.80):lvl.baseSpd;
-    scroll+=spd;score=Math.floor(scroll/60);
+    scroll+=spd;
+    score=Math.floor(scroll/60);
     if(score>=500){gameState='WIN';return;}
-    const steerL=KEY.ArrowLeft||KEY.KeyA||TOUCH.L,steerR=KEY.ArrowRight||KEY.KeyD||TOUCH.R;
+
+    const steerL=KEY.ArrowLeft||KEY.KeyA||TOUCH.L;
+    const steerR=KEY.ArrowRight||KEY.KeyD||TOUCH.R;
     if(steerL)tow.av=Math.max(tow.av-0.0015,-0.022);
     if(steerR)tow.av=Math.min(tow.av+0.0015,0.022);
-    tow.av*=0.91;tow.angle=Math.max(-0.52,Math.min(0.52,tow.angle+tow.av));
-    const wy=scroll+tow.y,rcx=rCX(wy),hw=rHW(wy);
+    tow.av*=0.91;
+    tow.angle=Math.max(-0.52,Math.min(0.52,tow.angle+tow.av));
+
+    const wy=scroll+tow.y;
+    const rcx=rCX(wy);
+    const hw=rHW(wy);
+
     const firstRow=Math.floor((TOTAL-barges)/COLS);
-    const bargeTopLocal=-FH/2+firstRow*(BH+BG),bargeBotLocal=FH/2;
-    const unitBotLocal=FH/2+BG+TWH,hhUnit=(unitBotLocal-bargeTopLocal)/2;
+    const bargeTopLocal=-FH/2+firstRow*(BH+BG);
+    const bargeBotLocal=FH/2;
+    const unitTopLocal=bargeTopLocal;
+    const unitBotLocal=FH/2+BG+TWH;
+    const hhUnit=(unitBotLocal-unitTopLocal)/2;
     const sinA=Math.sin(tow.angle),cosA=Math.cos(tow.angle);
     const effW=FW/2*Math.abs(cosA)+hhUnit*Math.abs(sinA);
+
     tow.vx+=Math.sin(tow.angle)*spd*0.85;
-    const SOFT_M=50,clrL=(tow.x-effW)-(rcx-hw),clrR=(rcx+hw)-(tow.x+effW);
+
+    const SOFT_M=50;
+    const clrL=(tow.x-effW)-(rcx-hw);
+    const clrR=(rcx+hw)-(tow.x+effW);
     if(clrL<SOFT_M&&clrL>0)tow.vx+=(SOFT_M-clrL)*0.0050;
     if(clrR<SOFT_M&&clrR>0)tow.vx-=(SOFT_M-clrR)*0.0050;
-    tow.vx*=0.87;tow.x+=tow.vx;tow.x=Math.max(55,Math.min(W-55,tow.x));
+
+    tow.vx*=0.87;
+    tow.x+=tow.vx;
+    tow.x=Math.max(55,Math.min(W-55,tow.x));
+
     if(tow.x-effW<rcx-hw){tow.x=rcx-hw+effW+1;tow.vx=Math.abs(tow.vx)*0.35;bankHit();}
     else if(tow.x+effW>rcx+hw){tow.x=rcx+hw-effW-1;tow.vx=-Math.abs(tow.vx)*0.35;bankHit();}
+
     if(fr>=nextObsFr){spawnObs();nextObsFr=fr+Math.max(lvl.spawnFloor,108-score*0.18)|0;}
-    const towWY=scroll+tow.y;if(towWY-nextBuoyWY>375){spawnBuoy();nextBuoyWY=towWY;}
-    if(score>=nextStructureScore&&structures.length===0){if(Math.random()<0.55)spawnBridge();else spawnLock();nextStructureScore+=20+(Math.random()*20)|0;}
+
+    const towWY=scroll+tow.y;
+    if(towWY-nextBuoyWY>375){spawnBuoy();nextBuoyWY=towWY;}
+
+    if(score>=nextStructureScore&&structures.length===0){
+      const roll=Math.random();
+      if(roll<0.55)spawnBridge();else spawnLock();
+      nextStructureScore+=20+(Math.random()*20)|0;
+    }
+
     updateStructures(effW,bargeTopLocal,unitBotLocal);
+
     if(score>=nextFleetScore){spawnFleet();nextFleetScore+=45+(Math.random()*16-8)|0;}
     updateFleets(effW,bargeTopLocal,unitBotLocal);
+
     const ax=tow.x-bargeTopLocal*sinA,ay=tow.y+bargeTopLocal*cosA;
-    const bx2=tow.x-bargeBotLocal*sinA,by2=tow.y+bargeBotLocal*cosA;
-    for(let i=obstacles.length-1;i>=0;i--){const o=obstacles[i];o.y+=spd+o.drift;o.x+=o.vx;o.rot+=o.rspd;if(o.y>H+90){obstacles.splice(i,1);continue;}if(segDist(o.x,o.y,ax,ay,bx2,by2)<FW*0.45+o.r){loseBarge(1);mkSparks(o.x,o.y);obstacles.splice(i,1);if(gameState!=='PLAY')break;}}
+    const bx=tow.x-bargeBotLocal*sinA,by=tow.y+bargeBotLocal*cosA;
+    for(let i=obstacles.length-1;i>=0;i--){
+      const o=obstacles[i];
+      o.y+=spd+o.drift;o.x+=o.vx;o.rot+=o.rspd;
+      if(o.y>H+90){obstacles.splice(i,1);continue;}
+      if(segDist(o.x,o.y,ax,ay,bx,by)<FW*0.45+o.r){
+        loseBarge(1);mkSparks(o.x,o.y);obstacles.splice(i,1);
+        if(gameState!=='PLAY')break;
+      }
+    }
+
     if(score>=nextRingScore){spawnRing();nextRingScore+=80+(Math.random()*80)|0;}
-    for(let i=rings.length-1;i>=0;i--){const ring=rings[i];ring.y+=spd+ring.drift;ring.bob+=0.08;if(ring.y>H+40){rings.splice(i,1);continue;}if(segDist(ring.x,ring.y,ax,ay,bx2,by2)<FW*0.45+18){gainBarge(1);mkHealSparks(ring.x,ring.y);rings.splice(i,1);}}
-    buoys.forEach(b=>b.y+=spd);buoys=buoys.filter(b=>b.y<H+45);
-    if(fr%4===0){const bRelY=FH/2+BG+TWH/2,bxw=tow.x-Math.sin(tow.angle)*bRelY,byw=tow.y+Math.cos(tow.angle)*bRelY;for(let i=0;i<2;i++)wakeP.push({x:bxw+(Math.random()-0.5)*TWW,y:byw,vx:(Math.random()-0.5)*0.8,vy:2.8+Math.random()*1.0,life:0.78,sz:3.5+Math.random()*3});}
-    for(let i=wakeP.length-1;i>=0;i--){const p=wakeP[i];p.x+=p.vx;p.y+=p.vy;p.life-=0.024;p.sz*=1.018;if(p.life<=0||p.y>H+25)wakeP.splice(i,1);}
-    for(let i=sparks.length-1;i>=0;i--){const s=sparks[i];s.x+=s.vx;s.y+=s.vy+spd*0.45;s.life-=0.05;if(s.life<=0)sparks.splice(i,1);}
-    if(flashTimer>0)flashTimer--;if(bankCooldown>0)bankCooldown--;if(healTimer>0)healTimer--;
+    for(let i=rings.length-1;i>=0;i--){
+      const ring=rings[i];
+      ring.y+=spd+ring.drift;ring.bob+=0.08;
+      if(ring.y>H+40){rings.splice(i,1);continue;}
+      if(segDist(ring.x,ring.y,ax,ay,bx,by)<FW*0.45+18){
+        gainBarge(1);mkHealSparks(ring.x,ring.y);rings.splice(i,1);
+      }
+    }
+
+    buoys.forEach(b=>b.y+=spd);
+    buoys=buoys.filter(b=>b.y<H+45);
+
+    if(fr%4===0){
+      const bRelY=FH/2+BG+TWH/2;
+      const bxw=tow.x-Math.sin(tow.angle)*bRelY;
+      const byw=tow.y+Math.cos(tow.angle)*bRelY;
+      for(let i=0;i<2;i++){
+        wakeP.push({x:bxw+(Math.random()-0.5)*TWW,y:byw,vx:(Math.random()-0.5)*0.8,vy:2.8+Math.random()*1.0,life:0.78,sz:3.5+Math.random()*3});
+      }
+    }
+    for(let i=wakeP.length-1;i>=0;i--){
+      const p=wakeP[i];
+      p.x+=p.vx;p.y+=p.vy;p.life-=0.024;p.sz*=1.018;
+      if(p.life<=0||p.y>H+25)wakeP.splice(i,1);
+    }
+
+    for(let i=sparks.length-1;i>=0;i--){
+      const s=sparks[i];
+      s.x+=s.vx;s.y+=s.vy+spd*0.45;s.life-=0.05;
+      if(s.life<=0)sparks.splice(i,1);
+    }
+
+    if(flashTimer>0)flashTimer--;
+    if(bankCooldown>0)bankCooldown--;
+    if(healTimer>0)healTimer--;
+    if(cheatMsgTimer>0)cheatMsgTimer--;
   }
+
   function spawnObs(){
     const count=currentLevel>=3?(Math.random()<0.40?2:1):currentLevel>=1?(Math.random()<0.25?2:1):1;
-    for(let c=0;c<count;c++){const sy=-80-Math.random()*60,wy=scroll+sy,cx=rCX(wy),hw=rHW(wy),x=cx+(Math.random()-0.5)*2*(hw-22);const boatChance=currentLevel>=1?0.08+currentLevel*0.06:0,roll=Math.random();
-    if(roll<boatChance){const styles=[{r:14,drift:1.75+Math.random()*1.0,c1:'#e8e4d8',c2:'#c8c4b0',stripeCol:'#2255bb'},{r:12,drift:2.4+Math.random()*1.25,c1:'#f0eee4',c2:'#d0cec0',stripeCol:'#cc2222'},{r:11,drift:2.75+Math.random()*1.5,c1:'#e4f0e8',c2:'#c4d0c8',stripeCol:'#cc9922'}];const style=styles[Math.min(currentLevel-1,styles.length-1)];obstacles.push({x,y:sy,vx:(Math.random()-0.5)*0.3,drift:style.drift,r:style.r,c1:style.c1,c2:style.c2,nm:'boat',stripeCol:style.stripeCol,rot:0,rspd:0});}
-    else{const nm=roll-boatChance<0.55?'log':'log2';const r=nm==='log'?15:22;const drift=nm==='log'?0.5+Math.random()*0.65:0.25+Math.random()*0.4;const c1=nm==='log'?'#5a3018':'#3e2010';const c2=nm==='log'?'#7a4828':'#5a3018';obstacles.push({x,y:sy,vx:(Math.random()-0.5)*0.55,drift,r,c1,c2,nm,rot:Math.random()*Math.PI*2,rspd:(Math.random()-0.5)*0.025,stripeCol:null});}}
+    for(let c=0;c<count;c++){
+      const sy=-80-Math.random()*60;
+      const wy=scroll+sy;
+      const cx=rCX(wy),hw=rHW(wy);
+      const x=cx+(Math.random()-0.5)*2*(hw-22);
+      const boatChance=currentLevel>=1?0.08+currentLevel*0.06:0;
+      const roll=Math.random();
+      if(roll<boatChance){
+        const styles=[
+          {r:14,drift:1.75+Math.random()*1.0,c1:'#e8e4d8',c2:'#c8c4b0',stripeCol:'#2255bb',vesselType:'cruiser'},
+          {r:12,drift:2.4+Math.random()*1.25,c1:'#f0eee4',c2:'#d0cec0',stripeCol:'#cc2222',vesselType:'speedboat'},
+          {r:11,drift:2.75+Math.random()*1.5,c1:'#e4f0e8',c2:'#c4d0c8',stripeCol:'#cc9922',vesselType:'jetboat'},
+        ];
+        const style=styles[Math.min(currentLevel-1,styles.length-1)];
+        obstacles.push({x,y:sy,vx:(Math.random()-0.5)*0.3,drift:style.drift,r:style.r,c1:style.c1,c2:style.c2,nm:'boat',stripeCol:style.stripeCol,vesselType:style.vesselType,rot:0,rspd:0});
+      }else{
+        let nm,r,drift,c1,c2;
+        if(roll-boatChance<0.55){nm='log';r=15;drift=0.5+Math.random()*0.65;c1='#7a4824';c2='#a06840';}
+        else{nm='log2';r=22;drift=0.25+Math.random()*0.4;c1='#5a3018';c2='#7a4824';}
+        obstacles.push({x,y:sy,vx:(Math.random()-0.5)*0.55,drift,r,c1,c2,nm,rot:Math.random()*Math.PI*2,rspd:(Math.random()-0.5)*0.025,stripeCol:null,vesselType:null});
+      }
+    }
   }
-  function spawnBuoy(){const sy=-42,wy=scroll+sy,cx=rCX(wy),hw=rHW(wy);buoys.push({x:cx-hw+22,y:sy,col:'#228844',blink:(Math.random()*30)|0},{x:cx+hw-22,y:sy,col:'#cc2222',blink:(Math.random()*30)|0});}
-  function spawnBridge(){const sy=-55,wy=scroll+sy,cx=rCX(wy),hw=rHW(wy),margin=28,gapW=BRIDGE_GAP,gapX=cx-hw+margin+Math.random()*(hw*2-margin*2-gapW);structures.push({type:'bridge',y:sy,deckH:30,gapX,gapW,cx,hw,hitCD:0});}
-  function spawnLock(){const sy=-55,wy=scroll+sy,cx=rCX(wy),hw=rHW(wy),margin=28,gapW=LOCK_GAP,bias=[-0.25,0,0.25][Math.floor(Math.random()*3)],gapX=Math.max(cx-hw+margin,Math.min(cx-hw+hw*2-margin-gapW,cx-gapW/2+bias*hw));structures.push({type:'lock',y:sy,deckH:82,gapX,gapW,cx,hw,hitCD:0});}
-  function spawnFleet(){const r=Math.random();let cols,rows;if(r<0.40){cols=1;rows=1;}else if(r<0.75){cols=1;rows=3;}else{cols=3;rows=5;}const fleetH=rows*(BH+BG)-BG;fleets.push({side:Math.random()<0.5?'L':'R',cols,rows,offset:4+Math.random()*10,y:-fleetH-30,h:fleetH,w:cols*(BW+BG)-BG,x:0,innerEdge:0,hitCD:0});}
-  function spawnRing(){const sy=-50,wy=scroll+sy,cx=rCX(wy),hw=rHW(wy),x=cx+(Math.random()-0.5)*2*(hw-90);rings.push({x,y:sy,drift:0.25+Math.random()*0.3,bob:Math.random()*Math.PI*2});}
-  function updateStructures(effW,towTopLocal,towBotLocal){const towTop=tow.y+towTopLocal,towBot=tow.y+towBotLocal;for(let i=structures.length-1;i>=0;i--){const s=structures[i];s.y+=spd;if(s.hitCD>0)s.hitCD--;if(s.y>H+20){structures.splice(i,1);continue;}const sTop=s.y,sBot=s.y+s.deckH;if(sBot>towTop&&sTop<towBot){const towL=tow.x-effW,towR=tow.x+effW,inGap=(towL>=s.gapX-10)&&(towR<=s.gapX+s.gapW+10);if(!inGap&&s.hitCD===0){loseBarge(1);mkSparks(towL<s.gapX?s.gapX:s.gapX+s.gapW,sBot);const gapCX=s.gapX+s.gapW/2;tow.vx+=(gapCX-tow.x)*0.18;tow.angle*=0.6;tow.av*=0.4;s.hitCD=18;if(gameState!=='PLAY')break;}}}}
-  function updateFleets(effW,towTopLocal,towBotLocal){const towTop=tow.y+towTopLocal,towBot=tow.y+towBotLocal;for(let i=fleets.length-1;i>=0;i--){const f=fleets[i];f.y+=spd;if(f.hitCD>0)f.hitCD--;if(f.y>H+20){fleets.splice(i,1);continue;}const cwy=scroll+f.y+f.h/2,bankL=rCX(cwy)-rHW(cwy),bankR=rCX(cwy)+rHW(cwy);f.x=f.side==='L'?bankL+f.offset:bankR-f.offset-f.w;f.innerEdge=f.side==='L'?f.x+f.w:f.x;const fTop=f.y,fBot=f.y+f.h;if(fBot>towTop&&fTop<towBot){if(f.side==='L'&&(tow.x-effW)<f.innerEdge){tow.x=f.innerEdge+effW+1;tow.vx=Math.abs(tow.vx)*0.35+0.4;if(f.hitCD===0){loseBarge(1);mkSparks(f.innerEdge,Math.max(fTop,towTop));f.hitCD=22;}}else if(f.side==='R'&&(tow.x+effW)>f.innerEdge){tow.x=f.innerEdge-effW-1;tow.vx=-Math.abs(tow.vx)*0.35-0.4;if(f.hitCD===0){loseBarge(1);mkSparks(f.innerEdge,Math.max(fTop,towTop));f.hitCD=22;}}if(gameState!=='PLAY')break;}}}
-  function mkSparks(sx,sy){for(let i=0;i<14;i++){const a=Math.random()*Math.PI*2,sp=1.5+Math.random()*3;sparks.push({x:sx,y:sy,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,life:1.0,col:Math.random()<0.5?'#ffaa44':'#ff4422'});}}
-  function mkHealSparks(sx,sy){for(let i=0;i<16;i++){const a=Math.random()*Math.PI*2,sp=1.2+Math.random()*2.6;sparks.push({x:sx,y:sy,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,life:1.0,col:Math.random()<0.5?'#3ce070':'#a6ffb0'});}}
-  function draw(){ctx.fillStyle='#0c1a0c';ctx.fillRect(0,0,W,H);drawRiver();drawFleets();drawBuoys();drawStructures();drawWake();drawObstacles();drawRings();drawTow();drawSparks();drawHUD();if(gameState!=='PLAY')drawOverlay();}
-  function drawRiver(){const N=36,lp=[],rp=[];for(let i=0;i<=N;i++){const sy=(i/N)*H,wy=scroll+sy,cx=rCX(wy),hw=rHW(wy);lp.push([cx-hw,sy]);rp.push([cx+hw,sy]);}ctx.beginPath();lp.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));for(let i=rp.length-1;i>=0;i--)ctx.lineTo(rp[i][0],rp[i][1]);ctx.closePath();const g=ctx.createLinearGradient(0,0,W,0);g.addColorStop(0,'#0e2030');g.addColorStop(0.12,'#163a56');g.addColorStop(0.35,'#1a4a6e');g.addColorStop(0.50,'#1c5278');g.addColorStop(0.65,'#1a4a6e');g.addColorStop(0.88,'#163a56');g.addColorStop(1,'#0e2030');ctx.fillStyle=g;ctx.fill();ctx.beginPath();lp.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));for(let i=rp.length-1;i>=0;i--)ctx.lineTo(rp[i][0],rp[i][1]);ctx.closePath();const gd=ctx.createLinearGradient(W*.2,0,W*.8,0);gd.addColorStop(0,'rgba(0,0,0,0)');gd.addColorStop(0.5,'rgba(0,0,0,0.22)');gd.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=gd;ctx.fill();const ga=0.07+0.04*Math.sin(fr*0.02);ctx.fillStyle=`rgba(120,200,240,${ga})`;ctx.beginPath();for(let i=0;i<=N;i++){const[lx,ly]=lp[i];i===0?ctx.moveTo(lx,ly):ctx.lineTo(lx,ly);if(i===N){for(let j=N;j>=0;j--){const[lxj,lyj]=lp[j];ctx.lineTo(lxj+28,lyj);}}}ctx.fill();ctx.beginPath();for(let i=0;i<=N;i++){const[rx,ry]=rp[i];i===0?ctx.moveTo(rx,ry):ctx.lineTo(rx,ry);if(i===N){for(let j=N;j>=0;j--){const[rxj,ryj]=rp[j];ctx.lineTo(rxj-28,ryj);}}}ctx.fill();ctx.lineWidth=8;ctx.strokeStyle='#3a2818';ctx.beginPath();lp.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.stroke();ctx.beginPath();rp.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.stroke();for(let r=0;r<14;r++){const baseY=((fr*1.5+r*44)%(H+44))-44,wy=scroll+baseY,cx=rCX(wy),hw=rHW(wy),alpha=0.05+0.025*Math.sin(r*0.8+fr*0.03);ctx.strokeStyle=`rgba(80,165,210,${alpha})`;ctx.lineWidth=1;ctx.beginPath();for(let dx=0;dx<=(hw-14)*2;dx+=18){const px=cx-hw+14+dx,py=baseY+3*Math.sin(dx*0.1+fr*0.04+r*0.7);dx?ctx.lineTo(px,py):ctx.moveTo(px,py);}ctx.stroke();}ctx.fillStyle='#0f200f';for(let i=0;i<lp.length-1;i++){if(i%2!==0)continue;const[x,y]=lp[i],wy=scroll+y,th=30+12*Math.abs(Math.sin(wy*0.068));ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-5,y-th*.45);ctx.lineTo(x-9,y-th*.62);ctx.lineTo(x-3,y-th*.78);ctx.lineTo(x-7,y-th);ctx.lineTo(x,y-th*.86);ctx.lineTo(x+3,y-th);ctx.lineTo(x+1,y-th*.70);ctx.lineTo(x+7,y-th*.46);ctx.closePath();ctx.fill();}for(let i=0;i<rp.length-1;i++){if(i%2!==0)continue;const[x,y]=rp[i],wy=scroll+y,th=30+12*Math.abs(Math.sin(wy*0.068+1.4));ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+5,y-th*.45);ctx.lineTo(x+9,y-th*.62);ctx.lineTo(x+3,y-th*.78);ctx.lineTo(x+7,y-th);ctx.lineTo(x,y-th*.86);ctx.lineTo(x-3,y-th);ctx.lineTo(x-1,y-th*.70);ctx.lineTo(x-7,y-th*.46);ctx.closePath();ctx.fill();}}
-  function drawBuoys(){buoys.forEach(b=>{const bob=Math.sin(fr*0.06+b.x*0.01)*2;ctx.save();ctx.translate(b.x,b.y+bob);ctx.strokeStyle='#3a3828';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(0,8);ctx.lineTo(0,17);ctx.stroke();ctx.fillStyle=b.col;ctx.beginPath();ctx.ellipse(0,0,7,11,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='rgba(255,255,255,0.22)';ctx.beginPath();ctx.ellipse(-2,-3,3,4.5,0,0,Math.PI*2);ctx.fill();if(((fr+b.blink)>>4)&1){ctx.shadowColor=b.col;ctx.shadowBlur=14;ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(0,-13,2.5,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;}ctx.restore();});}
-  function drawStructures(){structures.forEach(s=>{if(s.type==='bridge')drawBridge(s);else drawLock(s);});}
-  function drawBridge(s){const{y,deckH,gapX,gapW,cx,hw}=s,riverL=cx-hw,riverR=cx+hw,y2=y+deckH,warnY=y-200;if(warnY>-16&&warnY<H){const flash=(fr>>4)&1,absAngleDeg=Math.abs(Math.round(tow.angle*57.296)),needsStraight=absAngleDeg>17;ctx.fillStyle=needsStraight?(flash?'#ff8800':'#cc5500'):(flash?'#ffdd00':'#cc9900');ctx.font='bold 11px "Courier New"';ctx.textAlign='center';ctx.fillText(needsStraight?`\u26a0  BRIDGE \u2014 STRAIGHTEN HEADING  ${absAngleDeg}\u00b0\u21920\u00b0  \u26a0`:'\u26a0  RAILROAD BRIDGE \u2014 ALIGN WITH SPAN  \u26a0',W/2,warnY);ctx.strokeStyle=`rgba(255,220,0,${flash?0.35:0.15})`;ctx.lineWidth=1;ctx.setLineDash([6,6]);ctx.beginPath();ctx.moveTo(gapX,warnY+4);ctx.lineTo(gapX,y);ctx.stroke();ctx.beginPath();ctx.moveTo(gapX+gapW,warnY+4);ctx.lineTo(gapX+gapW,y);ctx.stroke();ctx.setLineDash([]);}ctx.fillStyle='#7a7a6a';ctx.fillRect(riverL,y,gapX-riverL,deckH);ctx.fillRect(gapX+gapW,y,riverR-(gapX+gapW),deckH);ctx.strokeStyle='#5a5a4a';ctx.lineWidth=1.5;function drawTruss(lx,rx){const spanW=rx-lx,panels=Math.max(2,Math.floor(spanW/40));for(let p=0;p<panels;p++){const px=lx+(p/panels)*spanW,nx=lx+((p+1)/panels)*spanW;ctx.beginPath();ctx.moveTo(px,y);ctx.lineTo(nx,y2);ctx.stroke();ctx.beginPath();ctx.moveTo(px,y2);ctx.lineTo(nx,y);ctx.stroke();}}drawTruss(riverL,gapX);drawTruss(gapX+gapW,riverR);ctx.fillStyle='#4a3018';for(let ty=y+2;ty<y2-2;ty+=8){ctx.fillRect(riverL+2,ty,gapX-riverL-4,4);ctx.fillRect(gapX+gapW+2,ty,riverR-gapX-gapW-4,4);}ctx.fillStyle='#909080';ctx.fillRect(riverL,y,10,deckH);ctx.fillRect(riverR-10,y,10,deckH);ctx.fillRect(gapX-10,y,10,deckH);ctx.fillRect(gapX+gapW,y,10,deckH);ctx.fillStyle='#5a5a4a';ctx.fillRect(riverL,y,riverR-riverL,3);ctx.fillRect(riverL,y2-3,gapX-riverL,3);ctx.fillRect(gapX+gapW,y2-3,riverR-gapX-gapW,3);const lt=(fr>>3)&1;ctx.shadowBlur=10;ctx.fillStyle=lt?'#ff4444':'#880000';ctx.shadowColor='#ff0000';ctx.beginPath();ctx.arc(gapX-5,y2-4,4,0,Math.PI*2);ctx.fill();ctx.fillStyle=lt?'#880000':'#ff4444';ctx.beginPath();ctx.arc(gapX-5,y+4,4,0,Math.PI*2);ctx.fill();ctx.fillStyle=(1-lt)?'#44ff44':'#004400';ctx.shadowColor='#00ff00';ctx.beginPath();ctx.arc(gapX+gapW+5,y2-4,4,0,Math.PI*2);ctx.fill();ctx.fillStyle=(1-lt)?'#004400':'#44ff44';ctx.beginPath();ctx.arc(gapX+gapW+5,y+4,4,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;ctx.fillStyle='rgba(20,60,90,0.35)';ctx.fillRect(gapX,y,gapW,deckH);ctx.strokeStyle='#303830';ctx.lineWidth=1;ctx.strokeRect(gapX,y,gapW,deckH);}
-  function drawLock(s){const{y,deckH,gapX,gapW,cx,hw}=s,riverL=cx-hw,riverR=cx+hw,y2=y+deckH,lockL=gapX,lockR=gapX+gapW,warnY=y-220;if(warnY>-16&&warnY<H){const flash=(fr>>4)&1,absAngleDeg=Math.abs(Math.round(tow.angle*57.296)),needsStraight=absAngleDeg>22;ctx.fillStyle=needsStraight?(flash?'#ff8800':'#cc5500'):(flash?'#ffdd00':'#aa8800');ctx.font='bold 11px "Courier New"';ctx.textAlign='center';ctx.fillText(needsStraight?`\u26a0  LOCK \u2014 STRAIGHTEN HEADING  ${absAngleDeg}\u00b0\u21920\u00b0  \u26a0`:`\u26a0  LOCK & DAM \u2014 ENTER CHAMBER ON ${lockL<cx?'LEFT':'RIGHT'}  \u26a0`,W/2,warnY);ctx.strokeStyle=`rgba(255,220,0,${flash?0.35:0.15})`;ctx.lineWidth=1;ctx.setLineDash([6,6]);ctx.beginPath();ctx.moveTo(lockL,warnY+4);ctx.lineTo(lockL,y);ctx.stroke();ctx.beginPath();ctx.moveTo(lockR,warnY+4);ctx.lineTo(lockR,y);ctx.stroke();ctx.setLineDash([]);}function drawDam(lx,rx){ctx.fillStyle='#8a8870';ctx.fillRect(lx,y,rx-lx,deckH);ctx.fillStyle='#6a6850';for(let sy2=y+8;sy2<y2-8;sy2+=14)ctx.fillRect(lx+6,sy2,rx-lx-12,5);ctx.fillStyle='#a0a090';ctx.fillRect(lx,y,rx-lx,4);ctx.fillRect(lx,y,6,deckH);ctx.fillRect(rx-6,y,6,deckH);}drawDam(riverL,lockL);drawDam(lockR,riverR);ctx.fillStyle='#12344e';ctx.fillRect(lockL,y,gapW,deckH);ctx.fillStyle='#909080';ctx.fillRect(lockL-8,y,8,deckH);ctx.fillRect(lockR,y,8,deckH);ctx.strokeStyle='#4a5a4a';ctx.lineWidth=4;const gyb=y2-10,gyt=y+10;ctx.beginPath();ctx.moveTo(lockL,gyb);ctx.lineTo(lockL+gapW/2,gyb-16);ctx.stroke();ctx.beginPath();ctx.moveTo(lockR,gyb);ctx.lineTo(lockL+gapW/2,gyb-16);ctx.stroke();ctx.beginPath();ctx.moveTo(lockL,gyt);ctx.lineTo(lockL+gapW/2,gyt+14);ctx.stroke();ctx.beginPath();ctx.moveTo(lockR,gyt);ctx.lineTo(lockL+gapW/2,gyt+14);ctx.stroke();ctx.fillStyle='#304040';[[lockL,gyb],[lockR,gyb],[lockL,gyt],[lockR,gyt]].forEach(([gx,gy])=>{ctx.beginPath();ctx.arc(gx,gy,4,0,Math.PI*2);ctx.fill();});ctx.strokeStyle='rgba(80,160,200,0.18)';ctx.lineWidth=1;for(let ry=y+20;ry<y2-18;ry+=12){ctx.beginPath();ctx.moveTo(lockL+2,ry);ctx.lineTo(lockR-2,ry);ctx.stroke();}const lt=(fr>>3)&1;ctx.shadowBlur=10;ctx.fillStyle=lt?'#ff4444':'#660000';ctx.shadowColor='#ff0000';ctx.beginPath();ctx.arc(lockL-4,y2-3,4.5,0,Math.PI*2);ctx.fill();ctx.fillStyle=(1-lt)?'#44ff44':'#004400';ctx.shadowColor='#00ff00';ctx.beginPath();ctx.arc(lockR+4,y2-3,4.5,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;ctx.fillStyle='#c8c0a0';ctx.font='bold 9px "Courier New"';ctx.textAlign='center';const midY=y+deckH/2;ctx.fillText('LOCK',lockL+gapW/2,midY+3);if(lockL-riverL>40)ctx.fillText('DAM',riverL+(lockL-riverL)/2,midY+3);if(riverR-lockR>40)ctx.fillText('DAM',lockR+(riverR-lockR)/2,midY+3);ctx.strokeStyle='#606050';ctx.lineWidth=1.5;ctx.strokeRect(riverL,y,riverR-riverL,deckH);}
-  function drawWake(){wakeP.forEach(p=>{ctx.save();ctx.globalAlpha=p.life*0.33;ctx.fillStyle='#88bcd4';ctx.beginPath();ctx.ellipse(p.x,p.y,p.sz,p.sz*0.46,0,0,Math.PI*2);ctx.fill();ctx.restore();});}
-  function drawObstacles(){obstacles.forEach(o=>{ctx.save();ctx.translate(o.x,o.y);ctx.rotate(o.rot);if(o.nm==='log'||o.nm==='log2'){const len=o.r*3.2,w=o.r*0.65,rx=w/2;ctx.fillStyle=o.c1;ctx.beginPath();ctx.moveTo(-len/2+rx,-w/2);ctx.lineTo(len/2-rx,-w/2);ctx.arcTo(len/2,-w/2,len/2,0,rx);ctx.lineTo(len/2,w/2-rx);ctx.arcTo(len/2,w/2,len/2-rx,w/2,rx);ctx.lineTo(-len/2+rx,w/2);ctx.arcTo(-len/2,w/2,-len/2,0,rx);ctx.lineTo(-len/2,-w/2+rx);ctx.arcTo(-len/2,-w/2,-len/2+rx,-w/2,rx);ctx.closePath();ctx.fill();ctx.strokeStyle=o.c2;ctx.lineWidth=0.85;for(let i=-len/2+8;i<len/2-4;i+=10){ctx.beginPath();ctx.moveTo(i,-w/2+1);ctx.lineTo(i+3,w/2-1);ctx.stroke();}}else if(o.nm==='boat'){const len=o.r*4.2,bwid=o.r*1.55;ctx.fillStyle=o.c1;ctx.beginPath();ctx.moveTo(0,len/2);ctx.bezierCurveTo(bwid/2,len/4,bwid/2,-len/4,bwid/2,-len/2);ctx.lineTo(-bwid/2,-len/2);ctx.bezierCurveTo(-bwid/2,-len/4,-bwid/2,len/4,0,len/2);ctx.fill();ctx.strokeStyle=o.c2;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(0,len/2);ctx.bezierCurveTo(bwid/2,len/4,bwid/2,-len/4,bwid/2,-len/2);ctx.lineTo(-bwid/2,-len/2);ctx.bezierCurveTo(-bwid/2,-len/4,-bwid/2,len/4,0,len/2);ctx.stroke();ctx.strokeStyle=o.stripeCol;ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(bwid/2-2,-len/2+4);ctx.bezierCurveTo(bwid/2-2,0,bwid/2-2,len/4-4,bwid/2-6,len/2-8);ctx.stroke();ctx.beginPath();ctx.moveTo(-bwid/2+2,-len/2+4);ctx.bezierCurveTo(-bwid/2+2,0,-bwid/2+2,len/4-4,-bwid/2+6,len/2-8);ctx.stroke();const cabW=bwid*0.62,cabH=len*0.36,cabX=-cabW/2,cabY=-len/2;ctx.fillStyle=o.c2;ctx.fillRect(cabX,cabY,cabW,cabH);ctx.shadowBlur=7;ctx.fillStyle='#ff4444';ctx.shadowColor='#ff0000';ctx.beginPath();ctx.arc(-bwid/2+3,-len/2+4,2.5,0,Math.PI*2);ctx.fill();ctx.fillStyle='#44ff44';ctx.shadowColor='#00ff00';ctx.beginPath();ctx.arc(bwid/2-3,-len/2+4,2.5,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;}ctx.restore();});}
-  function drawFleets(){fleets.forEach(f=>{const cwy=scroll+f.y+f.h/2,bankX=f.side==='L'?rCX(cwy)-rHW(cwy):rCX(cwy)+rHW(cwy);ctx.strokeStyle='rgba(18,26,16,0.55)';ctx.lineWidth=1.5;const tieN=Math.max(2,f.rows),bx=f.side==='L'?f.x:f.x+f.w;for(let t=0;t<tieN;t++){const ly=f.y+(t+0.5)/tieN*f.h;ctx.beginPath();ctx.moveTo(bx,ly);ctx.lineTo(bankX,ly);ctx.stroke();}ctx.fillStyle='#2a2218';[f.y+3,f.y+f.h-3].forEach(py=>{ctx.beginPath();ctx.arc(f.innerEdge,py,3,0,Math.PI*2);ctx.fill();});for(let row=0;row<f.rows;row++)for(let col=0;col<f.cols;col++)drawMooredBarge(f.x+col*(BW+BG),f.y+row*(BH+BG));});}
-  function drawMooredBarge(x,y){ctx.fillStyle='#5e5448';ctx.fillRect(x,y,BW,BH);ctx.fillStyle='#6a6052';ctx.fillRect(x+2,y+5,BW-4,BH-10);ctx.fillStyle='#3b3630';ctx.beginPath();ctx.ellipse(x+BW/2,y+BH/2,BW*0.34,BH*0.36,0,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#4a4238';ctx.lineWidth=1;ctx.strokeRect(x+2,y+5,BW-4,BH-10);ctx.strokeStyle='#34302a';ctx.lineWidth=1;ctx.strokeRect(x,y,BW,BH);ctx.fillStyle='#26221c';[[2,3],[BW-7,3],[2,BH-8],[BW-7,BH-8]].forEach(([ox,oy])=>ctx.fillRect(x+ox,y+oy,5,5));}
-  function drawRings(){rings.forEach(ring=>{const bob=Math.sin(ring.bob)*2.5,cx=ring.x,cy=ring.y+bob,R=16,thick=7;ctx.save();ctx.globalAlpha=0.22;ctx.fillStyle='#06121c';ctx.beginPath();ctx.ellipse(cx,ring.y+13,18,6,0,0,Math.PI*2);ctx.fill();ctx.restore();const pulse=0.5+0.5*Math.sin(fr*0.12);ctx.save();ctx.shadowColor='#37e070';ctx.shadowBlur=9+pulse*9;ctx.strokeStyle='#ff7a1a';ctx.lineWidth=thick;ctx.beginPath();ctx.arc(cx,cy,R-thick/2,0,Math.PI*2);ctx.stroke();ctx.shadowBlur=0;ctx.strokeStyle='rgba(150,66,10,0.55)';ctx.lineWidth=1;ctx.beginPath();ctx.arc(cx,cy,R,0,Math.PI*2);ctx.stroke();ctx.beginPath();ctx.arc(cx,cy,R-thick,0,Math.PI*2);ctx.stroke();ctx.strokeStyle='rgba(245,245,235,0.92)';ctx.lineWidth=thick-2;[0,Math.PI/2,Math.PI,3*Math.PI/2].forEach(a=>{ctx.beginPath();ctx.arc(cx,cy,R-thick/2,a-0.27,a+0.27);ctx.stroke();});const arm=R-thick-1,pw=3.2;ctx.shadowColor='#2ecc4a';ctx.shadowBlur=6;ctx.fillStyle='#2ecc4a';ctx.fillRect(cx-pw,cy-arm,pw*2,arm*2);ctx.fillRect(cx-arm,cy-pw,arm*2,pw*2);ctx.restore();});}
-  function drawTow(){const firstRow=Math.floor((TOTAL-barges)/COLS),unitTopLocal=-FH/2+firstRow*(BH+BG),boatBotLocal=FH/2+BG+TWH;ctx.save();ctx.translate(tow.x,tow.y);ctx.rotate(tow.angle);for(let row=0;row<ROWS;row++)for(let col=0;col<COLS;col++){const n=row*COLS+col+1;if(n<=TOTAL-barges)continue;drawBarge(-FW/2+col*(BW+BG),-FH/2+row*(BH+BG),n);}drawBoat(-TWW/2,FH/2+BG);ctx.restore();if(flashTimer>0){ctx.save();ctx.translate(tow.x,tow.y);ctx.rotate(tow.angle);ctx.globalAlpha=(flashTimer/14)*0.40;ctx.fillStyle='#ff1800';ctx.fillRect(-FW/2-3,unitTopLocal-3,FW+6,(boatBotLocal-unitTopLocal)+6);ctx.restore();}if(healTimer>0){ctx.save();ctx.translate(tow.x,tow.y);ctx.rotate(tow.angle);ctx.globalAlpha=(healTimer/16)*0.35;ctx.fillStyle='#22ff66';ctx.fillRect(-FW/2-3,unitTopLocal-3,FW+6,(boatBotLocal-unitTopLocal)+6);ctx.restore();}}
-  function drawBarge(x,y,n){ctx.fillStyle='#6a7878';ctx.fillRect(x,y,BW,BH);ctx.fillStyle='#788a8c';ctx.fillRect(x+2,y+6,BW-4,BH-12);ctx.strokeStyle='#4a5858';ctx.lineWidth=1.5;[0.28,0.72].forEach(t=>{ctx.beginPath();ctx.moveTo(x,y+BH*t);ctx.lineTo(x+BW,y+BH*t);ctx.stroke();});ctx.strokeStyle='#3a4848';ctx.lineWidth=1;ctx.strokeRect(x,y,BW,BH);ctx.fillStyle='#2a3838';[[2,3],[BW-7,3],[2,BH-8],[BW-7,BH-8]].forEach(([ox,oy])=>ctx.fillRect(x+ox,y+oy,5,5));ctx.fillStyle='#4e6272';ctx.font='7px monospace';ctx.textAlign='center';ctx.fillText(n,x+BW/2,y+BH/2+2.5);}
-  function drawBoat(x,y){const hg=ctx.createLinearGradient(x,0,x+TWW,0);hg.addColorStop(0,'#182838');hg.addColorStop(0.5,'#263a4e');hg.addColorStop(1,'#182838');ctx.fillStyle=hg;ctx.fillRect(x,y,TWW,TWH);ctx.fillStyle='#bb2020';ctx.fillRect(x,y+TWH-16,TWW,8);ctx.strokeStyle='#0a1420';ctx.lineWidth=1.5;ctx.strokeRect(x,y,TWW,TWH);const wx=x+5,wy=y+7,ww=TWW-10,wh=(TWH*0.48)|0;ctx.fillStyle='#e0d8c8';ctx.fillRect(wx,wy,ww,wh);ctx.strokeStyle='#c0b0a0';ctx.lineWidth=1;ctx.strokeRect(wx,wy,ww,wh);ctx.fillStyle='#5aa8c4';[[wx+3],[wx+ww/2-4.5],[wx+ww-13]].forEach(([wx2])=>ctx.fillRect(wx2,wy+5,9,8));ctx.fillStyle='rgba(255,255,255,0.24)';[[wx+3],[wx+ww/2-4.5],[wx+ww-13]].forEach(([wx2])=>ctx.fillRect(wx2+1,wy+5,2.5,3));const mx=x+TWW/2;ctx.strokeStyle='#6a7888';ctx.lineWidth=1.8;ctx.beginPath();ctx.moveTo(mx,wy);ctx.lineTo(mx,wy-14);ctx.stroke();ctx.lineWidth=1.3;ctx.beginPath();ctx.moveTo(mx-9,wy-14);ctx.lineTo(mx+9,wy-14);ctx.stroke();ctx.fillStyle='#1a2838';[mx-10,mx+3].forEach(sx=>{ctx.fillRect(sx,wy-8,6,13);});if((fr&7)<3){ctx.fillStyle='rgba(60,60,60,0.4)';[mx-7,mx+6].forEach(sx=>{ctx.beginPath();ctx.arc(sx,wy-10+((fr>>1)%4),3.5,0,Math.PI*2);ctx.fill();});}ctx.shadowBlur=8;ctx.fillStyle='#ff5555';ctx.shadowColor='#ff0000';ctx.beginPath();ctx.arc(x+3,y+4,3,0,Math.PI*2);ctx.fill();ctx.fillStyle='#55ff55';ctx.shadowColor='#00ff00';ctx.beginPath();ctx.arc(x+TWW-3,y+4,3,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;if((fr&3)<2){ctx.fillStyle='rgba(88,168,224,0.55)';[8,23,38].forEach(bx2=>{const r2=3+Math.sin(fr*0.3+bx2)*1.2;ctx.beginPath();ctx.arc(x+bx2,y+TWH-4,r2,0,Math.PI*2);ctx.fill();});}}
-  function drawSparks(){sparks.forEach(s=>{ctx.save();ctx.globalAlpha=s.life;ctx.fillStyle=s.col;ctx.beginPath();ctx.arc(s.x,s.y,3*s.life,0,Math.PI*2);ctx.fill();ctx.restore();});}
-  function drawHUD(){ctx.fillStyle='rgba(4,10,18,0.88)';ctx.fillRect(0,0,W,42);ctx.textAlign='left';ctx.font='bold 14px "Courier New",monospace';ctx.fillStyle='#5ab0cc';ctx.fillText(`DIST: ${score} MI`,12,28);ctx.fillStyle='#5ab0cc';ctx.fillText('TOW',150,28);const ratio=barges/TOTAL,fillCol=ratio>0.6?'#22bb55':ratio>0.3?'#bbbb22':'#cc2222';const segX=192,segY=15,segW=7,segH=14,segGap=2;for(let i=0;i<TOTAL;i++){ctx.beginPath();ctx.roundRect(segX+i*(segW+segGap),segY,segW,segH,2);ctx.fillStyle=i<barges?fillCol:'#152535';ctx.fill();}ctx.fillStyle=fillCol;ctx.font='bold 13px "Courier New",monospace';ctx.fillText(`${barges}/${TOTAL}`,segX+TOTAL*(segW+segGap)+6,27);const hdg=Math.round(tow.angle*(180/Math.PI)),lvlD=LEVELS[currentLevel];ctx.textAlign='right';ctx.fillStyle=lvlD.col;ctx.font='bold 14px "Courier New",monospace';ctx.fillText(lvlD.label,W-200,28);ctx.fillStyle='#5ab0cc';ctx.fillText(`HDG ${hdg>=0?'+':''}${hdg}\u00b0  SPD ${(spd*2.55).toFixed(1)} kt`,W-12,28);const pbar=score/500;ctx.fillStyle='rgba(4,10,18,0.70)';ctx.fillRect(0,H-20,W,20);ctx.fillStyle='#0f2535';ctx.fillRect(8,H-13,W-16,7);ctx.fillStyle='#1a6e9a';ctx.fillRect(8,H-13,(W-16)*Math.min(pbar,1),7);LEVELS.slice(1).forEach(l=>{const tx=8+(W-16)*(l.miles/500);ctx.fillStyle=l.col;ctx.fillRect(tx-1,H-15,2,11);ctx.font='7px "Courier New"';ctx.textAlign='center';ctx.fillStyle=l.col;ctx.fillText(l.miles,tx,H-17);});ctx.fillStyle='#3ab0d0';ctx.font='9px "Courier New"';ctx.textAlign='left';ctx.fillText('START',8,H-5);ctx.textAlign='right';ctx.fillText('PORT (500 MI)',W-8,H-5);if(gameState==='PLAY')drawBtns();if(levelUpTimer>0)drawLevelBanner();}
-  function drawLevelBanner(){const lvl=LEVELS[currentLevel],fade=Math.min(1,levelUpTimer/40),slideIn=Math.max(0,1-(levelUpTimer-170)/40),bannerY=60+slideIn*(-80);ctx.save();ctx.globalAlpha=fade;ctx.fillStyle='rgba(4,10,20,0.88)';ctx.beginPath();ctx.roundRect(W/2-200,bannerY,400,56,10);ctx.fill();ctx.strokeStyle=lvl.col;ctx.lineWidth=2;ctx.beginPath();ctx.roundRect(W/2-200,bannerY,400,56,10);ctx.stroke();ctx.shadowColor=lvl.col;ctx.shadowBlur=18*Math.abs(Math.sin(fr*0.08));ctx.fillStyle=lvl.col;ctx.textAlign='center';ctx.font='bold 22px "Courier New",monospace';ctx.fillText(`\u2b06  ${lvl.label} REACHED  \u2b06`,W/2,bannerY+24);ctx.shadowBlur=0;const msgs=['','CURRENT STRONGER \u2014 WATCH YOUR SPEED','DRIFT INCREASING \u2014 BARGES ARE RESTLESS','VESSELS AHEAD \u2014 STAND ON YOUR WHISTLE','MAXIMUM CURRENT \u2014 DON\'T LOSE HEADWAY'];ctx.fillStyle='rgba(180,220,240,0.85)';ctx.font='11px "Courier New",monospace';ctx.fillText(msgs[currentLevel]||'',W/2,bannerY+44);ctx.restore();}
-  function drawBtns(){const labels={L:'\u25c4',R:'\u25ba',U:'\u25b2',D:'\u25bc'},pressed={L:KEY.ArrowLeft||KEY.KeyA||TOUCH.L,R:KEY.ArrowRight||KEY.KeyD||TOUCH.R,U:KEY.ArrowUp||KEY.KeyW||TOUCH.U,D:KEY.ArrowDown||KEY.KeyS||TOUCH.D};Object.entries(BTN).forEach(([k,b])=>{const pr=pressed[k];ctx.fillStyle=pr?'rgba(28,80,130,0.88)':'rgba(8,20,36,0.72)';ctx.strokeStyle=pr?'#38a0cc':'#1e4e66';ctx.lineWidth=2;ctx.beginPath();ctx.roundRect(b.x,b.y,b.w,b.h,9);ctx.fill();ctx.stroke();ctx.fillStyle=pr?'#78ccee':'#386880';ctx.font='bold 34px monospace';ctx.textAlign='center';ctx.fillText(labels[k],b.x+b.w/2,b.y+b.h/2+11);});}
-  function drawOverlay(){ctx.fillStyle='rgba(3,8,16,0.90)';ctx.fillRect(0,0,W,H);ctx.textAlign='center';if(gameState==='START'){ctx.fillStyle='#48b0d0';ctx.font='bold 54px "Courier New"';ctx.fillText('RIVER PUSH',W/2,H/2-138);ctx.fillStyle='#2a6082';ctx.font='14px "Courier New"';ctx.fillText('TOWBOAT NAVIGATION SIMULATOR',W/2,H/2-96);ctx.strokeStyle='#265a78';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(W/2-205,H/2-76);ctx.lineTo(W/2+205,H/2-76);ctx.stroke();const lines=['Push a 15-barge tow 500 miles upriver.','Every collision tears a barge loose \u2014','lose the whole tow and the run is over.','','A D / \u25c4 \u25ba   Steer','W S / \u25b2 \u25bc   Throttle'];ctx.fillStyle='#78bac8';ctx.font='13px "Courier New"';lines.forEach((l,i)=>ctx.fillText(l,W/2,H/2-47+i*22));ctx.fillStyle='#0c2e48';ctx.fillRect(W/2-110,H/2+98,220,48);ctx.strokeStyle='#3a88aa';ctx.lineWidth=2;ctx.strokeRect(W/2-110,H/2+98,220,48);ctx.fillStyle='#78bac8';ctx.font='bold 16px "Courier New"';ctx.fillText('ALL AHEAD FULL',W/2,H/2+128);ctx.fillStyle='#265870';ctx.font='11px "Courier New"';ctx.fillText('SPACE  \u00b7  ENTER  \u00b7  CLICK to start',W/2,H/2+168);}else if(gameState==='OVER'){ctx.fillStyle='#cc3322';ctx.font='bold 48px "Courier New"';ctx.fillText('TOW LOST',W/2,H/2-92);ctx.strokeStyle='#5a2020';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(W/2-185,H/2-70);ctx.lineTo(W/2+185,H/2-70);ctx.stroke();ctx.fillStyle='#5ab8d8';ctx.font='15px "Courier New"';ctx.fillText('All 15 barges torn away.',W/2,H/2-30);ctx.fillText('FINAL DISTANCE',W/2,H/2+2);ctx.fillStyle='#48b0d0';ctx.font='bold 40px "Courier New"';ctx.fillText(`${score} MILES`,W/2,H/2+44);ctx.fillStyle='#3a7890';ctx.font='13px "Courier New"';ctx.fillText('SPACE  \u00b7  CLICK to try again',W/2,H/2+88);}else if(gameState==='WIN'){ctx.fillStyle='#22cc55';ctx.font='bold 44px "Courier New"';ctx.fillText('DELIVERED!',W/2,H/2-90);ctx.strokeStyle='#205a30';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(W/2-185,H/2-68);ctx.lineTo(W/2+185,H/2-68);ctx.stroke();ctx.fillStyle='#78bac8';ctx.font='15px "Courier New"';ctx.fillText(`${barges} of ${TOTAL} barges delivered to port.`,W/2,H/2-28);ctx.fillText('500 miles upriver \u2014 well done, Captain.',W/2,H/2+2);ctx.fillStyle='#48b0d0';ctx.font='bold 28px "Courier New"';ctx.fillText('MISSION COMPLETE',W/2,H/2+48);ctx.fillStyle='#3a7890';ctx.font='13px "Courier New"';ctx.fillText('SPACE  \u00b7  CLICK to run again',W/2,H/2+88);}}
+
+  function spawnBuoy(){
+    const sy=-42;
+    const wy=scroll+sy;
+    const cx=rCX(wy),hw=rHW(wy);
+    buoys.push({x:cx-hw+22,y:sy,col:'#228844',blink:(Math.random()*30)|0},{x:cx+hw-22,y:sy,col:'#cc2222',blink:(Math.random()*30)|0});
+  }
+
+  function spawnBridge(){
+    const sy=-55;
+    const wy=scroll+sy;
+    const cx=rCX(wy),hw=rHW(wy);
+    const margin=28;
+    const gapW=BRIDGE_GAP;
+    const gapX=cx-hw+margin+Math.random()*(hw*2-margin*2-gapW);
+    structures.push({type:'bridge',y:sy,deckH:30,gapX,gapW,cx,hw,hitCD:0});
+  }
+
+  function spawnLock(){
+    const sy=-55;
+    const wy=scroll+sy;
+    const cx=rCX(wy),hw=rHW(wy);
+    const margin=28;
+    const gapW=LOCK_GAP;
+    const bias=[-0.25,0,0.25][Math.floor(Math.random()*3)];
+    const gapX=Math.max(cx-hw+margin,Math.min(cx-hw+hw*2-margin-gapW,cx-gapW/2+bias*hw));
+    structures.push({type:'lock',y:sy,deckH:82,gapX,gapW,cx,hw,hitCD:0});
+  }
+
+  function updateStructures(effW,towTopLocal,towBotLocal){
+    const towTop=tow.y+towTopLocal;
+    const towBot=tow.y+towBotLocal;
+    for(let i=structures.length-1;i>=0;i--){
+      const s=structures[i];
+      s.y+=spd;
+      if(s.hitCD>0)s.hitCD--;
+      if(s.y>H+20){structures.splice(i,1);continue;}
+      const sTop=s.y,sBot=s.y+s.deckH;
+      if(sBot>towTop&&sTop<towBot){
+        const towL=tow.x-effW;
+        const towR=tow.x+effW;
+        const inGap=(towL>=s.gapX-10)&&(towR<=s.gapX+s.gapW+10);
+        if(!inGap&&s.hitCD===0){
+          loseBarge(1);
+          mkSparks(towL<s.gapX?s.gapX:s.gapX+s.gapW,sBot);
+          const gapCX=s.gapX+s.gapW/2;
+          tow.vx+=(gapCX-tow.x)*0.18;
+          tow.angle*=0.6;
+          tow.av*=0.4;
+          s.hitCD=18;
+          if(gameState!=='PLAY')break;
+        }
+      }
+    }
+  }
+
+  function mkSparks(sx,sy){
+    for(let i=0;i<14;i++){
+      const a=Math.random()*Math.PI*2;
+      const sp=1.5+Math.random()*3;
+      sparks.push({x:sx,y:sy,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,life:1.0,col:Math.random()<0.5?'#ffaa44':'#ff4422'});
+    }
+  }
+
+  function mkHealSparks(sx,sy){
+    for(let i=0;i<16;i++){
+      const a=Math.random()*Math.PI*2;
+      const sp=1.2+Math.random()*2.6;
+      sparks.push({x:sx,y:sy,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,life:1.0,col:Math.random()<0.5?'#3ce070':'#a6ffb0'});
+    }
+  }
+
+  function spawnRing(){
+    const sy=-50;
+    const wy=scroll+sy;
+    const cx=rCX(wy),hw=rHW(wy);
+    const x=cx+(Math.random()-0.5)*2*(hw-90);
+    rings.push({x,y:sy,drift:0.25+Math.random()*0.3,bob:Math.random()*Math.PI*2});
+  }
+
+  function spawnFleet(){
+    const r=Math.random();
+    let cols,rows;
+    if(r<0.40){cols=1;rows=1;}
+    else if(r<0.75){cols=1;rows=3;}
+    else{cols=3;rows=5;}
+    const fleetH=rows*(BH+BG)-BG;
+    fleets.push({side:Math.random()<0.5?'L':'R',cols,rows,offset:4+Math.random()*10,y:-fleetH-30,h:fleetH,w:cols*(BW+BG)-BG,x:0,innerEdge:0,hitCD:0});
+  }
+
+  function updateFleets(effW,towTopLocal,towBotLocal){
+    const towTop=tow.y+towTopLocal;
+    const towBot=tow.y+towBotLocal;
+    for(let i=fleets.length-1;i>=0;i--){
+      const f=fleets[i];
+      f.y+=spd;
+      if(f.hitCD>0)f.hitCD--;
+      if(f.y>H+20){fleets.splice(i,1);continue;}
+      const cwy=scroll+f.y+f.h/2;
+      const bankL=rCX(cwy)-rHW(cwy);
+      const bankR=rCX(cwy)+rHW(cwy);
+      f.x=f.side==='L'?bankL+f.offset:bankR-f.offset-f.w;
+      f.innerEdge=f.side==='L'?f.x+f.w:f.x;
+      const fTop=f.y,fBot=f.y+f.h;
+      if(fBot>towTop&&fTop<towBot){
+        if(f.side==='L'&&(tow.x-effW)<f.innerEdge){
+          tow.x=f.innerEdge+effW+1;
+          tow.vx=Math.abs(tow.vx)*0.35+0.4;
+          if(f.hitCD===0){loseBarge(1);mkSparks(f.innerEdge,Math.max(fTop,towTop));f.hitCD=22;}
+        }else if(f.side==='R'&&(tow.x+effW)>f.innerEdge){
+          tow.x=f.innerEdge-effW-1;
+          tow.vx=-Math.abs(tow.vx)*0.35-0.4;
+          if(f.hitCD===0){loseBarge(1);mkSparks(f.innerEdge,Math.max(fTop,towTop));f.hitCD=22;}
+        }
+        if(gameState!=='PLAY')break;
+      }
+    }
+  }
+
+  // ── Draw ──
+  function draw(){
+    ctx.fillStyle='#163a1c';
+    ctx.fillRect(0,0,W,H);
+    drawRiver();
+    drawFleets();
+    drawBuoys();
+    drawStructures();
+    drawWake();
+    drawObstacles();
+    drawRings();
+    drawTow();
+    drawSparks();
+    drawHUD();
+    if(cheatMsgTimer>0&&gameState==='PLAY')drawCheatMsg();
+    if(gameState!=='PLAY')drawOverlay();
+  }
+
+  function drawCheatMsg(){
+    ctx.save();
+    ctx.globalAlpha=Math.min(1,cheatMsgTimer/30);
+    ctx.textAlign='center';
+    ctx.shadowColor='#2ecc4a';ctx.shadowBlur=12;
+    ctx.fillStyle='#2ecc4a';
+    ctx.font='bold 18px "Courier New",monospace';
+    ctx.fillText('\u2726  FULL TOW RESTORED  \u2726',W/2,128);
+    ctx.restore();
+  }
+
+  function drawRiver(){
+    const N=36;
+    const lp=[],rp=[];
+    for(let i=0;i<=N;i++){
+      const sy=(i/N)*H;
+      const wy=scroll+sy;
+      const cx=rCX(wy),hw=rHW(wy);
+      lp.push([cx-hw,sy]);
+      rp.push([cx+hw,sy]);
+    }
+    ctx.beginPath();
+    lp.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));
+    for(let i=rp.length-1;i>=0;i--)ctx.lineTo(rp[i][0],rp[i][1]);
+    ctx.closePath();
+    const g=ctx.createLinearGradient(0,0,W,0);
+    g.addColorStop(0,'#163a52');g.addColorStop(0.12,'#22618a');g.addColorStop(0.35,'#2c7cb0');g.addColorStop(0.50,'#338cc4');g.addColorStop(0.65,'#2c7cb0');g.addColorStop(0.88,'#22618a');g.addColorStop(1,'#163a52');
+    ctx.fillStyle=g;ctx.fill();
+    ctx.beginPath();
+    lp.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));
+    for(let i=rp.length-1;i>=0;i--)ctx.lineTo(rp[i][0],rp[i][1]);
+    ctx.closePath();
+    const gd=ctx.createLinearGradient(W*.2,0,W*.8,0);
+    gd.addColorStop(0,'rgba(0,0,0,0)');gd.addColorStop(0.5,'rgba(0,0,0,0.12)');gd.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=gd;ctx.fill();
+    const glintAlpha=0.10+0.05*Math.sin(fr*0.02);
+    ctx.fillStyle=`rgba(150,215,250,${glintAlpha})`;
+    ctx.beginPath();
+    for(let i=0;i<=N;i++){
+      const [lx,ly]=lp[i];const gw=28;
+      i===0?ctx.moveTo(lx,ly):ctx.lineTo(lx,ly);
+      if(i===N){for(let j=N;j>=0;j--){const [lxj,lyj]=lp[j];ctx.lineTo(lxj+gw,lyj);}}
+    }
+    ctx.fill();
+    ctx.beginPath();
+    for(let i=0;i<=N;i++){
+      const [rx,ry]=rp[i];const gw=28;
+      i===0?ctx.moveTo(rx,ry):ctx.lineTo(rx,ry);
+      if(i===N){for(let j=N;j>=0;j--){const [rxj,ryj]=rp[j];ctx.lineTo(rxj-gw,ryj);}}
+    }
+    ctx.fill();
+    ctx.lineWidth=8;ctx.strokeStyle='#5e4226';
+    ctx.beginPath();lp.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.stroke();
+    ctx.beginPath();rp.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.stroke();
+    for(let r=0;r<14;r++){
+      const baseY=((fr*1.5+r*44)%(H+44))-44;
+      const wy=scroll+baseY;
+      const cx=rCX(wy),hw=rHW(wy);
+      const alpha=0.05+0.025*Math.sin(r*0.8+fr*0.03);
+      ctx.strokeStyle=`rgba(80,165,210,${alpha})`;
+      ctx.lineWidth=1;
+      ctx.beginPath();
+      for(let dx=0;dx<=(hw-14)*2;dx+=18){
+        const px=cx-hw+14+dx;
+        const py=baseY+3*Math.sin(dx*0.1+fr*0.04+r*0.7);
+        dx?ctx.lineTo(px,py):ctx.moveTo(px,py);
+      }
+      ctx.stroke();
+    }
+    ctx.fillStyle='#1e4a24';
+    for(let i=0;i<lp.length-1;i++){
+      if(i%2!==0)continue;
+      const [x,y]=lp[i];
+      const wy=scroll+y;
+      const th=30+12*Math.abs(Math.sin(wy*0.068));
+      ctx.beginPath();
+      ctx.moveTo(x,y);
+      ctx.lineTo(x-5,y-th*.45);ctx.lineTo(x-9,y-th*.62);
+      ctx.lineTo(x-3,y-th*.78);ctx.lineTo(x-7,y-th);
+      ctx.lineTo(x,y-th*.86);ctx.lineTo(x+3,y-th);
+      ctx.lineTo(x+1,y-th*.70);ctx.lineTo(x+7,y-th*.46);
+      ctx.closePath();ctx.fill();
+    }
+    ctx.fillStyle='#1e4a24';
+    for(let i=0;i<rp.length-1;i++){
+      if(i%2!==0)continue;
+      const [x,y]=rp[i];
+      const wy=scroll+y;
+      const th=30+12*Math.abs(Math.sin(wy*0.068+1.4));
+      ctx.beginPath();
+      ctx.moveTo(x,y);
+      ctx.lineTo(x+5,y-th*.45);ctx.lineTo(x+9,y-th*.62);
+      ctx.lineTo(x+3,y-th*.78);ctx.lineTo(x+7,y-th);
+      ctx.lineTo(x,y-th*.86);ctx.lineTo(x-3,y-th);
+      ctx.lineTo(x-1,y-th*.70);ctx.lineTo(x-7,y-th*.46);
+      ctx.closePath();ctx.fill();
+    }
+  }
+
+  function drawBuoys(){
+    buoys.forEach(b=>{
+      const bob=Math.sin(fr*0.06+b.x*0.01)*2;
+      ctx.save();ctx.translate(b.x,b.y+bob);
+      ctx.strokeStyle='#3a3828';ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(0,8);ctx.lineTo(0,17);ctx.stroke();
+      ctx.fillStyle=b.col;
+      ctx.beginPath();ctx.ellipse(0,0,7,11,0,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='rgba(255,255,255,0.22)';
+      ctx.beginPath();ctx.ellipse(-2,-3,3,4.5,0,0,Math.PI*2);ctx.fill();
+      if(((fr+b.blink)>>4)&1){
+        ctx.shadowColor=b.col;ctx.shadowBlur=14;
+        ctx.fillStyle='#fff';
+        ctx.beginPath();ctx.arc(0,-13,2.5,0,Math.PI*2);ctx.fill();
+        ctx.shadowBlur=0;
+      }
+      ctx.restore();
+    });
+  }
+
+  function drawStructures(){
+    structures.forEach(s=>{if(s.type==='bridge')drawBridge(s);else drawLock(s);});
+  }
+
+  function drawBridge(s){
+    const {y,deckH,gapX,gapW,cx,hw}=s;
+    const riverL=cx-hw,riverR=cx+hw;
+    const y2=y+deckH;
+    const warnY=y-200;
+    if(warnY>-16&&warnY<H){
+      const flash=(fr>>4)&1;
+      const absAngleDeg=Math.abs(Math.round(tow.angle*57.296));
+      const needsStraight=absAngleDeg>17;
+      ctx.fillStyle=needsStraight?(flash?'#ff8800':'#cc5500'):(flash?'#ffdd00':'#cc9900');
+      ctx.font='bold 11px "Courier New"';
+      ctx.textAlign='center';
+      ctx.fillText(needsStraight?`\u26a0  BRIDGE \u2014 STRAIGHTEN HEADING  ${absAngleDeg}\u00b0\u21920\u00b0  \u26a0`:'\u26a0  RAILROAD BRIDGE \u2014 ALIGN WITH SPAN  \u26a0',W/2,warnY);
+      ctx.strokeStyle=`rgba(255,220,0,${flash?0.35:0.15})`;
+      ctx.lineWidth=1;ctx.setLineDash([6,6]);
+      ctx.beginPath();ctx.moveTo(gapX,warnY+4);ctx.lineTo(gapX,y);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(gapX+gapW,warnY+4);ctx.lineTo(gapX+gapW,y);ctx.stroke();
+      ctx.setLineDash([]);
+    }
+    ctx.fillStyle='#7a7a6a';
+    ctx.fillRect(riverL,y,gapX-riverL,deckH);
+    ctx.fillRect(gapX+gapW,y,riverR-(gapX+gapW),deckH);
+    ctx.strokeStyle='#5a5a4a';ctx.lineWidth=1.5;
+    const drawTruss=(lx,rx)=>{
+      const spanW=rx-lx;
+      const panels=Math.max(2,Math.floor(spanW/40));
+      for(let p=0;p<panels;p++){
+        const px=lx+(p/panels)*spanW;
+        const nx=lx+((p+1)/panels)*spanW;
+        ctx.beginPath();ctx.moveTo(px,y);ctx.lineTo(nx,y2);ctx.stroke();
+        ctx.beginPath();ctx.moveTo(px,y2);ctx.lineTo(nx,y);ctx.stroke();
+      }
+    };
+    drawTruss(riverL,gapX);
+    drawTruss(gapX+gapW,riverR);
+    ctx.fillStyle='#4a3018';
+    const tieStep=8;
+    for(let ty=y+2;ty<y2-2;ty+=tieStep){
+      ctx.fillRect(riverL+2,ty,gapX-riverL-4,4);
+      ctx.fillRect(gapX+gapW+2,ty,riverR-gapX-gapW-4,4);
+    }
+    ctx.strokeStyle='#8a8070';ctx.lineWidth=2;
+    [0.3,0.7].forEach(t=>{
+      const rx2=riverL+t*(gapX-riverL);
+      ctx.beginPath();ctx.moveTo(rx2,y);ctx.lineTo(rx2,y2);ctx.stroke();
+      const rx3=gapX+gapW+t*(riverR-gapX-gapW);
+      ctx.beginPath();ctx.moveTo(rx3,y);ctx.lineTo(rx3,y2);ctx.stroke();
+    });
+    ctx.fillStyle='#909080';
+    ctx.fillRect(riverL,y,10,deckH);
+    ctx.fillRect(riverR-10,y,10,deckH);
+    ctx.fillRect(gapX-10,y,10,deckH);
+    ctx.fillRect(gapX+gapW,y,10,deckH);
+    ctx.fillStyle='#5a5a4a';
+    ctx.fillRect(riverL,y,riverR-riverL,3);
+    ctx.fillRect(riverL,y2-3,gapX-riverL,3);
+    ctx.fillRect(gapX+gapW,y2-3,riverR-gapX-gapW,3);
+    const lt=(fr>>3)&1;
+    ctx.shadowBlur=10;
+    ctx.fillStyle=lt?'#ff4444':'#880000';ctx.shadowColor='#ff0000';
+    ctx.beginPath();ctx.arc(gapX-5,y2-4,4,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle=lt?'#880000':'#ff4444';
+    ctx.beginPath();ctx.arc(gapX-5,y+4,4,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle=(1-lt)?'#44ff44':'#004400';ctx.shadowColor='#00ff00';
+    ctx.beginPath();ctx.arc(gapX+gapW+5,y2-4,4,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle=(1-lt)?'#004400':'#44ff44';
+    ctx.beginPath();ctx.arc(gapX+gapW+5,y+4,4,0,Math.PI*2);ctx.fill();
+    ctx.shadowBlur=0;
+    ctx.fillStyle='rgba(20,60,90,0.35)';
+    ctx.fillRect(gapX,y,gapW,deckH);
+    ctx.strokeStyle='#303830';ctx.lineWidth=1;
+    ctx.strokeRect(gapX,y,gapW,deckH);
+  }
+
+  function drawLock(s){
+    const {y,deckH,gapX,gapW,cx,hw}=s;
+    const riverL=cx-hw,riverR=cx+hw;
+    const y2=y+deckH;
+    const lockL=gapX,lockR=gapX+gapW;
+    const warnY=y-220;
+    if(warnY>-16&&warnY<H){
+      const flash=(fr>>4)&1;
+      const absAngleDeg=Math.abs(Math.round(tow.angle*57.296));
+      const needsStraight=absAngleDeg>22;
+      ctx.fillStyle=needsStraight?(flash?'#ff8800':'#cc5500'):(flash?'#ffdd00':'#aa8800');
+      ctx.font='bold 11px "Courier New"';
+      ctx.textAlign='center';
+      ctx.fillText(needsStraight?`\u26a0  LOCK \u2014 STRAIGHTEN HEADING  ${absAngleDeg}\u00b0\u21920\u00b0  \u26a0`:`\u26a0  LOCK & DAM \u2014 ENTER CHAMBER ON ${lockL<cx?'LEFT':'RIGHT'}  \u26a0`,W/2,warnY);
+      ctx.strokeStyle=`rgba(255,220,0,${flash?0.35:0.15})`;
+      ctx.lineWidth=1;ctx.setLineDash([6,6]);
+      ctx.beginPath();ctx.moveTo(lockL,warnY+4);ctx.lineTo(lockL,y);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(lockR,warnY+4);ctx.lineTo(lockR,y);ctx.stroke();
+      ctx.setLineDash([]);
+    }
+    const drawDamSection=(lx,rx)=>{
+      ctx.fillStyle='#8a8870';
+      ctx.fillRect(lx,y,rx-lx,deckH);
+      ctx.fillStyle='#6a6850';
+      const slotH=5,slotGap=14;
+      for(let sy2=y+8;sy2<y2-8;sy2+=slotGap){ctx.fillRect(lx+6,sy2,rx-lx-12,slotH);}
+      ctx.strokeStyle='rgba(120,190,220,0.4)';ctx.lineWidth=2;
+      ctx.beginPath();ctx.moveTo(lx,y2);ctx.lineTo(rx,y2);ctx.stroke();
+      ctx.fillStyle='#a0a090';
+      ctx.fillRect(lx,y,rx-lx,4);
+      ctx.fillRect(lx,y,6,deckH);
+      ctx.fillRect(rx-6,y,6,deckH);
+    };
+    drawDamSection(riverL,lockL);
+    drawDamSection(lockR,riverR);
+    ctx.fillStyle='#12344e';
+    ctx.fillRect(lockL,y,gapW,deckH);
+    ctx.fillStyle='#909080';
+    ctx.fillRect(lockL-8,y,8,deckH);
+    ctx.fillRect(lockR,y,8,deckH);
+    const gateYbot=y2-10;
+    ctx.strokeStyle='#4a5a4a';ctx.lineWidth=4;
+    ctx.beginPath();ctx.moveTo(lockL,gateYbot);ctx.lineTo(lockL+gapW/2,gateYbot-16);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(lockR,gateYbot);ctx.lineTo(lockL+gapW/2,gateYbot-16);ctx.stroke();
+    const gateYtop=y+10;
+    ctx.beginPath();ctx.moveTo(lockL,gateYtop);ctx.lineTo(lockL+gapW/2,gateYtop+14);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(lockR,gateYtop);ctx.lineTo(lockL+gapW/2,gateYtop+14);ctx.stroke();
+    ctx.fillStyle='#304040';
+    [[lockL,gateYbot],[lockR,gateYbot],[lockL,gateYtop],[lockR,gateYtop]].forEach(([gx,gy])=>{ctx.beginPath();ctx.arc(gx,gy,4,0,Math.PI*2);ctx.fill();});
+    ctx.strokeStyle='rgba(80,160,200,0.18)';ctx.lineWidth=1;
+    for(let ry=y+20;ry<y2-18;ry+=12){ctx.beginPath();ctx.moveTo(lockL+2,ry);ctx.lineTo(lockR-2,ry);ctx.stroke();}
+    const lt=(fr>>3)&1;
+    ctx.shadowBlur=10;
+    ctx.fillStyle=lt?'#ff4444':'#660000';ctx.shadowColor='#ff0000';
+    ctx.beginPath();ctx.arc(lockL-4,y2-3,4.5,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle=(1-lt)?'#44ff44':'#004400';ctx.shadowColor='#00ff00';
+    ctx.beginPath();ctx.arc(lockR+4,y2-3,4.5,0,Math.PI*2);ctx.fill();
+    ctx.shadowBlur=0;
+    ctx.fillStyle='#c8c0a0';ctx.font='bold 9px "Courier New"';ctx.textAlign='center';
+    const midY=y+deckH/2;
+    ctx.fillText('LOCK',lockL+gapW/2,midY+3);
+    if(lockL-riverL>40)ctx.fillText('DAM',riverL+(lockL-riverL)/2,midY+3);
+    if(riverR-lockR>40)ctx.fillText('DAM',lockR+(riverR-lockR)/2,midY+3);
+    ctx.strokeStyle='#606050';ctx.lineWidth=1.5;
+    ctx.strokeRect(riverL,y,riverR-riverL,deckH);
+  }
+
+  function drawWake(){
+    wakeP.forEach(p=>{
+      ctx.save();
+      ctx.globalAlpha=p.life*0.33;
+      ctx.fillStyle='#88bcd4';
+      ctx.beginPath();ctx.ellipse(p.x,p.y,p.sz,p.sz*0.46,0,0,Math.PI*2);ctx.fill();
+      ctx.restore();
+    });
+  }
+
+  function drawObstacles(){
+    obstacles.forEach(o=>{
+      ctx.save();ctx.translate(o.x,o.y);ctx.rotate(o.rot);
+      if(o.nm==='log'||o.nm==='log2'){
+        const len=o.r*3.2,w=o.r*0.65,rx=w/2;
+        ctx.fillStyle=o.c1;
+        ctx.beginPath();
+        ctx.moveTo(-len/2+rx,-w/2);ctx.lineTo(len/2-rx,-w/2);
+        ctx.arcTo(len/2,-w/2,len/2,0,rx);ctx.lineTo(len/2,w/2-rx);
+        ctx.arcTo(len/2,w/2,len/2-rx,w/2,rx);ctx.lineTo(-len/2+rx,w/2);
+        ctx.arcTo(-len/2,w/2,-len/2,0,rx);ctx.lineTo(-len/2,-w/2+rx);
+        ctx.arcTo(-len/2,-w/2,-len/2+rx,-w/2,rx);ctx.closePath();ctx.fill();
+        ctx.strokeStyle=o.c2;ctx.lineWidth=0.85;
+        for(let i=-len/2+8;i<len/2-4;i+=10){ctx.beginPath();ctx.moveTo(i,-w/2+1);ctx.lineTo(i+3,w/2-1);ctx.stroke();}
+        ctx.strokeStyle=o.c2;ctx.lineWidth=1.5;
+        ctx.beginPath();ctx.ellipse(-len/2+1,0,w/2,w/2,0,0,Math.PI*2);ctx.stroke();
+        ctx.beginPath();ctx.ellipse(len/2-1,0,w/2,w/2,0,0,Math.PI*2);ctx.stroke();
+      }else if(o.nm==='boat'){
+        const len=o.r*4.2;
+        const bwid=o.r*1.55;
+        ctx.fillStyle='rgba(0,0,0,0.25)';
+        ctx.beginPath();
+        ctx.moveTo(0,len/2+3);
+        ctx.bezierCurveTo(bwid/2+3,len/4,bwid/2+3,-len/3,bwid/2+1,-len/2+2);
+        ctx.lineTo(-bwid/2-1,-len/2+2);
+        ctx.bezierCurveTo(-bwid/2-3,-len/3,-bwid/2-3,len/4,0,len/2+3);
+        ctx.fill();
+        ctx.fillStyle=o.c1;
+        ctx.beginPath();
+        ctx.moveTo(0,len/2);
+        ctx.bezierCurveTo(bwid/2,len/4,bwid/2,-len/4,bwid/2,-len/2);
+        ctx.lineTo(-bwid/2,-len/2);
+        ctx.bezierCurveTo(-bwid/2,-len/4,-bwid/2,len/4,0,len/2);
+        ctx.fill();
+        ctx.strokeStyle=o.c2;ctx.lineWidth=1;
+        ctx.beginPath();
+        ctx.moveTo(0,len/2);
+        ctx.bezierCurveTo(bwid/2,len/4,bwid/2,-len/4,bwid/2,-len/2);
+        ctx.lineTo(-bwid/2,-len/2);
+        ctx.bezierCurveTo(-bwid/2,-len/4,-bwid/2,len/4,0,len/2);
+        ctx.stroke();
+        ctx.strokeStyle=o.stripeCol;ctx.lineWidth=2.5;
+        ctx.beginPath();
+        ctx.moveTo(bwid/2-2,-len/2+4);
+        ctx.bezierCurveTo(bwid/2-2,0,bwid/2-2,len/4-4,bwid/2-6,len/2-8);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(-bwid/2+2,-len/2+4);
+        ctx.bezierCurveTo(-bwid/2+2,0,-bwid/2+2,len/4-4,-bwid/2+6,len/2-8);
+        ctx.stroke();
+        const cabW=bwid*0.62,cabH=len*0.36;
+        const cabX=-cabW/2,cabY=-len/2;
+        ctx.fillStyle=o.c2;
+        ctx.fillRect(cabX,cabY,cabW,cabH);
+        ctx.strokeStyle='rgba(0,0,0,0.3)';ctx.lineWidth=0.8;
+        ctx.strokeRect(cabX,cabY,cabW,cabH);
+        ctx.fillStyle='#88b8d8';
+        ctx.fillRect(cabX+2,cabY+cabH-6,cabW-4,5);
+        ctx.shadowBlur=7;
+        ctx.fillStyle='#ff4444';ctx.shadowColor='#ff0000';
+        ctx.beginPath();ctx.arc(-bwid/2+3,-len/2+4,2.5,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle='#44ff44';ctx.shadowColor='#00ff00';
+        ctx.beginPath();ctx.arc(bwid/2-3,-len/2+4,2.5,0,Math.PI*2);ctx.fill();
+        ctx.shadowBlur=0;
+        ctx.strokeStyle='rgba(140,200,230,0.50)';ctx.lineWidth=1.5;
+        const vL=18,vW=12;
+        ctx.beginPath();ctx.moveTo(0,len/2);ctx.lineTo(-vW,len/2+vL);ctx.stroke();
+        ctx.beginPath();ctx.moveTo(0,len/2);ctx.lineTo(vW,len/2+vL);ctx.stroke();
+      }
+      ctx.restore();
+    });
+  }
+
+  function drawTow(){
+    const firstRow=Math.floor((TOTAL-barges)/COLS);
+    const unitTopLocal=-FH/2+firstRow*(BH+BG);
+    const boatBotLocal=FH/2+BG+TWH;
+    ctx.save();ctx.translate(tow.x,tow.y);ctx.rotate(tow.angle);
+    for(let row=0;row<ROWS;row++){
+      for(let col=0;col<COLS;col++){
+        const n=row*COLS+col+1;
+        if(n<=TOTAL-barges)continue;
+        const bx=-FW/2+col*(BW+BG);
+        const by=-FH/2+row*(BH+BG);
+        drawBarge(bx,by,n);
+      }
+    }
+    drawBoat(-TWW/2,FH/2+BG);
+    ctx.restore();
+    if(flashTimer>0){
+      ctx.save();ctx.translate(tow.x,tow.y);ctx.rotate(tow.angle);
+      ctx.globalAlpha=(flashTimer/14)*0.40;
+      ctx.fillStyle='#ff1800';
+      ctx.fillRect(-FW/2-3,unitTopLocal-3,FW+6,(boatBotLocal-unitTopLocal)+6);
+      ctx.restore();
+    }
+    if(healTimer>0){
+      ctx.save();ctx.translate(tow.x,tow.y);ctx.rotate(tow.angle);
+      ctx.globalAlpha=(healTimer/16)*0.35;
+      ctx.fillStyle='#22ff66';
+      ctx.fillRect(-FW/2-3,unitTopLocal-3,FW+6,(boatBotLocal-unitTopLocal)+6);
+      ctx.restore();
+    }
+  }
+
+  function drawBarge(x,y,n){
+    ctx.fillStyle='#869ca0';ctx.fillRect(x,y,BW,BH);
+    ctx.fillStyle='#9ab6ba';ctx.fillRect(x+2,y+6,BW-4,BH-12);
+    ctx.strokeStyle='#5c7072';ctx.lineWidth=1.5;
+    [0.28,0.72].forEach(t=>{ctx.beginPath();ctx.moveTo(x,y+BH*t);ctx.lineTo(x+BW,y+BH*t);ctx.stroke();});
+    ctx.strokeStyle='#3a4848';ctx.lineWidth=1;ctx.strokeRect(x,y,BW,BH);
+    ctx.fillStyle='#2a3838';
+    [[2,3],[BW-7,3],[2,BH-8],[BW-7,BH-8]].forEach(([ox,oy])=>ctx.fillRect(x+ox,y+oy,5,5));
+    ctx.fillStyle='#4e6272';ctx.font='7px monospace';ctx.textAlign='center';
+    ctx.fillText(n,x+BW/2,y+BH/2+2.5);
+  }
+
+  function drawFleets(){
+    fleets.forEach(f=>{
+      const cwy=scroll+f.y+f.h/2;
+      const bankX=f.side==='L'?rCX(cwy)-rHW(cwy):rCX(cwy)+rHW(cwy);
+      ctx.strokeStyle='rgba(18,26,16,0.55)';ctx.lineWidth=1.5;
+      const tieN=Math.max(2,f.rows);
+      const bx=f.side==='L'?f.x:f.x+f.w;
+      for(let t=0;t<tieN;t++){
+        const ly=f.y+(t+0.5)/tieN*f.h;
+        ctx.beginPath();ctx.moveTo(bx,ly);ctx.lineTo(bankX,ly);ctx.stroke();
+      }
+      ctx.fillStyle='#2a2218';
+      [f.y+3,f.y+f.h-3].forEach(py=>{ctx.beginPath();ctx.arc(f.innerEdge,py,3,0,Math.PI*2);ctx.fill();});
+      for(let row=0;row<f.rows;row++){
+        for(let col=0;col<f.cols;col++){
+          drawMooredBarge(f.x+col*(BW+BG),f.y+row*(BH+BG));
+        }
+      }
+    });
+  }
+
+  function drawMooredBarge(x,y){
+    ctx.fillStyle='#7a6c54';ctx.fillRect(x,y,BW,BH);
+    ctx.fillStyle='#8c7d62';ctx.fillRect(x+2,y+5,BW-4,BH-10);
+    ctx.fillStyle='#3b3630';
+    ctx.beginPath();ctx.ellipse(x+BW/2,y+BH/2,BW*0.34,BH*0.36,0,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='rgba(160,148,124,0.16)';
+    ctx.beginPath();ctx.ellipse(x+BW/2-3,y+BH/2-4,BW*0.20,BH*0.17,0,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle='#4a4238';ctx.lineWidth=1;ctx.strokeRect(x+2,y+5,BW-4,BH-10);
+    ctx.strokeStyle='#34302a';ctx.lineWidth=1;ctx.strokeRect(x,y,BW,BH);
+    ctx.fillStyle='#26221c';
+    [[2,3],[BW-7,3],[2,BH-8],[BW-7,BH-8]].forEach(([ox,oy])=>ctx.fillRect(x+ox,y+oy,5,5));
+  }
+
+  function drawRings(){
+    rings.forEach(ring=>{
+      const bob=Math.sin(ring.bob)*2.5;
+      const cx=ring.x,cy=ring.y+bob;
+      const R=16,thick=7;
+      ctx.save();
+      ctx.globalAlpha=0.22;
+      ctx.fillStyle='#06121c';
+      ctx.beginPath();ctx.ellipse(cx,ring.y+13,18,6,0,0,Math.PI*2);ctx.fill();
+      ctx.restore();
+      const pulse=0.5+0.5*Math.sin(fr*0.12);
+      ctx.save();
+      ctx.shadowColor='#37e070';
+      ctx.shadowBlur=9+pulse*9;
+      ctx.strokeStyle='#ff7a1a';
+      ctx.lineWidth=thick;
+      ctx.beginPath();ctx.arc(cx,cy,R-thick/2,0,Math.PI*2);ctx.stroke();
+      ctx.shadowBlur=0;
+      ctx.strokeStyle='rgba(150,66,10,0.55)';ctx.lineWidth=1;
+      ctx.beginPath();ctx.arc(cx,cy,R,0,Math.PI*2);ctx.stroke();
+      ctx.beginPath();ctx.arc(cx,cy,R-thick,0,Math.PI*2);ctx.stroke();
+      ctx.strokeStyle='rgba(245,245,235,0.92)';ctx.lineWidth=thick-2;
+      [0,Math.PI/2,Math.PI,3*Math.PI/2].forEach(a=>{ctx.beginPath();ctx.arc(cx,cy,R-thick/2,a-0.27,a+0.27);ctx.stroke();});
+      const arm=R-thick-1,pw=3.2;
+      ctx.shadowColor='#2ecc4a';ctx.shadowBlur=6;
+      ctx.fillStyle='#2ecc4a';
+      ctx.fillRect(cx-pw,cy-arm,pw*2,arm*2);
+      ctx.fillRect(cx-arm,cy-pw,arm*2,pw*2);
+      ctx.restore();
+    });
+  }
+
+  function drawBoat(x,y){
+    const hg=ctx.createLinearGradient(x,0,x+TWW,0);
+    hg.addColorStop(0,'#28506e');hg.addColorStop(0.5,'#3c6f96');hg.addColorStop(1,'#28506e');
+    ctx.fillStyle=hg;ctx.fillRect(x,y,TWW,TWH);
+    ctx.fillStyle='#e23434';ctx.fillRect(x,y+TWH-16,TWW,8);
+    ctx.strokeStyle='#0a1420';ctx.lineWidth=1.5;ctx.strokeRect(x,y,TWW,TWH);
+    const wx=x+5,wy=y+7,ww=TWW-10,wh=(TWH*0.48)|0;
+    ctx.fillStyle='#e0d8c8';ctx.fillRect(wx,wy,ww,wh);
+    ctx.strokeStyle='#c0b0a0';ctx.lineWidth=1;ctx.strokeRect(wx,wy,ww,wh);
+    ctx.fillStyle='#5aa8c4';
+    [[wx+3],[wx+ww/2-4.5],[wx+ww-13]].forEach(([wx2])=>ctx.fillRect(wx2,wy+5,9,8));
+    ctx.fillStyle='rgba(255,255,255,0.24)';
+    [[wx+3],[wx+ww/2-4.5],[wx+ww-13]].forEach(([wx2])=>ctx.fillRect(wx2+1,wy+5,2.5,3));
+    const mx=x+TWW/2;
+    ctx.strokeStyle='#6a7888';ctx.lineWidth=1.8;
+    ctx.beginPath();ctx.moveTo(mx,wy);ctx.lineTo(mx,wy-14);ctx.stroke();
+    ctx.lineWidth=1.3;
+    ctx.beginPath();ctx.moveTo(mx-9,wy-14);ctx.lineTo(mx+9,wy-14);ctx.stroke();
+    ctx.fillStyle='#1a2838';
+    [mx-10,mx+3].forEach(sx=>{ctx.fillRect(sx,wy-8,6,13);});
+    if((fr&7)<3){
+      ctx.fillStyle='rgba(60,60,60,0.4)';
+      [mx-7,mx+6].forEach(sx=>{ctx.beginPath();ctx.arc(sx,wy-10+((fr>>1)%4),3.5,0,Math.PI*2);ctx.fill();});
+    }
+    ctx.shadowBlur=8;
+    ctx.fillStyle='#ff5555';ctx.shadowColor='#ff0000';
+    ctx.beginPath();ctx.arc(x+3,y+4,3,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#55ff55';ctx.shadowColor='#00ff00';
+    ctx.beginPath();ctx.arc(x+TWW-3,y+4,3,0,Math.PI*2);ctx.fill();
+    ctx.shadowBlur=0;
+    if((fr&3)<2){
+      ctx.fillStyle='rgba(88,168,224,0.55)';
+      [8,23,38].forEach(bx2=>{
+        const r2=3+Math.sin(fr*0.3+bx2)*1.2;
+        ctx.beginPath();ctx.arc(x+bx2,y+TWH-4,r2,0,Math.PI*2);ctx.fill();
+      });
+    }
+  }
+
+  function drawSparks(){
+    sparks.forEach(s=>{
+      ctx.save();ctx.globalAlpha=s.life;ctx.fillStyle=s.col;
+      ctx.beginPath();ctx.arc(s.x,s.y,3*s.life,0,Math.PI*2);ctx.fill();
+      ctx.restore();
+    });
+  }
+
+  function drawHUD(){
+    ctx.fillStyle='rgba(4,10,18,0.88)';ctx.fillRect(0,0,W,42);
+    ctx.textAlign='left';
+    ctx.font='bold 14px "Courier New",monospace';
+    ctx.fillStyle='#5ab0cc';
+    ctx.fillText(`DIST: ${score} MI`,12,28);
+    ctx.fillStyle='#5ab0cc';
+    ctx.fillText('TOW',150,28);
+    const ratio=barges/TOTAL;
+    const fillCol=ratio>0.6?'#22bb55':ratio>0.3?'#bbbb22':'#cc2222';
+    const segX=192,segY=15,segW=7,segH=14,segGap=2;
+    for(let i=0;i<TOTAL;i++){
+      ctx.beginPath();
+      ctx.roundRect(segX+i*(segW+segGap),segY,segW,segH,2);
+      ctx.fillStyle=i<barges?fillCol:'#152535';
+      ctx.fill();
+    }
+    ctx.fillStyle=fillCol;
+    ctx.font='bold 13px "Courier New",monospace';
+    ctx.fillText(`${barges}/${TOTAL}`,segX+TOTAL*(segW+segGap)+6,27);
+    const hdg=Math.round(tow.angle*(180/Math.PI));
+    const lvlDisp=LEVELS[currentLevel];
+    ctx.textAlign='right';ctx.fillStyle=lvlDisp.col;
+    ctx.font='bold 14px "Courier New",monospace';
+    ctx.fillText(lvlDisp.label,W-200,28);
+    ctx.fillStyle='#5ab0cc';
+    ctx.fillText(`HDG ${hdg>=0?'+':''}${hdg}\u00b0  SPD ${(spd*2.55).toFixed(1)} kt`,W-12,28);
+    const pbar=(score/500);
+    ctx.fillStyle='rgba(4,10,18,0.70)';ctx.fillRect(0,H-20,W,20);
+    ctx.fillStyle='#0f2535';ctx.fillRect(8,H-13,W-16,7);
+    ctx.fillStyle='#1a6e9a';ctx.fillRect(8,H-13,(W-16)*Math.min(pbar,1),7);
+    LEVELS.slice(1).forEach(l=>{
+      const tx=8+(W-16)*(l.miles/500);
+      ctx.fillStyle=l.col;
+      ctx.fillRect(tx-1,H-15,2,11);
+      ctx.font='7px "Courier New"';ctx.textAlign='center';ctx.fillStyle=l.col;
+      ctx.fillText(l.miles,tx,H-17);
+    });
+    ctx.fillStyle='#3ab0d0';
+    ctx.font='9px "Courier New"';ctx.textAlign='left';
+    ctx.fillText('START',8,H-5);
+    ctx.textAlign='right';
+    ctx.fillText('PORT (500 MI)',W-8,H-5);
+    if(gameState==='PLAY')drawBtns();
+    if(levelUpTimer>0)drawLevelBanner();
+  }
+
+  function drawLevelBanner(){
+    const lvl=LEVELS[currentLevel];
+    const fade=Math.min(1,levelUpTimer/40);
+    const slideIn=Math.max(0,1-(levelUpTimer-170)/40);
+    const bannerY=60+slideIn*(-80);
+    ctx.save();
+    ctx.globalAlpha=fade;
+    ctx.fillStyle='rgba(4,10,20,0.88)';
+    ctx.beginPath();ctx.roundRect(W/2-200,bannerY,400,56,10);ctx.fill();
+    ctx.strokeStyle=lvl.col;ctx.lineWidth=2;
+    ctx.beginPath();ctx.roundRect(W/2-200,bannerY,400,56,10);ctx.stroke();
+    ctx.shadowColor=lvl.col;
+    ctx.shadowBlur=18*Math.abs(Math.sin(fr*0.08));
+    ctx.fillStyle=lvl.col;
+    ctx.textAlign='center';
+    ctx.font='bold 22px "Courier New",monospace';
+    ctx.fillText(`\u2b06  ${lvl.label} REACHED  \u2b06`,W/2,bannerY+24);
+    ctx.shadowBlur=0;
+    const msgs=['','CURRENT STRONGER \u2014 WATCH YOUR SPEED','DRIFT INCREASING \u2014 BARGES ARE RESTLESS','VESSELS AHEAD \u2014 STAND ON YOUR WHISTLE','MAXIMUM CURRENT \u2014 DON\'T LOSE HEADWAY'];
+    ctx.fillStyle='rgba(180,220,240,0.85)';
+    ctx.font='11px "Courier New",monospace';
+    ctx.fillText(msgs[currentLevel]||'',W/2,bannerY+44);
+    ctx.restore();
+  }
+
+  function drawBtns(){
+    const labels={L:'\u25c4',R:'\u25ba',U:'\u25b2',D:'\u25bc'};
+    const pressed={
+      L:KEY.ArrowLeft||KEY.KeyA||TOUCH.L,
+      R:KEY.ArrowRight||KEY.KeyD||TOUCH.R,
+      U:KEY.ArrowUp||KEY.KeyW||TOUCH.U,
+      D:KEY.ArrowDown||KEY.KeyS||TOUCH.D,
+    };
+    Object.entries(BTN).forEach(([k,b])=>{
+      const pr=pressed[k];
+      ctx.fillStyle=pr?'rgba(28,80,130,0.88)':'rgba(8,20,36,0.72)';
+      ctx.strokeStyle=pr?'#38a0cc':'#1e4e66';
+      ctx.lineWidth=2;
+      ctx.beginPath();ctx.roundRect(b.x,b.y,b.w,b.h,9);ctx.fill();ctx.stroke();
+      ctx.fillStyle=pr?'#78ccee':'#386880';
+      ctx.font='bold 22px monospace';ctx.textAlign='center';
+      ctx.fillText(labels[k],b.x+b.w/2,b.y+b.h/2+8);
+    });
+  }
+
+  function drawOverlay(){
+    ctx.fillStyle='rgba(3,8,16,0.90)';ctx.fillRect(0,0,W,H);
+    ctx.textAlign='center';
+    if(gameState==='START'){
+      ctx.fillStyle='#48b0d0';ctx.font='bold 54px "Courier New"';
+      ctx.fillText('RIVER PUSH',W/2,H/2-138);
+      ctx.fillStyle='#2a6082';ctx.font='14px "Courier New"';
+      ctx.fillText('TOWBOAT NAVIGATION SIMULATOR',W/2,H/2-96);
+      ctx.strokeStyle='#265a78';ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(W/2-205,H/2-76);ctx.lineTo(W/2+205,H/2-76);ctx.stroke();
+      const lines=['Push a 15-barge tow 500 miles upriver.','Every collision tears a barge loose \u2014','lose the whole tow and the run is over.','','A  D  /  \u25c4  \u25ba     Steer','W  S  /  \u25b2  \u25bc     Throttle'];
+      ctx.fillStyle='#78bac8';ctx.font='13px "Courier New"';
+      lines.forEach((l,i)=>ctx.fillText(l,W/2,H/2-47+i*22));
+      ctx.fillStyle='#0c2e48';ctx.fillRect(W/2-110,H/2+98,220,48);
+      ctx.strokeStyle='#3a88aa';ctx.lineWidth=2;ctx.strokeRect(W/2-110,H/2+98,220,48);
+      ctx.fillStyle='#78bac8';ctx.font='bold 16px "Courier New"';
+      ctx.fillText('ALL AHEAD FULL',W/2,H/2+128);
+      ctx.fillStyle='#265870';ctx.font='11px "Courier New"';
+      ctx.fillText('SPACE  \u00b7  ENTER  \u00b7  CLICK to start',W/2,H/2+168);
+    }else if(gameState==='OVER'){
+      ctx.fillStyle='#cc3322';ctx.font='bold 48px "Courier New"';
+      ctx.fillText('TOW LOST',W/2,H/2-92);
+      ctx.strokeStyle='#5a2020';ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(W/2-185,H/2-70);ctx.lineTo(W/2+185,H/2-70);ctx.stroke();
+      ctx.fillStyle='#5ab8d8';ctx.font='15px "Courier New"';
+      ctx.fillText('All 15 barges torn away.',W/2,H/2-30);
+      ctx.fillText('FINAL DISTANCE',W/2,H/2+2);
+      ctx.fillStyle='#48b0d0';ctx.font='bold 40px "Courier New"';
+      ctx.fillText(`${score} MILES`,W/2,H/2+44);
+      ctx.fillStyle='#3a7890';ctx.font='13px "Courier New"';
+      ctx.fillText('SPACE  \u00b7  CLICK to try again',W/2,H/2+88);
+    }else if(gameState==='WIN'){
+      ctx.fillStyle='#22cc55';ctx.font='bold 44px "Courier New"';
+      ctx.fillText('DELIVERED!',W/2,H/2-90);
+      ctx.strokeStyle='#205a30';ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(W/2-185,H/2-68);ctx.lineTo(W/2+185,H/2-68);ctx.stroke();
+      ctx.fillStyle='#78bac8';ctx.font='15px "Courier New"';
+      ctx.fillText(`${barges} of ${TOTAL} barges delivered to port.`,W/2,H/2-28);
+      ctx.fillText('500 miles upriver \u2014 well done, Captain.',W/2,H/2+2);
+      ctx.fillStyle='#48b0d0';ctx.font='bold 28px "Courier New"';
+      ctx.fillText('MISSION COMPLETE',W/2,H/2+48);
+      ctx.fillStyle='#3a7890';ctx.font='13px "Courier New"';
+      ctx.fillText('SPACE  \u00b7  CLICK to run again',W/2,H/2+88);
+    }
+  }
+
   function loop(){if(!_gameRunning)return;update();draw();_gameRAF=requestAnimationFrame(loop);}
   init();loop();
 }
