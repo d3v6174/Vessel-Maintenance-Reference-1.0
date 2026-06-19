@@ -6445,9 +6445,82 @@ function startTowboatGame(){
   const TWW=46,TWH=68;
   const TOTAL=ROWS*COLS;
 
+  // Barges break away in this cell order: within each row top→bottom, lose the
+  // LEFT corner, then the RIGHT corner, then the MIDDLE. (cell index = row*COLS+col)
+  const LOSS_ORDER=[];
+  for(let r=0;r<ROWS;r++){ LOSS_ORDER.push(r*COLS+0, r*COLS+2, r*COLS+1); }
+  const lostRank=new Array(TOTAL);
+  LOSS_ORDER.forEach((cell,rank)=>{ lostRank[cell]=rank; });
+  // a barge cell is still attached if its loss-rank is at or beyond the number lost
+  function cellPresent(cell){ return lostRank[cell] >= (TOTAL-barges); }
+
+  // Does a world-space point (with radius r) touch any REMAINING barge or the boat?
+  // Transforms the point into the tow's local (un-rotated) frame and tests the
+  // actual present barge rectangles — so empty (broken-away) cells never register.
+  function towHitsPoint(wx,wy,r){
+    const dx=wx-tow.x, dy=wy-tow.y;
+    const ca=Math.cos(-tow.angle), sa=Math.sin(-tow.angle);
+    const lx=dx*ca - dy*sa, ly=dx*sa + dy*ca;
+    // pushboat rectangle (always present)
+    if(lx>=-TWW/2-r && lx<=TWW/2+r && ly>=FH/2+BG-r && ly<=FH/2+BG+TWH+r) return true;
+    // present barges
+    for(let cell=0;cell<TOTAL;cell++){
+      if(!cellPresent(cell)) continue;
+      const row=(cell/COLS)|0, col=cell%COLS;
+      const bx=-FW/2+col*(BW+BG), by=-FH/2+row*(BH+BG);
+      if(lx>=bx-r && lx<=bx+BW+r && ly>=by-r && ly<=by+BH+r) return true;
+    }
+    return false;
+  }
+
+  // Current tow extents from its center, in local coords, over the REMAINING barges
+  // (+ boat). Asymmetric left/right so a side with no barges isn't treated as solid.
+  function towExtents(){
+    let minX=-TWW/2, maxX=TWW/2;            // boat always counts
+    let topY=FH/2+BG+TWH;                   // start at boat stern; barges pull this up
+    let any=false;
+    for(let cell=0;cell<TOTAL;cell++){
+      if(!cellPresent(cell)) continue;
+      any=true;
+      const row=(cell/COLS)|0, col=cell%COLS;
+      const bx=-FW/2+col*(BW+BG), by=-FH/2+row*(BH+BG);
+      if(bx<minX)minX=bx; if(bx+BW>maxX)maxX=bx+BW;
+      if(by<topY)topY=by;
+    }
+    if(!any){ topY=FH/2+BG; }               // only the boat left
+    return {minX,maxX,topY,botY:FH/2+BG+TWH};
+  }
+
   // ── River Functions ──
-  function rCX(wy){return W/2+16*Math.sin(wy*0.0026)+8*Math.sin(wy*0.0065+2.0);}
-  function rHW(wy){return 365+8*Math.sin(wy*0.0045+0.9);}
+  // River centerline — extra meander through the Level 2 zone (miles ~75-200)
+  function rCX(wy){
+    let cx=W/2+16*Math.sin(wy*0.0026)+8*Math.sin(wy*0.0065+2.0);
+    const mi=wy/60;
+    // Level 2 is a narrow passage with a gentle, realistic meander — long slow
+    // bends, not a tight serpentine. Small amplitude, long wavelength.
+    const t=l2Factor(mi);
+    if(t>0) cx+=t*(38*Math.sin(wy*0.0034));
+    return cx;
+  }
+  // River half-width — pinches in narrow through the Level 2 zone
+  function rHW(wy){
+    let hw=365+8*Math.sin(wy*0.0045+0.9);
+    const mi=wy/60;
+    const t=l2Factor(mi);
+    if(t>0){
+      // squeeze the channel down to a steady narrow reach (gentle slow variation)
+      const narrow=158+22*Math.sin(wy*0.0042+0.5);
+      hw=hw+t*(narrow-hw);
+    }
+    return hw;
+  }
+  // 0 outside the Level 2 winding zone, ramping to 1 across the middle of it
+  function l2Factor(mi){
+    if(mi<=80||mi>=198) return 0;
+    if(mi<95)  return (mi-80)/15;   // ramp in over miles 80-95
+    if(mi>185) return (198-mi)/13;  // ramp out over miles 185-198
+    return 1;
+  }
 
   // ── Input ──
   const KEY={};
@@ -6521,6 +6594,8 @@ function startTowboatGame(){
   let flashTimer,bankCooldown,nextObsFr,nextBuoyWY,nextStructureScore;
   let fleets,nextFleetScore;
   let rings,nextRingScore,healTimer;
+  let meetTows,nextMeetScore;
+  let cells,nextCellScore;
   let cheatBuf=[],cheatMsgTimer=0;
 
   function handleBtn(){
@@ -6536,6 +6611,8 @@ function startTowboatGame(){
     obstacles=[];buoys=[];wakeP=[];sparks=[];structures=[];
     fleets=[];nextFleetScore=30;
     rings=[];nextRingScore=45;healTimer=0;
+    meetTows=[];nextMeetScore=38;
+    cells=[];nextCellScore=82;_cellSide='L';
     cheatBuf.length=0;cheatMsgTimer=0;
     flashTimer=0;bankCooldown=0;nextObsFr=90;nextBuoyWY=-600;
     nextStructureScore=20;
@@ -6594,7 +6671,13 @@ function startTowboatGame(){
     if(gameState!=='PLAY')return;
     fr++;
     const newLvl=LEVELS.reduce((best,l,i)=>score>=l.miles?i:best,0);
-    if(newLvl>currentLevel){currentLevel=newLvl;levelUpTimer=210;}
+    if(newLvl>currentLevel){currentLevel=newLvl;levelUpTimer=210;
+      // Entering Level 2 (the narrow passage): clear anything left over from Level 1
+      // so the stretch is genuinely just a narrow channel to pilot.
+      if(currentLevel===1){ obstacles.length=0; fleets.length=0; structures.length=0; meetTows.length=0; }
+      // Leaving Level 2 — clear any remaining bank cells so they don't carry into open water
+      if(currentLevel===2){ cells.length=0; }
+    }
     if(levelUpTimer>0)levelUpTimer--;
     const lvl=LEVELS[currentLevel];
 
@@ -6616,20 +6699,23 @@ function startTowboatGame(){
     const rcx=rCX(wy);
     const hw=rHW(wy);
 
-    const firstRow=Math.floor((TOTAL-barges)/COLS);
-    const bargeTopLocal=-FH/2+firstRow*(BH+BG);
+    const ext=towExtents();
+    const bargeTopLocal=ext.topY;                 // frontmost remaining barge (or boat)
     const bargeBotLocal=FH/2;
     const unitTopLocal=bargeTopLocal;
     const unitBotLocal=FH/2+BG+TWH;
     const hhUnit=(unitBotLocal-unitTopLocal)/2;
     const sinA=Math.sin(tow.angle),cosA=Math.cos(tow.angle);
-    const effW=FW/2*Math.abs(cosA)+hhUnit*Math.abs(sinA);
+    // rotation-aware half extents to each side, based on ACTUAL remaining barges
+    const rotPad=hhUnit*Math.abs(sinA);
+    const leftExt = (-ext.minX)*Math.abs(cosA) + rotPad;   // center → left edge
+    const rightExt= ( ext.maxX)*Math.abs(cosA) + rotPad;   // center → right edge
 
     tow.vx+=Math.sin(tow.angle)*spd*0.85;
 
     const SOFT_M=50;
-    const clrL=(tow.x-effW)-(rcx-hw);
-    const clrR=(rcx+hw)-(tow.x+effW);
+    const clrL=(tow.x-leftExt)-(rcx-hw);
+    const clrR=(rcx+hw)-(tow.x+rightExt);
     if(clrL<SOFT_M&&clrL>0)tow.vx+=(SOFT_M-clrL)*0.0050;
     if(clrR<SOFT_M&&clrR>0)tow.vx-=(SOFT_M-clrR)*0.0050;
 
@@ -6637,32 +6723,77 @@ function startTowboatGame(){
     tow.x+=tow.vx;
     tow.x=Math.max(55,Math.min(W-55,tow.x));
 
-    if(tow.x-effW<rcx-hw){tow.x=rcx-hw+effW+1;tow.vx=Math.abs(tow.vx)*0.35;bankHit();}
-    else if(tow.x+effW>rcx+hw){tow.x=rcx+hw-effW-1;tow.vx=-Math.abs(tow.vx)*0.35;bankHit();}
+    if(tow.x-leftExt<rcx-hw){tow.x=rcx-hw+leftExt+1;tow.vx=Math.abs(tow.vx)*0.35;bankHit();}
+    else if(tow.x+rightExt>rcx+hw){tow.x=rcx+hw-rightExt-1;tow.vx=-Math.abs(tow.vx)*0.35;bankHit();}
 
-    if(fr>=nextObsFr){spawnObs();nextObsFr=fr+Math.max(lvl.spawnFloor,108-score*0.18)|0;}
+    if(fr>=nextObsFr){ if(currentLevel!==1) spawnObs(); nextObsFr=fr+Math.max(lvl.spawnFloor,108-score*0.18)|0; }
 
     const towWY=scroll+tow.y;
     if(towWY-nextBuoyWY>375){spawnBuoy();nextBuoyWY=towWY;}
 
-    if(score>=nextStructureScore&&structures.length===0){
+    if(currentLevel!==1 && score>=nextStructureScore&&structures.length===0){
       const roll=Math.random();
       if(roll<0.55)spawnBridge();else spawnLock();
       nextStructureScore+=20+(Math.random()*20)|0;
     }
 
-    updateStructures(effW,bargeTopLocal,unitBotLocal);
+    updateStructures(leftExt,rightExt,bargeTopLocal,unitBotLocal);
 
-    if(score>=nextFleetScore){spawnFleet();nextFleetScore+=45+(Math.random()*16-8)|0;}
-    updateFleets(effW,bargeTopLocal,unitBotLocal);
+    if(currentLevel!==1 && score>=nextFleetScore){spawnFleet();nextFleetScore+=45+(Math.random()*16-8)|0;}
+    updateFleets(leftExt,rightExt,bargeTopLocal,unitBotLocal);
 
-    const ax=tow.x-bargeTopLocal*sinA,ay=tow.y+bargeTopLocal*cosA;
-    const bx=tow.x-bargeBotLocal*sinA,by=tow.y+bargeBotLocal*cosA;
+    // Oncoming towboat meetings (not in the narrow Level 2 stretch). One vessel at a time.
+    if(currentLevel!==1 && score>=nextMeetScore && meetTows.length===0 && structures.length===0){
+      spawnMeetTow();
+      nextMeetScore+=55+(Math.random()*30)|0;   // ~55–85 miles apart
+    }
+    updateMeetTows(leftExt,rightExt,bargeTopLocal,unitBotLocal);
+
+    // Level 2 ONLY: mooring cells / pilings protruding from the banks. They pinch
+    // the channel from alternating sides — tight enough to demand a weave, but
+    // always leaving a squeeze-through gap.
+    if(currentLevel===1 && score>=nextCellScore){
+      spawnCell();
+      nextCellScore+=15+(Math.random()*8)|0;    // every ~15–23 miles — room for the long tow to weave
+    }
+    updateCells(leftExt,rightExt,bargeTopLocal,unitBotLocal);
+
     for(let i=obstacles.length-1;i>=0;i--){
       const o=obstacles[i];
       o.y+=spd+o.drift;o.x+=o.vx;o.rot+=o.rspd;
       if(o.y>H+90){obstacles.splice(i,1);continue;}
-      if(segDist(o.x,o.y,ax,ay,bx,by)<FW*0.45+o.r){
+      // FAIRNESS RULE: the gap through a bridge/lock is the ONLY navigable passage,
+      // so drift (logs and boats) must never block it. For any structure this
+      // obstacle is approaching, keep the obstacle fully OUT of the gap channel —
+      // clamp it onto the solid deck to one side, and if neither side has room,
+      // remove the obstacle entirely. Re-checked every frame so it can't drift back in.
+      let removed=false;
+      for(let k=0;k<structures.length;k++){
+        const s=structures[k];
+        // act from well above the structure until it has passed below the obstacle
+        if(o.y > s.y-160 && o.y < s.y+s.deckH+60){
+          const m=o.r+26;                       // clearance margin around the gap
+          const gL=s.gapX-m, gR=s.gapX+s.gapW+m; // forbidden channel for this obstacle's center
+          if(o.x>gL && o.x<gR){
+            const cx=rCX(scroll+o.y), hw=rHW(scroll+o.y);
+            const deckLlimit=(cx-hw)+18+o.r;     // furthest-left a centered obstacle can sit on deck
+            const deckRlimit=(cx+hw)-18-o.r;     // furthest-right on the right deck
+            const roomLeft = gL-deckLlimit;      // open deck width on the left of the gap
+            const roomRight= deckRlimit-gR;      // open deck width on the right of the gap
+            if(roomLeft<2 && roomRight<2){
+              obstacles.splice(i,1); removed=true; break;   // no deck room — debris cannot exist here
+            }
+            // push to the side the obstacle is already nearer, if that side has room
+            const nearerLeft = (o.x < s.gapX+s.gapW/2);
+            const goLeft = (nearerLeft && roomLeft>=2) || (!nearerLeft && roomRight<2);
+            o.x = goLeft ? gL : gR;
+            o.vx = 0;          // kill sideways drift so it stays put on the deck
+          }
+        }
+      }
+      if(removed) continue;
+      if(!obstacles[i]) continue;
+      if(towHitsPoint(o.x,o.y,o.r)){
         loseBarge(1);mkSparks(o.x,o.y);obstacles.splice(i,1);
         if(gameState!=='PLAY')break;
       }
@@ -6673,7 +6804,7 @@ function startTowboatGame(){
       const ring=rings[i];
       ring.y+=spd+ring.drift;ring.bob+=0.08;
       if(ring.y>H+40){rings.splice(i,1);continue;}
-      if(segDist(ring.x,ring.y,ax,ay,bx,by)<FW*0.45+18){
+      if(towHitsPoint(ring.x,ring.y,18)){
         gainBarge(1);mkHealSparks(ring.x,ring.y);rings.splice(i,1);
       }
     }
@@ -6713,7 +6844,19 @@ function startTowboatGame(){
       const sy=-80-Math.random()*60;
       const wy=scroll+sy;
       const cx=rCX(wy),hw=rHW(wy);
-      const x=cx+(Math.random()-0.5)*2*(hw-22);
+      let x=cx+(Math.random()-0.5)*2*(hw-22);
+      // Never spawn drift in the only navigable passage: if a bridge/lock is on the
+      // way down, keep this obstacle out of that structure's gap channel so the gap
+      // stays clear. Push it to whichever solid-deck side has more room.
+      const gap=blockedGapAt(x);
+      if(gap){
+        const leftRoom=(gap.gapX-22)-(cx-hw+22);   // span of open water left of the gap
+        const rightRoom=(cx+hw-22)-(gap.gapX+gap.gapW+22);
+        if(leftRoom<30 && rightRoom<30){ continue; } // no safe deck room — skip this one
+        const useLeft = leftRoom>=rightRoom;
+        if(useLeft) x = (cx-hw+22) + Math.random()*Math.max(1,leftRoom);
+        else        x = (gap.gapX+gap.gapW+22) + Math.random()*Math.max(1,rightRoom);
+      }
       const boatChance=currentLevel>=1?0.08+currentLevel*0.06:0;
       const roll=Math.random();
       if(roll<boatChance){
@@ -6731,6 +6874,23 @@ function startTowboatGame(){
         obstacles.push({x,y:sy,vx:(Math.random()-0.5)*0.55,drift,r,c1,c2,nm,rot:Math.random()*Math.PI*2,rspd:(Math.random()-0.5)*0.025,stripeCol:null,vesselType:null});
       }
     }
+  }
+
+  // If a bridge/lock is currently on screen or just above it, return the gap channel
+  // an obstacle at screen-x `ox` would drift toward; else null. Keeps drift out of
+  // the only navigable passage.
+  function blockedGapAt(ox){
+    for(let i=0;i<structures.length;i++){
+      const s=structures[i];
+      // consider structures that are above the spawn point or on their way down
+      if(s.y < H){
+        // if the obstacle x would pass through this structure's gap, report it
+        if(ox > s.gapX-30 && ox < s.gapX+s.gapW+30) return s;
+        // also report so caller can reposition relative to this structure's gap
+        return s;
+      }
+    }
+    return null;
   }
 
   function spawnBuoy(){
@@ -6761,7 +6921,7 @@ function startTowboatGame(){
     structures.push({type:'lock',y:sy,deckH:82,gapX,gapW,cx,hw,hitCD:0});
   }
 
-  function updateStructures(effW,towTopLocal,towBotLocal){
+  function updateStructures(leftExt,rightExt,towTopLocal,towBotLocal){
     const towTop=tow.y+towTopLocal;
     const towBot=tow.y+towBotLocal;
     for(let i=structures.length-1;i>=0;i--){
@@ -6771,8 +6931,8 @@ function startTowboatGame(){
       if(s.y>H+20){structures.splice(i,1);continue;}
       const sTop=s.y,sBot=s.y+s.deckH;
       if(sBot>towTop&&sTop<towBot){
-        const towL=tow.x-effW;
-        const towR=tow.x+effW;
+        const towL=tow.x-leftExt;
+        const towR=tow.x+rightExt;
         const inGap=(towL>=s.gapX-10)&&(towR<=s.gapX+s.gapW+10);
         if(!inGap&&s.hitCD===0){
           loseBarge(1);
@@ -6822,7 +6982,7 @@ function startTowboatGame(){
     fleets.push({side:Math.random()<0.5?'L':'R',cols,rows,offset:4+Math.random()*10,y:-fleetH-30,h:fleetH,w:cols*(BW+BG)-BG,x:0,innerEdge:0,hitCD:0});
   }
 
-  function updateFleets(effW,towTopLocal,towBotLocal){
+  function updateFleets(leftExt,rightExt,towTopLocal,towBotLocal){
     const towTop=tow.y+towTopLocal;
     const towBot=tow.y+towBotLocal;
     for(let i=fleets.length-1;i>=0;i--){
@@ -6837,12 +6997,12 @@ function startTowboatGame(){
       f.innerEdge=f.side==='L'?f.x+f.w:f.x;
       const fTop=f.y,fBot=f.y+f.h;
       if(fBot>towTop&&fTop<towBot){
-        if(f.side==='L'&&(tow.x-effW)<f.innerEdge){
-          tow.x=f.innerEdge+effW+1;
+        if(f.side==='L'&&(tow.x-leftExt)<f.innerEdge){
+          tow.x=f.innerEdge+leftExt+1;
           tow.vx=Math.abs(tow.vx)*0.35+0.4;
           if(f.hitCD===0){loseBarge(1);mkSparks(f.innerEdge,Math.max(fTop,towTop));f.hitCD=22;}
-        }else if(f.side==='R'&&(tow.x+effW)>f.innerEdge){
-          tow.x=f.innerEdge-effW-1;
+        }else if(f.side==='R'&&(tow.x+rightExt)>f.innerEdge){
+          tow.x=f.innerEdge-rightExt-1;
           tow.vx=-Math.abs(tow.vx)*0.35-0.4;
           if(f.hitCD===0){loseBarge(1);mkSparks(f.innerEdge,Math.max(fTop,towTop));f.hitCD=22;}
         }
@@ -6852,15 +7012,285 @@ function startTowboatGame(){
   }
 
   // ── Draw ──
+  // ── Oncoming towboat meetings ─────────────────────────
+  // A downbound (southbound) tow approaches head-on. The whistle signal tells the
+  // player which side to pass on, per the inland Rules of the Road:
+  //   ONE WHISTLE  = port-to-port  → each vessel keeps to its OWN starboard.
+  //                  Player (northbound) keeps RIGHT; the oncoming tow takes the
+  //                  player's LEFT (its own starboard). Pass on the player's RIGHT.
+  //   TWO WHISTLE  = starboard-to-starboard → each vessel keeps to its OWN port.
+  //                  Player keeps LEFT; the oncoming tow takes the player's RIGHT.
+  //                  Pass on the player's LEFT.
+  function spawnMeetTow(){
+    const whistle = Math.random()<0.55 ? 1 : 2;       // 1-whistle a touch more common
+    // side = which side of the channel the ONCOMING tow rides (player passes the other side)
+    const side = (whistle===1) ? 'L' : 'R';
+    const w = FW + 8;                                  // oncoming tow about a tow-width wide
+    const h = FH + TWH + 30;                           // barges + pushboat length
+    meetTows.push({
+      y: -h-360,            // spawn well above the screen so the whistle call leads it
+      whistle, side, w, h, hitCD:0,
+      vy: 2.0               // genuine southbound (downstream) speed, on top of scroll
+    });
+  }
+
+  function meetLaneX(m, wy){
+    // The oncoming tow rides to ONE SIDE of the channel — out in the water, not on
+    // the bank. It sits in the middle of its half, leaving a clear passing lane on
+    // the opposite side (the side the whistle tells the player to take).
+    const cx=rCX(wy), hw=rHW(wy);
+    const center = (m.side==='L') ? (cx - hw*0.42) : (cx + hw*0.42);
+    return center - m.w/2;                             // return left edge
+  }
+
+  function updateMeetTows(leftExt,rightExt,towTopLocal,towBotLocal){
+    const towTop=tow.y+towTopLocal;
+    const towBot=tow.y+towBotLocal;
+    for(let i=meetTows.length-1;i>=0;i--){
+      const m=meetTows[i];
+      m.y += spd + m.vy;                               // scroll + its own southbound steam
+      if(m.hitCD>0)m.hitCD--;
+      if(m.y>H+60){meetTows.splice(i,1);continue;}
+      // current horizontal footprint of the oncoming tow at its mid-body
+      const midWY=scroll+m.y+m.h/2;
+      m.x=meetLaneX(m,midWY);
+      const mL=m.x, mR=m.x+m.w, mTop=m.y, mBot=m.y+m.h;
+      if(mBot>towTop && mTop<towBot){
+        const towL=tow.x-leftExt, towR=tow.x+rightExt;
+        const overlap = (towR > mL+6) && (towL < mR-6);
+        if(overlap && m.hitCD===0){
+          loseBarge(1);
+          const hitX=(Math.max(towL,mL)+Math.min(towR,mR))/2;
+          mkSparks(hitX, Math.max(mTop,towTop));
+          // shove the player toward the open (passing) side
+          const push = (m.side==='L') ? 1 : -1;        // L-occupied → push player right (+)
+          tow.vx += push*1.6;
+          tow.angle*=0.7; tow.av*=0.5;
+          m.hitCD=16;
+          if(gameState!=='PLAY')break;
+        }
+      }
+    }
+  }
+
+  function drawMeetTows(){
+    meetTows.forEach(m=>{
+      const midWY=scroll+m.y+m.h/2;
+      const mx=meetLaneX(m,midWY);
+
+      // ── Whistle-call banner — fixed near the top of the screen so it is read
+      //    BEFORE the oncoming tow comes into view, and stays up until it has
+      //    drawn alongside the player. ──
+      const towNotYetPassed = (m.y + m.h) < (tow.y + 40);
+      if(towNotYetPassed){
+        const flash=(fr>>4)&1;
+        const cx=rCX(scroll+tow.y), passOnRight=(m.side==='L');
+        const playerSafe = passOnRight ? (tow.x > cx+20) : (tow.x < cx-20);
+        const bannerY=58;
+        // banner backing
+        ctx.fillStyle='rgba(4,10,20,0.86)';
+        ctx.beginPath(); ctx.roundRect(W/2-232, bannerY-20, 464, 50, 9); ctx.fill();
+        ctx.strokeStyle = playerSafe ? '#2c9c48' : (flash?'#ff8800':'#cc5500');
+        ctx.lineWidth=2; ctx.stroke();
+        ctx.textAlign='center';
+        ctx.fillStyle = playerSafe ? (flash?'#46e070':'#2c9c48') : (flash?'#ff9922':'#ee6600');
+        ctx.font='bold 13px "Courier New"';
+        const sig = m.whistle===1 ? 'ONE WHISTLE' : 'TWO WHISTLE';
+        ctx.fillText(`\u26a0  TOWBOAT WANTS TO MEET ON THE ${sig}  \u26a0`, W/2, bannerY-2);
+        ctx.font='bold 11px "Courier New"';
+        const instr = playerSafe
+          ? (m.whistle===1 ? '\u2713 HOLDING RIGHT \u2014 PORT-TO-PORT' : '\u2713 HOLDING LEFT \u2014 STBD-TO-STBD')
+          : (m.whistle===1 ? 'PASS PORT-TO-PORT \u00b7 KEEP RIGHT \u25ba' : '\u25c4 PASS STBD-TO-STBD \u00b7 KEEP LEFT');
+        ctx.fillStyle = playerSafe ? '#7fe6a0' : '#ffc38a';
+        ctx.fillText(instr, W/2, bannerY+16);
+      }
+
+      // Only render the tow body once it is at/near the screen
+      if(m.y > -m.h-4 && m.y < H+4){
+        // dashed lane guide on the side the player should take (down to the tow)
+        const flash=(fr>>4)&1;
+        const passOnRight=(m.side==='L');
+        const cwy=scroll+Math.max(m.y,0), hw=rHW(cwy), ccx=rCX(cwy);
+        const guideX = passOnRight ? ccx+hw*0.55 : ccx-hw*0.55;
+        ctx.strokeStyle=`rgba(120,200,255,${flash?0.30:0.14})`;
+        ctx.lineWidth=1; ctx.setLineDash([8,8]);
+        ctx.beginPath(); ctx.moveTo(guideX, Math.max(m.y,0)); ctx.lineTo(guideX, Math.min(m.y+m.h+120,H)); ctx.stroke();
+        ctx.setLineDash([]);
+
+        // ── Draw the oncoming tow (downbound = steaming south, toward the player) ──
+        const cols=3, rows=5;
+        ctx.save();
+        ctx.globalAlpha=0.18; ctx.fillStyle='#06121c';
+        ctx.fillRect(mx-3, m.y+6, m.w+6, m.h); ctx.globalAlpha=1;
+        // pushboat at the NORTH (top) end, pushing its tow south
+        drawMeetBoat(mx + m.w/2 - TWW/2, m.y);
+        const bx0 = mx + (m.w-(cols*(BW+BG)-BG))/2;
+        const by0 = m.y + TWH + BG;
+        for(let r=0;r<rows;r++){
+          for(let c=0;c<cols;c++){
+            drawMeetBarge(bx0 + c*(BW+BG), by0 + r*(BH+BG));
+          }
+        }
+        ctx.restore();
+      }
+    });
+  }
+
+  function drawMeetBarge(x,y){
+    // loaded, weathered downbound barge (distinct from player's gray tow)
+    ctx.fillStyle='#6e6048'; ctx.fillRect(x,y,BW,BH);
+    ctx.fillStyle='#827253'; ctx.fillRect(x+2,y+5,BW-4,BH-10);
+    ctx.fillStyle='#34302a'; ctx.fillRect(x+5,y+10,BW-10,BH-20);
+    ctx.strokeStyle='#2c2820'; ctx.lineWidth=1; ctx.strokeRect(x,y,BW,BH);
+    ctx.fillStyle='#22201a';
+    [[2,3],[BW-7,3],[2,BH-8],[BW-7,BH-8]].forEach(([ox,oy])=>ctx.fillRect(x+ox,y+oy,5,5));
+  }
+
+  function drawMeetBoat(x,y){
+    // pushboat facing SOUTH (toward player) — pilothouse toward the top (its stern)
+    const hg=ctx.createLinearGradient(x,0,x+TWW,0);
+    hg.addColorStop(0,'#6e2828');hg.addColorStop(0.5,'#9a3c3c');hg.addColorStop(1,'#6e2828');
+    ctx.fillStyle=hg; ctx.fillRect(x,y,TWW,TWH);
+    ctx.fillStyle='#e0c534'; ctx.fillRect(x,y+8,TWW,7);     // accent stripe
+    ctx.strokeStyle='#1a0a0a'; ctx.lineWidth=1.5; ctx.strokeRect(x,y,TWW,TWH);
+    // pilothouse toward the stern (top), since the bow faces down (south)
+    const wx=x+5, wy=y+TWH-7-((TWH*0.46)|0), ww=TWW-10, wh=(TWH*0.46)|0;
+    ctx.fillStyle='#d8d0c0'; ctx.fillRect(wx,wy,ww,wh);
+    ctx.strokeStyle='#b0a090'; ctx.lineWidth=1; ctx.strokeRect(wx,wy,ww,wh);
+    ctx.fillStyle='#5aa8c4';
+    [[wx+3],[wx+ww/2-4.5],[wx+ww-13]].forEach(([wx2])=>ctx.fillRect(wx2,wy+wh-12,9,8));
+    // nav lights: red/green at the BOW (bottom), facing the player
+    ctx.shadowBlur=8;
+    ctx.fillStyle='#ff5555';ctx.shadowColor='#ff0000';
+    ctx.beginPath();ctx.arc(x+TWW-3,y+TWH-4,3,0,Math.PI*2);ctx.fill();   // its port (player sees on their... )
+    ctx.fillStyle='#55ff55';ctx.shadowColor='#00ff00';
+    ctx.beginPath();ctx.arc(x+3,y+TWH-4,3,0,Math.PI*2);ctx.fill();
+    ctx.shadowBlur=0;
+  }
+
+  // ── Level 2 bank cells / pilings ──────────────────────
+  // Mooring cells and timber piling clusters that protrude from the bank into the
+  // channel, alternating sides so the player has to weave. The protrusion is capped
+  // every frame so the open gap never drops below a safe squeeze width.
+  let _cellSide = 'L';
+  function spawnCell(){
+    // alternate sides each spawn so the player weaves left-right-left
+    _cellSide = (_cellSide==='L') ? 'R' : 'L';
+    const kind = Math.random()<0.5 ? 'cell' : 'piles';   // round steel cell or timber piling cluster
+    const h = 38 + Math.random()*24;                     // vertical size of the obstruction
+    meetCellPush({
+      side:_cellSide, kind,
+      y:-h-30, h,
+      reachWant: 54 + Math.random()*38,                  // desired protrusion from the bank
+      reach:0, innerEdge:0, hitCD:0
+    });
+  }
+  function meetCellPush(c){ cells.push(c); }
+
+  // The minimum clear gap the player must always have to squeeze through (tow is FW wide).
+  // FW + 96 leaves ~48px of slack on each side — tight enough to require steering, but
+  // comfortably navigable alongside the winding channel and bank repulsion.
+  const CELL_MIN_GAP = FW + 96;
+
+  function updateCells(leftExt,rightExt,towTopLocal,towBotLocal){
+    const towTop=tow.y+towTopLocal;
+    const towBot=tow.y+towBotLocal;
+    for(let i=cells.length-1;i>=0;i--){
+      const c=cells[i];
+      c.y+=spd;
+      if(c.hitCD>0)c.hitCD--;
+      if(c.y>H+30){cells.splice(i,1);continue;}
+      const cwy=scroll+c.y+c.h/2;
+      const cx=rCX(cwy), hw=rHW(cwy);
+      const bankL=cx-hw, bankR=cx+hw, chan=2*hw;
+      // cap the protrusion so a squeeze gap always remains on the far side
+      const maxReach=Math.max(20, chan - CELL_MIN_GAP);
+      c.reach=Math.min(c.reachWant, maxReach);
+      // innerEdge = how far the obstruction reaches toward the channel center
+      c.innerEdge = (c.side==='L') ? (bankL + c.reach) : (bankR - c.reach);
+      const cTop=c.y, cBot=c.y+c.h;
+      if(cBot>towTop && cTop<towBot){
+        if(c.side==='L' && (tow.x-leftExt) < c.innerEdge){
+          tow.x=c.innerEdge+leftExt+1;
+          tow.vx=Math.abs(tow.vx)*0.30+0.5;
+          if(c.hitCD===0){loseBarge(1);mkSparks(c.innerEdge,Math.max(cTop,towTop));c.hitCD=24;}
+        } else if(c.side==='R' && (tow.x+rightExt) > c.innerEdge){
+          tow.x=c.innerEdge-rightExt-1;
+          tow.vx=-Math.abs(tow.vx)*0.30-0.5;
+          if(c.hitCD===0){loseBarge(1);mkSparks(c.innerEdge,Math.max(cTop,towTop));c.hitCD=24;}
+        }
+        if(gameState!=='PLAY')break;
+      }
+    }
+  }
+
+  function drawCells(){
+    cells.forEach(c=>{
+      const cwy=scroll+c.y+c.h/2;
+      const cx=rCX(cwy), hw=rHW(cwy);
+      const bankX = (c.side==='L') ? cx-hw : cx+hw;
+      const inner = c.innerEdge;
+      const x0 = Math.min(bankX, inner), x1 = Math.max(bankX, inner);
+      const w = x1-x0;
+      const y=c.y, h=c.h;
+
+      if(c.kind==='cell'){
+        // a steel mooring cell — filled rounded body with a riprap base on the bank
+        // riprap/rock apron at the bank
+        ctx.fillStyle='#5a5142';
+        ctx.beginPath(); ctx.roundRect(x0, y-3, w, h+6, 6); ctx.fill();
+        // the cell body
+        ctx.fillStyle='#7c7468';
+        ctx.beginPath(); ctx.roundRect(x0+3, y+3, Math.max(8,w-6), h-6, 7); ctx.fill();
+        ctx.strokeStyle='#4a4438'; ctx.lineWidth=1.5;
+        ctx.beginPath(); ctx.roundRect(x0+3, y+3, Math.max(8,w-6), h-6, 7); ctx.stroke();
+        // vertical sheet-pile ribs
+        ctx.strokeStyle='rgba(40,38,30,0.5)'; ctx.lineWidth=1;
+        for(let rx=x0+8; rx<x1-4; rx+=7){
+          ctx.beginPath(); ctx.moveTo(rx, y+5); ctx.lineTo(rx, y+h-5); ctx.stroke();
+        }
+        // a warning light on the channel-side corner
+        const lt=(fr>>3)&1;
+        ctx.shadowBlur=8; ctx.shadowColor='#ffcc00';
+        ctx.fillStyle=lt?'#ffdd33':'#665500';
+        ctx.beginPath(); ctx.arc(inner, y+h/2, 3.5, 0, Math.PI*2); ctx.fill();
+        ctx.shadowBlur=0;
+      } else {
+        // a timber piling cluster (dolphin) — a row of round piles
+        ctx.fillStyle='#4a3422';
+        ctx.beginPath(); ctx.roundRect(x0, y, w, h, 5); ctx.fill();
+        const cols=Math.max(2, Math.floor(w/12)), rows=Math.max(2, Math.floor(h/12));
+        for(let a=0;a<cols;a++){
+          for(let b=0;b<rows;b++){
+            const px=x0+6 + a*((w-12)/Math.max(1,cols-1));
+            const py=y+6 + b*((h-12)/Math.max(1,rows-1));
+            ctx.fillStyle='#6b4a2c';
+            ctx.beginPath(); ctx.arc(px,py,3.4,0,Math.PI*2); ctx.fill();
+            ctx.fillStyle='#8a653f';
+            ctx.beginPath(); ctx.arc(px-0.8,py-0.8,1.5,0,Math.PI*2); ctx.fill();
+          }
+        }
+        // channel-side warning light
+        const lt=(fr>>3)&1;
+        ctx.shadowBlur=8; ctx.shadowColor='#ffcc00';
+        ctx.fillStyle=lt?'#ffdd33':'#665500';
+        ctx.beginPath(); ctx.arc(inner, y+h/2, 3, 0, Math.PI*2); ctx.fill();
+        ctx.shadowBlur=0;
+      }
+    });
+  }
+
   function draw(){
     ctx.fillStyle='#163a1c';
     ctx.fillRect(0,0,W,H);
     drawRiver();
     drawFleets();
+    drawCells();
     drawBuoys();
     drawStructures();
     drawWake();
     drawObstacles();
+    drawMeetTows();
     drawRings();
     drawTow();
     drawSparks();
@@ -7217,17 +7647,17 @@ function startTowboatGame(){
   }
 
   function drawTow(){
-    const firstRow=Math.floor((TOTAL-barges)/COLS);
-    const unitTopLocal=-FH/2+firstRow*(BH+BG);
+    const ext=towExtents();
+    const unitTopLocal=ext.topY;
     const boatBotLocal=FH/2+BG+TWH;
     ctx.save();ctx.translate(tow.x,tow.y);ctx.rotate(tow.angle);
     for(let row=0;row<ROWS;row++){
       for(let col=0;col<COLS;col++){
-        const n=row*COLS+col+1;
-        if(n<=TOTAL-barges)continue;
+        const cell=row*COLS+col;
+        if(!cellPresent(cell))continue;          // this barge has broken away
         const bx=-FW/2+col*(BW+BG);
         const by=-FH/2+row*(BH+BG);
-        drawBarge(bx,by,n);
+        drawBarge(bx,by,cell+1);
       }
     }
     drawBoat(-TWW/2,FH/2+BG);
@@ -7438,7 +7868,7 @@ function startTowboatGame(){
     ctx.font='bold 22px "Courier New",monospace';
     ctx.fillText(`\u2b06  ${lvl.label} REACHED  \u2b06`,W/2,bannerY+24);
     ctx.shadowBlur=0;
-    const msgs=['','CURRENT STRONGER \u2014 WATCH YOUR SPEED','DRIFT INCREASING \u2014 BARGES ARE RESTLESS','VESSELS AHEAD \u2014 STAND ON YOUR WHISTLE','MAXIMUM CURRENT \u2014 DON\'T LOSE HEADWAY'];
+    const msgs=['','NARROW WINDING CHANNEL \u2014 MIND YOUR STEERING','DRIFT INCREASING \u2014 BARGES ARE RESTLESS','VESSELS AHEAD \u2014 STAND ON YOUR WHISTLE','MAXIMUM CURRENT \u2014 DON\'T LOSE HEADWAY'];
     ctx.fillStyle='rgba(180,220,240,0.85)';
     ctx.font='11px "Courier New",monospace';
     ctx.fillText(msgs[currentLevel]||'',W/2,bannerY+44);
@@ -7475,9 +7905,9 @@ function startTowboatGame(){
       ctx.fillText('TOWBOAT NAVIGATION SIMULATOR',W/2,H/2-96);
       ctx.strokeStyle='#265a78';ctx.lineWidth=1;
       ctx.beginPath();ctx.moveTo(W/2-205,H/2-76);ctx.lineTo(W/2+205,H/2-76);ctx.stroke();
-      const lines=['Push a 15-barge tow 500 miles upriver.','Every collision tears a barge loose \u2014','lose the whole tow and the run is over.','','A  D  /  \u25c4  \u25ba     Steer','W  S  /  \u25b2  \u25bc     Throttle'];
+      const lines=['Push a 15-barge tow 500 miles upriver.','Every collision tears a barge loose \u2014','lose the whole tow and the run is over.','','A  D  /  \u25c4  \u25ba     Steer','W  S  /  \u25b2  \u25bc     Throttle','','Meeting a tow? ONE whistle = keep RIGHT','TWO whistle = keep LEFT'];
       ctx.fillStyle='#78bac8';ctx.font='13px "Courier New"';
-      lines.forEach((l,i)=>ctx.fillText(l,W/2,H/2-47+i*22));
+      lines.forEach((l,i)=>ctx.fillText(l,W/2,H/2-80+i*19));
       ctx.fillStyle='#0c2e48';ctx.fillRect(W/2-110,H/2+98,220,48);
       ctx.strokeStyle='#3a88aa';ctx.lineWidth=2;ctx.strokeRect(W/2-110,H/2+98,220,48);
       ctx.fillStyle='#78bac8';ctx.font='bold 16px "Courier New"';
